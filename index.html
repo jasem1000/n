@@ -1,4 +1,4 @@
-```html
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -265,8 +265,8 @@
             font-size: var(--test-name-font-size);
             font-weight: bold;
             background-color: #e8f4e8;
-            text-align: right;
-            padding-right: 10px;
+            text-align: left; /* تعديل: اسم التحليل في اليسار */
+            padding-left: 10px; /* مسافة من اليسار */
             color: var(--test-name-font-color);
             font-family: var(--test-font);
         }
@@ -276,6 +276,8 @@
             font-weight: bold;
             color: var(--range-font-color);
             direction: rtl;
+            text-align: right; /* تعديل: النطاق الطبيعي في اليمين */
+            padding-right: 10px; /* مسافة من اليمين */
             font-family: var(--range-font);
         }
 
@@ -1244,11 +1246,11 @@
             }
 
             .test-name {
-                text-align: right;
+                text-align: left; /* تعديل للطباعة: اسم التحليل في اليسار */
             }
 
             .normal-range {
-                text-align: center;
+                text-align: right; /* تعديل للطباعة: النطاق الطبيعي في اليمين */
             }
 
             .footer {
@@ -3849,4 +3851,3 @@
     </script>
 </body>
 </html>
-```
