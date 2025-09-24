@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>برنامج اوسكار </title>
+    <title>برنامج اوسكار</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet">
@@ -40,6 +40,13 @@
             --range-font: 'Cairo', sans-serif;
             --footer-font: 'Cairo', sans-serif;
             --doctor-font: 'Cairo', sans-serif;
+            --table-width: 100%;  /* جديد: عرض الجدول */
+            --cell-padding: 8px;  /* جديد: مسافة داخل الخلايا */
+            --input-height: 30px; /* جديد: ارتفاع الحقول */
+            --print-margin-top: 0.5cm; /* جديد: تحكم في الهوامش للطابعة */
+            --print-margin-bottom: 1.5cm;
+            --print-margin-left: 0.5cm;
+            --print-margin-right: 0.5cm;
         }
 
         * {
@@ -225,16 +232,18 @@
         }
 
         table {
-            width: 100%;
+            width: var(--table-width);
+            margin: 0 auto;
             border-collapse: collapse;
             font-size: 14px;
-            direction: ltr;
+            direction: rtl;
         }
 
         th, td {
             border: var(--table-border-width) solid var(--table-border-color);
-            padding: 8px 6px;
+            padding: var(--cell-padding);
             text-align: center;
+            vertical-align: middle;
         }
 
         th {
@@ -242,14 +251,19 @@
             font-weight: bold;
             color: var(--header-color);
             font-family: var(--subtitle-font);
+            width: 33%;
         }
+
+        td:first-child { width: 30%; }
+        td:nth-child(2) { width: 35%; }
+        td:last-child { width: 35%; }
 
         .test-name {
             font-size: var(--test-name-font-size);
             font-weight: bold;
             background-color: #e8f4e8;
-            text-align: left;
-            padding-left: 10px;
+            text-align: right;
+            padding-right: 10px;
             color: var(--test-name-font-color);
             font-family: var(--test-font);
         }
@@ -258,12 +272,13 @@
             font-size: var(--range-font-size);
             font-weight: bold;
             color: var(--range-font-color);
-            direction: ltr;
+            direction: rtl;
             font-family: var(--range-font);
         }
 
-        .result-input {
+        .result-input, .result-select {
             width: 100%;
+            height: var(--input-height);
             border: 1px dashed var(--button-color);
             padding: 5px;
             border-radius: 4px;
@@ -272,37 +287,16 @@
             background-color: #f9f9f9;
             font-size: var(--result-font-size);
             font-weight: bolder;
-            direction: ltr;
+            direction: rtl;
             color: var(--result-font-color);
         }
 
-        .result-input:focus {
+        .result-input:focus, .result-select:focus {
             outline: none;
             border: 1px solid #2E7D32;
             background-color: #f0fff0;
         }
 
-        .result-select {
-            width: 100%;
-            border: 1px dashed var(--button-color);
-            padding: 5px;
-            border-radius: 4px;
-            text-align: center;
-            font-family: var(--result-font);
-            background-color: #f9f9f9;
-            font-size: 13px;
-            cursor: pointer;
-            direction: ltr;
-            color: var(--result-font-color);
-        }
-
-        .result-select:focus {
-            outline: none;
-            border: 1px solid #2E7D32;
-            background-color: #f0fff0;
-        }
-
-        /* New: Multiple choice options */
         .multiple-choice-container {
             display: flex;
             flex-direction: column;
@@ -321,7 +315,7 @@
             transition: all 0.2s ease;
             font-size: 12px;
             font-family: var(--result-font);
-            direction: ltr;
+            direction: rtl;
         }
 
         .choice-option:hover {
@@ -340,7 +334,7 @@
 
         .choice-text {
             flex: 1;
-            text-align: left;
+            text-align: right;
         }
 
         .footer {
@@ -518,7 +512,7 @@
             background-color: #e8f4e8;
             border-top: 1px solid #ddd;
             font-weight: bold;
-            direction: ltr;
+            direction: rtl;
             font-family: var(--main-font);
         }
 
@@ -526,7 +520,7 @@
             border: 1px dashed var(--button-color);
             padding: 5px 10px;
             border-radius: 4px;
-            text-align: left;
+            text-align: right;
             font-family: var(--main-font);
             width: 200px;
             background-color: white;
@@ -538,7 +532,7 @@
             text-align: center;
             font-weight: bold;
             border-bottom: 1px solid #ddd;
-            direction: ltr;
+            direction: rtl;
             font-family: var(--subtitle-font);
         }
 
@@ -717,7 +711,6 @@
             font-family: var(--main-font);
         }
 
-        /* New: Multiple choice form styles */
         .choices-container {
             margin-top: 10px;
             padding: 10px;
@@ -1120,8 +1113,8 @@
 
         @media print {
             @page {
-                size: portrait;
-                margin: 0.5cm 0.5cm 2cm 0.5cm;
+                size: A4;
+                margin: var(--print-margin-top) var(--print-margin-right) var(--print-margin-bottom) var(--print-margin-left);
             }
 
             body, html {
@@ -1201,6 +1194,7 @@
             }
 
             .result-input, .result-select {
+                height: var(--input-height);
                 border: none;
                 background-color: transparent;
                 padding: 0;
@@ -1234,18 +1228,20 @@
             }
 
             table {
+                width: var(--table-width);
+                page-break-inside: avoid;
                 font-size: 12px;
-                direction: ltr;
+                direction: rtl;
             }
 
             th, td {
-                padding: 5px 4px;
+                padding: var(--cell-padding);
                 border: var(--table-border-width) solid var(--table-border-color);
                 vertical-align: top;
             }
 
             .test-name {
-                text-align: left;
+                text-align: right;
             }
 
             .normal-range {
@@ -1568,6 +1564,38 @@
             <div style="display: flex; gap: 10px; align-items: center;">
                 <input type="checkbox" id="showDoctor2" checked>
                 <label for="showDoctor2">إظهار الدكتور الثاني</label>
+            </div>
+        </div>
+        
+        <div class="settings-group">
+            <h3>حجم الجدول والحقول</h3>
+            <div class="font-size-picker">
+                <label>عرض الجدول (%):</label>
+                <input type="number" id="tableWidth" class="font-size-input" value="100" min="80" max="100"> %
+            </div>
+            <div class="font-size-picker">
+                <label>مسافة داخل الخلايا (px):</label>
+                <input type="number" id="cellPadding" class="font-size-input" value="8" min="4" max="12"> px
+            </div>
+            <div class="font-size-picker">
+                <label>ارتفاع الحقول (px):</label>
+                <input type="number" id="inputHeight" class="font-size-input" value="30" min="20" max="40"> px
+            </div>
+            <div class="font-size-picker">
+                <label>هامش علوي (cm):</label>
+                <input type="number" id="printMarginTop" step="0.1" class="font-size-input" value="0.5" min="0" max="2"> cm
+            </div>
+            <div class="font-size-picker">
+                <label>هامش سفلي (cm):</label>
+                <input type="number" id="printMarginBottom" step="0.1" class="font-size-input" value="1.5" min="0" max="2"> cm
+            </div>
+            <div class="font-size-picker">
+                <label>هامش يسار (cm):</label>
+                <input type="number" id="printMarginLeft" step="0.1" class="font-size-input" value="0.5" min="0" max="2"> cm
+            </div>
+            <div class="font-size-picker">
+                <label>هامش يمين (cm):</label>
+                <input type="number" id="printMarginRight" step="0.1" class="font-size-input" value="0.5" min="0" max="2"> cm
             </div>
         </div>
         
@@ -1964,7 +1992,6 @@
                     "Basophils": { type: "text", range: "0.5 - 1 %" }
                 }
             },
-            // ... باقي الأقسام مع نفس التعديل
             {
                 id: 'liverSection',
                 title: 'Liver Function Tests',
@@ -2279,6 +2306,14 @@
 
             document.getElementById('showDoctor1').checked = localStorage.getItem('showDoctor1') !== 'false';
             document.getElementById('showDoctor2').checked = localStorage.getItem('showDoctor2') !== 'false';
+            
+            document.getElementById('tableWidth').value = localStorage.getItem('tableWidth') || '100';
+            document.getElementById('cellPadding').value = localStorage.getItem('cellPadding') || '8';
+            document.getElementById('inputHeight').value = localStorage.getItem('inputHeight') || '30';
+            document.getElementById('printMarginTop').value = localStorage.getItem('printMarginTop') || '0.5';
+            document.getElementById('printMarginBottom').value = localStorage.getItem('printMarginBottom') || '1.5';
+            document.getElementById('printMarginLeft').value = localStorage.getItem('printMarginLeft') || '0.5';
+            document.getElementById('printMarginRight').value = localStorage.getItem('printMarginRight') || '0.5';
         }
 
         function saveSettings() {
@@ -2330,6 +2365,14 @@
 
             localStorage.setItem('showDoctor1', document.getElementById('showDoctor1').checked);
             localStorage.setItem('showDoctor2', document.getElementById('showDoctor2').checked);
+
+            localStorage.setItem('tableWidth', document.getElementById('tableWidth').value);
+            localStorage.setItem('cellPadding', document.getElementById('cellPadding').value);
+            localStorage.setItem('inputHeight', document.getElementById('inputHeight').value);
+            localStorage.setItem('printMarginTop', document.getElementById('printMarginTop').value);
+            localStorage.setItem('printMarginBottom', document.getElementById('printMarginBottom').value);
+            localStorage.setItem('printMarginLeft', document.getElementById('printMarginLeft').value);
+            localStorage.setItem('printMarginRight', document.getElementById('printMarginRight').value);
 
             applySettings();
             toggleSettings();
@@ -2404,6 +2447,14 @@
             document.documentElement.style.setProperty('--doctor-font', localStorage.getItem('doctorFont') || "'Cairo', sans-serif");
 
             document.documentElement.style.setProperty('--doctor-box-border-radius', (localStorage.getItem('doctorBoxBorderRadius') || '4') + 'px');
+
+            document.documentElement.style.setProperty('--table-width', (localStorage.getItem('tableWidth') || '100') + '%');
+            document.documentElement.style.setProperty('--cell-padding', (localStorage.getItem('cellPadding') || '8') + 'px');
+            document.documentElement.style.setProperty('--input-height', (localStorage.getItem('inputHeight') || '30') + 'px');
+            document.documentElement.style.setProperty('--print-margin-top', (localStorage.getItem('printMarginTop') || '0.5') + 'cm');
+            document.documentElement.style.setProperty('--print-margin-bottom', (localStorage.getItem('printMarginBottom') || '1.5') + 'cm');
+            document.documentElement.style.setProperty('--print-margin-left', (localStorage.getItem('printMarginLeft') || '0.5') + 'cm');
+            document.documentElement.style.setProperty('--print-margin-right', (localStorage.getItem('printMarginRight') || '0.5') + 'cm');
 
             const showDoctor1 = localStorage.getItem('showDoctor1') !== 'false';
             const showDoctor2 = localStorage.getItem('showDoctor2') !== 'false';
@@ -2577,576 +2628,18 @@
                 
                 let tableHTML = `<div class="section-title"><i class="${section.icon}"></i> ${section.title}</div>`;
                 
-                if (section.id === 'urineSection') {
+                tableHTML += `<table><thead><tr><th>Test</th><th>Result</th><th>Normal Range</th></tr></thead><tbody>`;
+                for (const testName in section.tests) {
+                    const testData = section.tests[testName];
                     tableHTML += `
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Test</th>
-                                    <th>Result</th>
-                                    <th>Normal Range</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr><td colspan="3" class="sub-section-title">Physical Examination</td></tr>
-                                <tr>
-                                    <td class="test-name">Color</td>
-                                    <td>
-                                        <select class="result-select">
-                                            <option value="">Select</option>
-                                            <option value="Pale Yellow">Pale Yellow</option>
-                                            <option value="Yellow">Yellow</option>
-                                            <option value="Dark Yellow">Dark Yellow</option>
-                                            <option value="Amber">Amber</option>
-                                            <option value="Orange">Orange</option>
-                                            <option value="Red/Pink">Red/Pink</option>
-                                            <option value="Brown">Brown</option>
-                                            <option value="Blue/Green">Blue/Green</option>
-                                        </select>
-                                    </td>
-                                    <td class="normal-range">${section.tests["Color"].range || ''}</td>
-                                </tr>
-                                <tr>
-                                    <td class="test-name">Appearance</td>
-                                    <td>
-                                        <select class="result-select">
-                                            <option value="">Select</option>
-                                            <option value="Clear">Clear</option>
-                                            <option value="Slightly Cloudy">Slightly Cloudy</option>
-                                            <option value="Cloudy">Cloudy</option>
-                                            <option value="Turbid">Turbid</option>
-                                        </select>
-                                    </td>
-                                    <td class="normal-range">${section.tests["Appearance"].range || ''}</td>
-                                </tr>
-                                <tr>
-                                    <td class="test-name">Specific Gravity</td>
-                                    <td><input type="text" class="result-input" placeholder="e.g., 1.020"></td>
-                                    <td class="normal-range">${section.tests["Specific Gravity"].range || ''}</td>
-                                </tr>
-                                <tr><td colspan="3" class="sub-section-title">Chemical Examination (Dipstick)</td></tr>
-                                <tr>
-                                    <td class="test-name">pH</td>
-                                    <td><input type="text" class="result-input" placeholder="e.g., 6.0"></td>
-                                    <td class="normal-range">${section.tests["pH"].range || ''}</td>
-                                </tr>
-                                <tr>
-                                    <td class="test-name">Glucose</td>
-                                    <td>
-                                        <select class="result-select">
-                                            <option value="">Select</option>
-                                            <option value="Nil">Nil</option>
-                                            <option value="Trace">Trace</option>
-                                            <option value="1+">1+</option>
-                                            <option value="2+">2+</option>
-                                            <option value="3+">3+</option>
-                                            <option value="4+">4+</option>
-                                        </select>
-                                    </td>
-                                    <td class="normal-range">${section.tests["Glucose"].range || ''}</td>
-                                </tr>
-                                <tr>
-                                    <td class="test-name">Protein</td>
-                                    <td>
-                                        <select class="result-select">
-                                            <option value="">Select</option>
-                                            <option value="Nil">Nil</option>
-                                            <option value="Trace">Trace</option>
-                                            <option value="1+">1+</option>
-                                            <option value="2+">2+</option>
-                                            <option value="3+">3+</option>
-                                            <option value="4+">4+</option>
-                                        </select>
-                                    </td>
-                                    <td class="normal-range">${section.tests["Protein"].range || ''}</td>
-                                </tr>
-                                <tr>
-                                    <td class="test-name">Ketones</td>
-                                    <td>
-                                        <select class="result-select">
-                                            <option value="">Select</option>
-                                            <option value="Nil">Nil</option>
-                                            <option value="Trace">Trace</option>
-                                            <option value="1+">1+</option>
-                                            <option value="2+">2+</option>
-                                            <option value="3+">3+</option>
-                                            <option value="4+">4+</option>
-                                        </select>
-                                    </td>
-                                    <td class="normal-range">${section.tests["Ketones"].range || ''}</td>
-                                </tr>
-                                <tr>
-                                    <td class="test-name">Blood</td>
-                                    <td>
-                                        <select class="result-select">
-                                            <option value="">Select</option>
-                                            <option value="Nil">Nil</option>
-                                            <option value="Trace">Trace</option>
-                                            <option value="1+">1+</option>
-                                            <option value="2+">2+</option>
-                                            <option value="3+">3+</option>
-                                            <option value="4+">4+</option>
-                                        </select>
-                                    </td>
-                                    <td class="normal-range">${section.tests["Blood"].range || ''}</td>
-                                </tr>
-                                <tr>
-                                    <td class="test-name">Bilirubin</td>
-                                    <td>
-                                        <select class="result-select">
-                                            <option value="">Select</option>
-                                            <option value="Nil">Nil</option>
-                                            <option value="Positive">Positive</option>
-                                        </select>
-                                    </td>
-                                    <td class="normal-range">${section.tests["Bilirubin"].range || ''}</td>
-                                </tr>
-                                <tr>
-                                    <td class="test-name">Urobilinogen</td>
-                                    <td>
-                                        <select class="result-select">
-                                            <option value="">Select</option>
-                                            <option value="Normal">Normal</option>
-                                            <option value="Increased">Increased</option>
-                                        </select>
-                                    </td>
-                                    <td class="normal-range">${section.tests["Urobilinogen"].range || ''}</td>
-                                </tr>
-                                <tr>
-                                    <td class="test-name">Nitrites</td>
-                                    <td>
-                                        <select class="result-select">
-                                            <option value="">Select</option>
-                                            <option value="Nil">Nil</option>
-                                            <option value="Positive">Positive</option>
-                                        </select>
-                                    </td>
-                                    <td class="normal-range">${section.tests["Nitrites"].range || ''}</td>
-                                </tr>
-                                <tr>
-                                    <td class="test-name">Leukocytes</td>
-                                    <td>
-                                        <select class="result-select">
-                                            <option value="">Select</option>
-                                            <option value="Nil">Nil</option>
-                                            <option value="Trace">Trace</option>
-                                            <option value="1+">1+</option>
-                                            <option value="2+">2+</option>
-                                            <option value="3+">3+</option>
-                                        </select>
-                                    </td>
-                                    <td class="normal-range">${section.tests["Leukocytes"].range || ''}</td>
-                                </tr>
-                                <tr><td colspan="3" class="sub-section-title">Microscopic Examination</td></tr>
-                                <tr>
-                                    <td class="test-name">RBCs</td>
-                                    <td>
-                                        <select class="result-select">
-                                            <option value="">Select</option>
-                                            <option value="0-2/HPF">0-2 /HPF</option>
-                                            <option value="3-5/HPF">3-5 /HPF</option>
-                                            <option value="6-10/HPF">6-10 /HPF</option>
-                                            <option value=">10/HPF">>10 /HPF</option>
-                                            <option value="Full Filed">Full Filed</option>
-                                        </select>
-                                    </td>
-                                    <td class="normal-range">${section.tests["RBCs"].range || ''}</td>
-                                </tr>
-                                <tr>
-                                    <td class="test-name">Pus Cells</td>
-                                    <td>
-                                        <select class="result-select">
-                                            <option value="">Select</option>
-                                            <option value="0-5/HPF">0-5 /HPF</option>
-                                            <option value="6-10/HPF">6-10 /HPF</option>
-                                            <option value="11-20/HPF">11-20 /HPF</option>
-                                            <option value=">20/HPF">>20 /HPF</option>
-                                            <option value="Full Filed">Full Filed</option>
-                                        </select>
-                                    </td>
-                                    <td class="normal-range">${section.tests["Pus Cells"].range || ''}</td>
-                                </tr>
-                                <tr>
-                                    <td class="test-name">Epithelial Cells</td>
-                                    <td>
-                                        <select class="result-select">
-                                            <option value="">Select</option>
-                                            <option value="Few">Few</option>
-                                            <option value="Moderate">Moderate</option>
-                                            <option value="Many">Many</option>
-                                        </select>
-                                    </td>
-                                    <td class="normal-range">${section.tests["Epithelial Cells"].range || ''}</td>
-                                </tr>
-                                <tr>
-                                    <td class="test-name">Casts</td>
-                                    <td><input type="text" class="result-input" placeholder="e.g., Hyaline Casts"></td>
-                                    <td class="normal-range">${section.tests["Casts"].range || ''}</td>
-                                </tr>
-                                <tr>
-                                    <td class="test-name">Crystals</td>
-                                    <td><input type="text" class="result-input" placeholder="e.g., Calcium Oxalate"></td>
-                                    <td class="normal-range">${section.tests["Crystals"].range || ''}</td>
-                                </tr>
-                                <tr>
-                                    <td class="test-name">Amorphous Urates</td>
-                                    <td>
-                                        <select class="result-select">
-                                            <option value="">Select</option>
-                                            <option value="Nil">Nil</option>
-                                            <option value="Few">Few</option>
-                                            <option value="Moderate">Moderate</option>
-                                            <option value="Many">Many</option>
-                                        </select>
-                                    </td>
-                                    <td class="normal-range">${section.tests["Amorphous Urates"].range || ''}</td>
-                                </tr>
-                                <tr>
-                                    <td class="test-name">Amorphous Phosphates</td>
-                                    <td>
-                                        <select class="result-select">
-                                            <option value="">Select</option>
-                                            <option value="Nil">Nil</option>
-                                            <option value="Few">Few</option>
-                                            <option value="Moderate">Moderate</option>
-                                            <option value="Many">Many</option>
-                                        </select>
-                                    </td>
-                                    <td class="normal-range">${section.tests["Amorphous Phosphates"].range || ''}</td>
-                                </tr>
-                                <tr>
-                                    <td class="test-name">Bacteria</td>
-                                    <td>
-                                        <select class="result-select">
-                                            <option value="">Select</option>
-                                            <option value="Nil">Nil</option>
-                                            <option value="Few">Few</option>
-                                            <option value="Moderate">Moderate</option>
-                                            <option value="Many">Many</option>
-                                        </select>
-                                    </td>
-                                    <td class="normal-range">${section.tests["Bacteria"].range || ''}</td>
-                                </tr>
-                                <tr>
-                                    <td class="test-name">Yeast</td>
-                                    <td>
-                                        <select class="result-select">
-                                            <option value="">Select</option>
-                                            <option value="Nil">Nil</option>
-                                            <option value="Positive">Positive</option>
-                                        </select>
-                                    </td>
-                                    <td class="normal-range">${section.tests["Yeast"].range || ''}</td>
-                                </tr>
-                                <tr>
-                                    <td class="test-name">Mucus threads</td>
-                                    <td>
-                                        <select class="result-select">
-                                            <option value="">Select</option>
-                                            <option value="Few">Few</option>
-                                            <option value="Moderate">Moderate</option>
-                                            <option value="Many">Many</option>
-                                        </select>
-                                    </td>
-                                    <td class="normal-range">${section.tests["Mucus threads"].range || ''}</td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        <tr>
+                            <td class="test-name">${testName}</td>
+                            <td>${createResultInput({[testName]: testData})}</td>
+                            <td class="normal-range">${testData.range || ''}</td>
+                        </tr>
                     `;
-                } else if (section.id === 'seminalSection') {
-                    tableHTML += `
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Test</th>
-                                    <th>Result</th>
-                                    <th>Normal Range</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td class="test-name">Volume</td>
-                                    <td><input type="text" class="result-input"></td>
-                                    <td class="normal-range">${section.tests["Volume"].range || ''}</td>
-                                </tr>
-                                <tr>
-                                    <td class="test-name">Color</td>
-                                    <td>
-                                        <select class="result-select">
-                                            <option value="">Select</option>
-                                            <option value="Whitish gray/Opalecent">Whitish gray/Opalecent</option>
-                                            <option value="Yellowish">Yellowish</option>
-                                            <option value="Reddish/Brown">Reddish/Brown</option>
-                                        </select>
-                                    </td>
-                                    <td class="normal-range">${section.tests["Color"].range || ''}</td>
-                                </tr>
-                                <tr>
-                                    <td class="test-name">Liquefaction</td>
-                                    <td><input type="text" class="result-input"></td>
-                                    <td class="normal-range">${section.tests["Liquefaction"].range || ''}</td>
-                                </tr>
-                                <tr>
-                                    <td class="test-name">Viscosity</td>
-                                    <td>
-                                        <select class="result-select">
-                                            <option value="">Select</option>
-                                            <option value="Low">Low</option>
-                                            <option value="High">High</option>
-                                        </select>
-                                    </td>
-                                    <td class="normal-range">${section.tests["Viscosity"].range || ''}</td>
-                                </tr>
-                                <tr>
-                                    <td class="test-name">pH</td>
-                                    <td><input type="text" class="result-input"></td>
-                                    <td class="normal-range">${section.tests["pH"].range || ''}</td>
-                                </tr>
-                                <tr><td colspan="3" class="sub-section-title">Microscopic Examination</td></tr>
-                                <tr>
-                                    <td class="test-name">Sperm Concentration</td>
-                                    <td><input type="text" class="result-input"></td>
-                                    <td class="normal-range">${section.tests["Sperm Concentration"].range || ''}</td>
-                                </tr>
-                                <tr>
-                                    <td class="test-name">Total Sperm Count</td>
-                                    <td><input type="text" class="result-input"></td>
-                                    <td class="normal-range">${section.tests["Total Sperm Count"].range || ''}</td>
-                                </tr>
-                                <tr>
-                                    <td class="test-name">Motility (Total)</td>
-                                    <td><input type="text" class="result-input"></td>
-                                    <td class="normal-range">${section.tests["Motility (Total)"].range || ''}</td>
-                                </tr>
-                                <tr>
-                                    <td class="test-name">Progressive Motility</td>
-                                    <td><input type="text" class="result-input"></td>
-                                    <td class="normal-range">${section.tests["Progressive Motility"].range || ''}</td>
-                                </tr>
-                                <tr>
-                                    <td class="test-name">Non-Progressive Motility</td>
-                                    <td><input type="text" class="result-input"></td>
-                                    <td class="normal-range">${section.tests["Non-Progressive Motility"].range || ''}</td>
-                                </tr>
-                                <tr>
-                                    <td class="test-name">Non-Motile</td>
-                                    <td><input type="text" class="result-input"></td>
-                                    <td class="normal-range">${section.tests["Non-Motile"].range || ''}</td>
-                                </tr>
-                                <tr>
-                                    <td class="test-name">Morphology</td>
-                                    <td><input type="text" class="result-input"></td>
-                                    <td class="normal-range">${section.tests["Morphology"].range || ''}</td>
-                                </tr>
-                                <tr>
-                                    <td class="test-name">Vitality</td>
-                                    <td><input type="text" class="result-input"></td>
-                                    <td class="normal-range">${section.tests["Vitality"].range || ''}</td>
-                                </tr>
-                                <tr>
-                                    <td class="test-name">WBC</td>
-                                    <td><input type="text" class="result-input"></td>
-                                    <td class="normal-range">${section.tests["WBC"].range || ''}</td>
-                                </tr>
-                                <tr>
-                                    <td class="test-name">RBC</td>
-                                    <td><input type="text" class="result-input"></td>
-                                    <td class="normal-range">${section.tests["RBC"].range || ''}</td>
-                                </tr>
-                                <tr>
-                                    <td class="test-name">Agglutination</td>
-                                    <td>
-                                        <select class="result-select">
-                                            <option value="">Select</option>
-                                            <option value="Negative">Negative</option>
-                                            <option value="Positive">Positive</option>
-                                        </select>
-                                    </td>
-                                    <td class="normal-range">${section.tests["Agglutination"].range || ''}</td>
-                                </tr>
-                                <tr>
-                                    <td class="test-name">Microscopic Examination</td>
-                                    <td><input type="text" class="result-input"></td>
-                                    <td class="normal-range">${section.tests["Microscopic Examination"].range || ''}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    `;
-                } else if (section.id === 'stoolSection') {
-                    tableHTML += `
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Test</th>
-                                    <th>Result</th>
-                                    <th>Normal Range</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr><td colspan="3" class="sub-section-title">Physical Examination</td></tr>
-                                <tr>
-                                    <td class="test-name">Color</td>
-                                    <td>
-                                        <select class="result-select">
-                                            <option value="">Select</option>
-                                            <option value="Brown">Brown</option>
-                                            <option value="Green">Green</option>
-                                            <option value="Black">Black</option>
-                                            <option value="Clay-colored">Clay-colored</option>
-                                            <option value="Yellowish">Yellowish</option>
-                                        </select>
-                                    </td>
-                                    <td class="normal-range">${section.tests["Color"].range || ''}</td>
-                                </tr>
-                                <tr>
-                                    <td class="test-name">Consistency</td>
-                                    <td>
-                                        <select class="result-select">
-                                            <option value="">Select</option>
-                                            <option value="Formed">Formed</option>
-                                            <option value="Soft">Soft</option>
-                                            <option value="Loose">Loose</option>
-                                            <option value="Watery">Watery</option>
-                                        </select>
-                                    </td>
-                                    <td class="normal-range">${section.tests["Consistency"].range || ''}</td>
-                                </tr>
-                                <tr><td colspan="3" class="sub-section-title">Chemical & Microscopic Examination</td></tr>
-                                <tr>
-                                    <td class="test-name">Mucus</td>
-                                    <td>
-                                        <select class="result-select">
-                                            <option value="">Select</option>
-                                            <option value="Nil">Nil</option>
-                                            <option value="Trace">Trace</option>
-                                            <option value="Present">Present</option>
-                                        </select>
-                                    </td>
-                                    <td class="normal-range">${section.tests["Mucus"].range || ''}</td>
-                                </tr>
-                                <tr>
-                                    <td class="test-name">Blood</td>
-                                    <td>
-                                        <select class="result-select">
-                                            <option value="">Select</option>
-                                            <option value="Nil">Nil</option>
-                                            <option value="Trace">Trace</option>
-                                            <option value="Present">Present</option>
-                                        </select>
-                                    </td>
-                                    <td class="normal-range">${section.tests["Blood"].range || ''}</td>
-                                </tr>
-                                <tr>
-                                    <td class="test-name">Ova/Parasite</td>
-                                    <td><input type="text" class="result-input" placeholder="e.g., E. histolytica"></td>
-                                    <td class="normal-range">${section.tests["Ova/Parasite"].range || ''}</td>
-                                </tr>
-                                <tr>
-                                    <td class="test-name">WBC</td>
-                                    <td><input type="text" class="result-input"></td>
-                                    <td class="normal-range">${section.tests["WBC"].range || ''}</td>
-                                </tr>
-                                <tr>
-                                    <td class="test-name">RBC</td>
-                                    <td><input type="text" class="result-input"></td>
-                                    <td class="normal-range">${section.tests["RBC"].range || ''}</td>
-                                </tr>
-                                <tr>
-                                    <td class="test-name">Fat Globules</td>
-                                    <td><input type="text" class="result-input"></td>
-                                    <td class="normal-range">${section.tests["Fat Globules"].range || ''}</td>
-                                </tr>
-                                <tr>
-                                    <td class="test-name">Starch Granules</td>
-                                    <td>
-                                        <select class="result-select">
-                                            <option value="">Select</option>
-                                            <option value="Nil">Nil</option>
-                                            <option value="Present">Present</option>
-                                        </select>
-                                    </td>
-                                    <td class="normal-range">${section.tests["Starch Granules"].range || ''}</td>
-                                </tr>
-                                <tr>
-                                    <td class="test-name">Undigested Muscle Fibers</td>
-                                    <td>
-                                        <select class="result-select">
-                                            <option value="">Select</option>
-                                            <option value="Nil">Nil</option>
-                                            <option value="Present">Present</option>
-                                        </select>
-                                    </td>
-                                    <td class="normal-range">${section.tests["Undigested Muscle Fibers"].range || ''}</td>
-                                </tr>
-                                <tr>
-                                    <td class="test-name">Yeast Cells</td>
-                                    <td>
-                                        <select class="result-select">
-                                            <option value="">Select</option>
-                                            <option value="Nil">Nil</option>
-                                            <option value="Present">Present</option>
-                                        </select>
-                                    </td>
-                                    <td class="normal-range">${section.tests["Yeast Cells"].range || ''}</td>
-                                </tr>
-                                <tr>
-                                    <td class="test-name">Occult Blood</td>
-                                    <td>
-                                        <select class="result-select">
-                                            <option value="">Select</option>
-                                            <option value="Negative">Negative</option>
-                                            <option value="Positive">Positive</option>
-                                        </select>
-                                    </td>
-                                    <td class="normal-range">${section.tests["Occult Blood"].range || ''}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    `;
-                } else if (section.id === 'serologySection' || section.id === 'viralSection') {
-                    tableHTML += `<table><thead><tr><th>Test</th><th>Result</th><th>Normal Range</th></tr></thead><tbody>`;
-                    for (const testName in section.tests) {
-                        const testData = section.tests[testName];
-                        let resultInputHTML = '';
-                        
-                        if (testData.type === 'select') {
-                            resultInputHTML = `<td><select class="result-select"><option value="">Select</option>`;
-                            if (testData.choices && testData.choices.length > 0) {
-                                testData.choices.forEach(choice => {
-                                    resultInputHTML += `<option value="${choice}">${choice}</option>`;
-                                });
-                            } else {
-                                resultInputHTML += '<option value="Positive">Positive</option><option value="Negative">Negative</option>';
-                            }
-                            resultInputHTML += '</select></td>';
-                        } else {
-                            resultInputHTML = `<td><input type="text" class="result-input"></td>`;
-                        }
-
-                        tableHTML += `
-                            <tr>
-                                <td class="test-name">${testName}</td>
-                                ${resultInputHTML}
-                                <td class="normal-range">${testData.range || ''}</td>
-                            </tr>
-                        `;
-                    }
-                    tableHTML += `</tbody></table>`;
-                } else {
-                    // الأقسام العادية
-                    tableHTML += `<table><thead><tr><th>Test</th><th>Result</th><th>Normal Range</th></tr></thead><tbody>`;
-                    for (const testName in section.tests) {
-                        const testData = section.tests[testName];
-                        tableHTML += `
-                            <tr>
-                                <td class="test-name">${testName}</td>
-                                <td>${createResultInput({[testName]: testData})}</td>
-                                <td class="normal-range">${testData.range || ''}</td>
-                            </tr>
-                        `;
-                    }
-                    tableHTML += `</tbody></table>`;
                 }
+                tableHTML += `</tbody></table>`;
                 
                 sectionDiv.innerHTML = tableHTML;
                 resultsContainer.appendChild(sectionDiv);
@@ -3321,21 +2814,20 @@
                 if (section && section.tests[testName]) {
                     section.tests[testName].range = rangeValue;
                     section.tests[testName].type = typeValue;
-                }
-                
-                if (!customRanges[sectionId]) {
-                    customRanges[sectionId] = [];
-                }
-                const existingTest = customRanges[sectionId].find(test => test.name === testName);
-                if (existingTest) {
-                    existingTest.range = rangeValue;
-                    existingTest.type = typeValue;
-                } else {
-                    customRanges[sectionId].push({ 
-                        name: testName, 
-                        range: rangeValue,
-                        type: typeValue
-                    });
+                    if (!customRanges[sectionId]) {
+                        customRanges[sectionId] = [];
+                    }
+                    const existingTest = customRanges[sectionId].find(test => test.name === testName);
+                    if (existingTest) {
+                        existingTest.range = rangeValue;
+                        existingTest.type = typeValue;
+                    } else {
+                        customRanges[sectionId].push({ 
+                            name: testName, 
+                            range: rangeValue,
+                            type: typeValue
+                        });
+                    }
                 }
                 index++;
             });
