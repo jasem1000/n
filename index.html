@@ -228,7 +228,7 @@
             width: 100%;
             border-collapse: collapse;
             font-size: 14px;
-            direction: ltr;
+            direction: rtl;
         }
 
         th, td {
@@ -248,8 +248,8 @@
             font-size: var(--test-name-font-size);
             font-weight: bold;
             background-color: #e8f4e8;
-            text-align: left;
-            padding-left: 10px;
+            text-align: right;
+            padding-right: 10px;
             color: var(--test-name-font-color);
             font-family: var(--test-font);
         }
@@ -258,7 +258,7 @@
             font-size: var(--range-font-size);
             font-weight: bold;
             color: var(--range-font-color);
-            direction: ltr;
+            direction: rtl;
             font-family: var(--range-font);
         }
 
@@ -538,7 +538,7 @@
             text-align: center;
             font-weight: bold;
             border-bottom: 1px solid #ddd;
-            direction: ltr;
+            direction: rtl;
             font-family: var(--subtitle-font);
         }
 
@@ -1034,9 +1034,13 @@
 
             .patient-info {
                 border: 1px solid #ffffff;
-                margin-bottom: 10px;
+                margin-bottom: 0;
                 padding: 10px;
                 background-color: var(--patient-info-bg);
+            }
+
+            .results-container {
+                margin-top: 0;
             }
 
             .logo {
@@ -1090,13 +1094,13 @@
             }
 
             .results-container {
-                gap: 10px;
+                gap: 0;
                 display: table-row-group;
             }
 
             table {
                 font-size: 12px;
-                direction: ltr;
+                direction: rtl;
             }
 
             th, td {
@@ -1105,7 +1109,7 @@
             }
 
             .test-name {
-                text-align: left;
+                text-align: right;
             }
 
             .normal-range {
@@ -1135,6 +1139,8 @@
                 font-size: 12px;
                 color: #37f740;
                 background-color: #f9f9f9;
+                position: relative;
+                bottom: 0;
             }
 
             .lab-footer-content {
@@ -1986,7 +1992,7 @@
             document.getElementById('labPhoneInput').value = localStorage.getItem('labPhone') || '07901821264';
             document.getElementById('biologistNameInput').value = localStorage.getItem('biologistName') || 'شكراً لزيارتكم';
             document.getElementById('doctor1Name').value = localStorage.getItem('doctor1Name') || 'الاول اسم الطبيب او التقني او البايلوجي ';
-            document.getElementById('doctor2Name').value = localStorage.getItem('doctor2Name') || '  الثاني اسم الطبيب او التقني او البايلوجي';
+            document.getElementById('doctor2Name').value = localStorage.getItem('doctor2Name') || ' الثاني اسم الطبيب او التقني او البايلوجي';
 
             document.getElementById('headerColor').value = localStorage.getItem('headerColor') || '#2c7da0';
             document.getElementById('backgroundColor').value = localStorage.getItem('backgroundColor') || '#f5f7fa';
@@ -2302,15 +2308,15 @@
                         <table>
                             <thead>
                                 <tr>
-                                    <th>Test</th>
-                                    <th>Result</th>
-                                    <th>Normal Range</th>
+                                    <th>النطاق الطبيعي</th>
+                                    <th>النتيجة</th>
+                                    <th>الاختبار</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr><td colspan="3" class="sub-section-title">Physical Examination</td></tr>
                                 <tr>
-                                    <td class="test-name">Color</td>
+                                    <td class="normal-range">${section.tests["Color"].range || ''}</td>
                                     <td>
                                         <select class="result-select">
                                             <option value="">Select</option>
@@ -2324,10 +2330,10 @@
                                             <option value="Blue/Green">Blue/Green</option>
                                         </select>
                                     </td>
-                                    <td class="normal-range">${section.tests["Color"].range || ''}</td>
+                                    <td class="test-name">Color</td>
                                 </tr>
                                 <tr>
-                                    <td class="test-name">Appearance</td>
+                                    <td class="normal-range">${section.tests["Appearance"].range || ''}</td>
                                     <td>
                                         <select class="result-select">
                                             <option value="">Select</option>
@@ -2337,36 +2343,21 @@
                                             <option value="Turbid">Turbid</option>
                                         </select>
                                     </td>
-                                    <td class="normal-range">${section.tests["Appearance"].range || ''}</td>
+                                    <td class="test-name">Appearance</td>
                                 </tr>
                                 <tr>
-                                    <td class="test-name">Specific Gravity</td>
-                                    <td><input type="text" class="result-input" placeholder="e.g., 1.020"></td>
                                     <td class="normal-range">${section.tests["Specific Gravity"].range || ''}</td>
+                                    <td><input type="text" class="result-input" placeholder="e.g., 1.020"></td>
+                                    <td class="test-name">Specific Gravity</td>
                                 </tr>
                                 <tr><td colspan="3" class="sub-section-title">Chemical Examination (Dipstick)</td></tr>
                                 <tr>
-                                    <td class="test-name">pH</td>
-                                    <td><input type="text" class="result-input" placeholder="e.g., 6.0"></td>
                                     <td class="normal-range">${section.tests["pH"].range || ''}</td>
+                                    <td><input type="text" class="result-input" placeholder="e.g., 6.0"></td>
+                                    <td class="test-name">pH</td>
                                 </tr>
                                 <tr>
-                                    <td class="test-name">Glucose</td>
-                                    <td>
-                                        <select class="result-select">
-                                            <option value="">Select</option>
-                                            <option value="Nil">Nil</option>
-                                            <option value="Trace">Trace</option>
-                                            <option value="1+">1+</option>
-                                            <option value="2+">2+</option>
-                                            <option value="3+">3+</option>
-                                            <option value="4+">4+</option>
-                                        </select>
-                                    </td>
                                     <td class="normal-range">${section.tests["Glucose"].range || ''}</td>
-                                </tr>
-                                <tr>
-                                    <td class="test-name">Protein</td>
                                     <td>
                                         <select class="result-select">
                                             <option value="">Select</option>
@@ -2378,10 +2369,10 @@
                                             <option value="4+">4+</option>
                                         </select>
                                     </td>
+                                    <td class="test-name">Glucose</td>
+                                </tr>
+                                <tr>
                                     <td class="normal-range">${section.tests["Protein"].range || ''}</td>
-                                </tr>
-                                <tr>
-                                    <td class="test-name">Ketones</td>
                                     <td>
                                         <select class="result-select">
                                             <option value="">Select</option>
@@ -2393,10 +2384,10 @@
                                             <option value="4+">4+</option>
                                         </select>
                                     </td>
+                                    <td class="test-name">Protein</td>
+                                </tr>
+                                <tr>
                                     <td class="normal-range">${section.tests["Ketones"].range || ''}</td>
-                                </tr>
-                                <tr>
-                                    <td class="test-name">Blood</td>
                                     <td>
                                         <select class="result-select">
                                             <option value="">Select</option>
@@ -2408,10 +2399,25 @@
                                             <option value="4+">4+</option>
                                         </select>
                                     </td>
-                                    <td class="normal-range">${section.tests["Blood"].range || ''}</td>
+                                    <td class="test-name">Ketones</td>
                                 </tr>
                                 <tr>
-                                    <td class="test-name">Bilirubin</td>
+                                    <td class="normal-range">${section.tests["Blood"].range || ''}</td>
+                                    <td>
+                                        <select class="result-select">
+                                            <option value="">Select</option>
+                                            <option value="Nil">Nil</option>
+                                            <option value="Trace">Trace</option>
+                                            <option value="1+">1+</option>
+                                            <option value="2+">2+</option>
+                                            <option value="3+">3+</option>
+                                            <option value="4+">4+</option>
+                                        </select>
+                                    </td>
+                                    <td class="test-name">Blood</td>
+                                </tr>
+                                <tr>
+                                    <td class="normal-range">${section.tests["Bilirubin"].range || ''}</td>
                                     <td>
                                         <select class="result-select">
                                             <option value="">Select</option>
@@ -2419,10 +2425,10 @@
                                             <option value="Positive">Positive</option>
                                         </select>
                                     </td>
-                                    <td class="normal-range">${section.tests["Bilirubin"].range || ''}</td>
+                                    <td class="test-name">Bilirubin</td>
                                 </tr>
                                 <tr>
-                                    <td class="test-name">Urobilinogen</td>
+                                    <td class="normal-range">${section.tests["Urobilinogen"].range || ''}</td>
                                     <td>
                                         <select class="result-select">
                                             <option value="">Select</option>
@@ -2430,10 +2436,10 @@
                                             <option value="Increased">Increased</option>
                                         </select>
                                     </td>
-                                    <td class="normal-range">${section.tests["Urobilinogen"].range || ''}</td>
+                                    <td class="test-name">Urobilinogen</td>
                                 </tr>
                                 <tr>
-                                    <td class="test-name">Nitrites</td>
+                                    <td class="normal-range">${section.tests["Nitrites"].range || ''}</td>
                                     <td>
                                         <select class="result-select">
                                             <option value="">Select</option>
@@ -2441,10 +2447,10 @@
                                             <option value="Positive">Positive</option>
                                         </select>
                                     </td>
-                                    <td class="normal-range">${section.tests["Nitrites"].range || ''}</td>
+                                    <td class="test-name">Nitrites</td>
                                 </tr>
                                 <tr>
-                                    <td class="test-name">Leukocytes</td>
+                                    <td class="normal-range">${section.tests["Leukocytes"].range || ''}</td>
                                     <td>
                                         <select class="result-select">
                                             <option value="">Select</option>
@@ -2455,11 +2461,11 @@
                                             <option value="3+">3+</option>
                                         </select>
                                     </td>
-                                    <td class="normal-range">${section.tests["Leukocytes"].range || ''}</td>
+                                    <td class="test-name">Leukocytes</td>
                                 </tr>
                                 <tr><td colspan="3" class="sub-section-title">Microscopic Examination</td></tr>
                                 <tr>
-                                    <td class="test-name">RBCs</td>
+                                    <td class="normal-range">${section.tests["RBCs"].range || ''}</td>
                                     <td>
                                         <select class="result-select">
                                             <option value="">Select</option>
@@ -2470,10 +2476,10 @@
                                             <option value="Full Filed">Full Filed</option>
                                         </select>
                                     </td>
-                                    <td class="normal-range">${section.tests["RBCs"].range || ''}</td>
+                                    <td class="test-name">RBCs</td>
                                 </tr>
                                 <tr>
-                                    <td class="test-name">Pus Cells</td>
+                                    <td class="normal-range">${section.tests["Pus Cells"].range || ''}</td>
                                     <td>
                                         <select class="result-select">
                                             <option value="">Select</option>
@@ -2484,45 +2490,32 @@
                                             <option value="Full Filed">Full Filed</option>
                                         </select>
                                     </td>
-                                    <td class="normal-range">${section.tests["Pus Cells"].range || ''}</td>
+                                    <td class="test-name">Pus Cells</td>
                                 </tr>
                                 <tr>
-                                    <td class="test-name">Epithelial Cells</td>
-                                    <td>
-                                        <select class="result-select">
-                                            <option value="">Select</option>
-                                            <option value="Few">Few</option>
-                                            <option value="Moderate">Moderate</option>
-                                            <option value="Many">Many</option>
-                                        </select>
-                                    </td>
                                     <td class="normal-range">${section.tests["Epithelial Cells"].range || ''}</td>
+                                    <td>
+                                        <select class="result-select">
+                                            <option value="">Select</option>
+                                            <option value="Few">Few</option>
+                                            <option value="Moderate">Moderate</option>
+                                            <option value="Many">Many</option>
+                                        </select>
+                                    </td>
+                                    <td class="test-name">Epithelial Cells</td>
                                 </tr>
                                 <tr>
-                                    <td class="test-name">Casts</td>
-                                    <td><input type="text" class="result-input" placeholder="e.g., Hyaline Casts"></td>
                                     <td class="normal-range">${section.tests["Casts"].range || ''}</td>
+                                    <td><input type="text" class="result-input" placeholder="e.g., Hyaline Casts"></td>
+                                    <td class="test-name">Casts</td>
                                 </tr>
                                 <tr>
-                                    <td class="test-name">Crystals</td>
-                                    <td><input type="text" class="result-input" placeholder="e.g., Calcium Oxalate"></td>
                                     <td class="normal-range">${section.tests["Crystals"].range || ''}</td>
+                                    <td><input type="text" class="result-input" placeholder="e.g., Calcium Oxalate"></td>
+                                    <td class="test-name">Crystals</td>
                                 </tr>
                                 <tr>
-                                    <td class="test-name">Amorphous Urates</td>
-                                    <td>
-                                        <select class="result-select">
-                                            <option value="">Select</option>
-                                            <option value="Nil">Nil</option>
-                                            <option value="Few">Few</option>
-                                            <option value="Moderate">Moderate</option>
-                                            <option value="Many">Many</option>
-                                        </select>
-                                    </td>
                                     <td class="normal-range">${section.tests["Amorphous Urates"].range || ''}</td>
-                                </tr>
-                                <tr>
-                                    <td class="test-name">Amorphous Phosphates</td>
                                     <td>
                                         <select class="result-select">
                                             <option value="">Select</option>
@@ -2532,10 +2525,10 @@
                                             <option value="Many">Many</option>
                                         </select>
                                     </td>
+                                    <td class="test-name">Amorphous Urates</td>
+                                </tr>
+                                <tr>
                                     <td class="normal-range">${section.tests["Amorphous Phosphates"].range || ''}</td>
-                                </tr>
-                                <tr>
-                                    <td class="test-name">Bacteria</td>
                                     <td>
                                         <select class="result-select">
                                             <option value="">Select</option>
@@ -2545,10 +2538,23 @@
                                             <option value="Many">Many</option>
                                         </select>
                                     </td>
-                                    <td class="normal-range">${section.tests["Bacteria"].range || ''}</td>
+                                    <td class="test-name">Amorphous Phosphates</td>
                                 </tr>
                                 <tr>
-                                    <td class="test-name">Yeast</td>
+                                    <td class="normal-range">${section.tests["Bacteria"].range || ''}</td>
+                                    <td>
+                                        <select class="result-select">
+                                            <option value="">Select</option>
+                                            <option value="Nil">Nil</option>
+                                            <option value="Few">Few</option>
+                                            <option value="Moderate">Moderate</option>
+                                            <option value="Many">Many</option>
+                                        </select>
+                                    </td>
+                                    <td class="test-name">Bacteria</td>
+                                </tr>
+                                <tr>
+                                    <td class="normal-range">${section.tests["Yeast"].range || ''}</td>
                                     <td>
                                         <select class="result-select">
                                             <option value="">Select</option>
@@ -2556,10 +2562,10 @@
                                             <option value="Positive">Positive</option>
                                         </select>
                                     </td>
-                                    <td class="normal-range">${section.tests["Yeast"].range || ''}</td>
+                                    <td class="test-name">Yeast</td>
                                 </tr>
                                 <tr>
-                                    <td class="test-name">Mucus threads</td>
+                                    <td class="normal-range">${section.tests["Mucus threads"].range || ''}</td>
                                     <td>
                                         <select class="result-select">
                                             <option value="">Select</option>
@@ -2568,7 +2574,7 @@
                                             <option value="Many">Many</option>
                                         </select>
                                     </td>
-                                    <td class="normal-range">${section.tests["Mucus threads"].range || ''}</td>
+                                    <td class="test-name">Mucus threads</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -2578,19 +2584,19 @@
                         <table>
                             <thead>
                                 <tr>
-                                    <th>Test</th>
-                                    <th>Result</th>
-                                    <th>Normal Range</th>
+                                    <th>النطاق الطبيعي</th>
+                                    <th>النتيجة</th>
+                                    <th>الاختبار</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td class="test-name">Volume</td>
-                                    <td><input type="text" class="result-input"></td>
                                     <td class="normal-range">${section.tests["Volume"].range || ''}</td>
+                                    <td><input type="text" class="result-input"></td>
+                                    <td class="test-name">Volume</td>
                                 </tr>
                                 <tr>
-                                    <td class="test-name">Color</td>
+                                    <td class="normal-range">${section.tests["Color"].range || ''}</td>
                                     <td>
                                         <select class="result-select">
                                             <option value="">Select</option>
@@ -2599,15 +2605,15 @@
                                             <option value="Reddish/Brown">Reddish/Brown</option>
                                         </select>
                                     </td>
-                                    <td class="normal-range">${section.tests["Color"].range || ''}</td>
+                                    <td class="test-name">Color</td>
                                 </tr>
                                 <tr>
-                                    <td class="test-name">Liquefaction</td>
-                                    <td><input type="text" class="result-input"></td>
                                     <td class="normal-range">${section.tests["Liquefaction"].range || ''}</td>
+                                    <td><input type="text" class="result-input"></td>
+                                    <td class="test-name">Liquefaction</td>
                                 </tr>
                                 <tr>
-                                    <td class="test-name">Viscosity</td>
+                                    <td class="normal-range">${section.tests["Viscosity"].range || ''}</td>
                                     <td>
                                         <select class="result-select">
                                             <option value="">Select</option>
@@ -2615,66 +2621,66 @@
                                             <option value="High">High</option>
                                         </select>
                                     </td>
-                                    <td class="normal-range">${section.tests["Viscosity"].range || ''}</td>
+                                    <td class="test-name">Viscosity</td>
                                 </tr>
                                 <tr>
-                                    <td class="test-name">pH</td>
-                                    <td><input type="text" class="result-input"></td>
                                     <td class="normal-range">${section.tests["pH"].range || ''}</td>
+                                    <td><input type="text" class="result-input"></td>
+                                    <td class="test-name">pH</td>
                                 </tr>
                                 <tr><td colspan="3" class="sub-section-title">Microscopic Examination</td></tr>
                                 <tr>
-                                    <td class="test-name">Sperm Concentration</td>
-                                    <td><input type="text" class="result-input"></td>
                                     <td class="normal-range">${section.tests["Sperm Concentration"].range || ''}</td>
+                                    <td><input type="text" class="result-input"></td>
+                                    <td class="test-name">Sperm Concentration</td>
                                 </tr>
                                 <tr>
-                                    <td class="test-name">Total Sperm Count</td>
-                                    <td><input type="text" class="result-input"></td>
                                     <td class="normal-range">${section.tests["Total Sperm Count"].range || ''}</td>
+                                    <td><input type="text" class="result-input"></td>
+                                    <td class="test-name">Total Sperm Count</td>
                                 </tr>
                                 <tr>
-                                    <td class="test-name">Motility (Total)</td>
-                                    <td><input type="text" class="result-input"></td>
                                     <td class="normal-range">${section.tests["Motility (Total)"].range || ''}</td>
+                                    <td><input type="text" class="result-input"></td>
+                                    <td class="test-name">Motility (Total)</td>
                                 </tr>
                                 <tr>
-                                    <td class="test-name">Progressive Motility</td>
-                                    <td><input type="text" class="result-input"></td>
                                     <td class="normal-range">${section.tests["Progressive Motility"].range || ''}</td>
+                                    <td><input type="text" class="result-input"></td>
+                                    <td class="test-name">Progressive Motility</td>
                                 </tr>
                                 <tr>
-                                    <td class="test-name">Non-Progressive Motility</td>
-                                    <td><input type="text" class="result-input"></td>
                                     <td class="normal-range">${section.tests["Non-Progressive Motility"].range || ''}</td>
+                                    <td><input type="text" class="result-input"></td>
+                                    <td class="test-name">Non-Progressive Motility</td>
                                 </tr>
                                 <tr>
-                                    <td class="test-name">Non-Motile</td>
-                                    <td><input type="text" class="result-input"></td>
                                     <td class="normal-range">${section.tests["Non-Motile"].range || ''}</td>
+                                    <td><input type="text" class="result-input"></td>
+                                    <td class="test-name">Non-Motile</td>
                                 </tr>
                                 <tr>
-                                    <td class="test-name">Morphology</td>
-                                    <td><input type="text" class="result-input"></td>
                                     <td class="normal-range">${section.tests["Morphology"].range || ''}</td>
+                                    <td><input type="text" class="result-input"></td>
+                                    <td class="test-name">Morphology</td>
                                 </tr>
                                 <tr>
-                                    <td class="test-name">Vitality</td>
-                                    <td><input type="text" class="result-input"></td>
                                     <td class="normal-range">${section.tests["Vitality"].range || ''}</td>
+                                    <td><input type="text" class="result-input"></td>
+                                    <td class="test-name">Vitality</td>
                                 </tr>
                                 <tr>
-                                    <td class="test-name">WBC</td>
-                                    <td><input type="text" class="result-input"></td>
                                     <td class="normal-range">${section.tests["WBC"].range || ''}</td>
-                                </tr>
-                                <tr>
-                                    <td class="test-name">RBC</td>
                                     <td><input type="text" class="result-input"></td>
-                                    <td class="normal-range">${section.tests["RBC"].range || ''}</td>
+                                    <td class="test-name">WBC</td>
                                 </tr>
                                 <tr>
-                                    <td class="test-name">Agglutination</td>
+                                    <td class="normal-range">${section.tests["RBC"].range || ''}</td>
+                                    <td><input type="text" class="result-input"></td>
+                                    <td class="test-name">RBC</td>
+                                </tr>
+                                <tr>
+                                    <td class="normal-range">${section.tests["Agglutination"].range || ''}</td>
                                     <td>
                                         <select class="result-select">
                                             <option value="">Select</option>
@@ -2682,12 +2688,12 @@
                                             <option value="Positive">Positive</option>
                                         </select>
                                     </td>
-                                    <td class="normal-range">${section.tests["Agglutination"].range || ''}</td>
+                                    <td class="test-name">Agglutination</td>
                                 </tr>
                                 <tr>
-                                    <td class="test-name">Microscopic Examination</td>
-                                    <td><input type="text" class="result-input"></td>
                                     <td class="normal-range">${section.tests["Microscopic Examination"].range || ''}</td>
+                                    <td><input type="text" class="result-input"></td>
+                                    <td class="test-name">Microscopic Examination</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -2697,15 +2703,15 @@
                         <table>
                             <thead>
                                 <tr>
-                                    <th>Test</th>
-                                    <th>Result</th>
-                                    <th>Normal Range</th>
+                                    <th>النطاق الطبيعي</th>
+                                    <th>النتيجة</th>
+                                    <th>الاختبار</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr><td colspan="3" class="sub-section-title">Physical Examination</td></tr>
                                 <tr>
-                                    <td class="test-name">Color</td>
+                                    <td class="normal-range">${section.tests["Color"].range || ''}</td>
                                     <td>
                                         <select class="result-select">
                                             <option value="">Select</option>
@@ -2716,10 +2722,10 @@
                                             <option value="Yellowish">Yellowish</option>
                                         </select>
                                     </td>
-                                    <td class="normal-range">${section.tests["Color"].range || ''}</td>
+                                    <td class="test-name">Color</td>
                                 </tr>
                                 <tr>
-                                    <td class="test-name">Consistency</td>
+                                    <td class="normal-range">${section.tests["Consistency"].range || ''}</td>
                                     <td>
                                         <select class="result-select">
                                             <option value="">Select</option>
@@ -2729,23 +2735,11 @@
                                             <option value="Watery">Watery</option>
                                         </select>
                                     </td>
-                                    <td class="normal-range">${section.tests["Consistency"].range || ''}</td>
+                                    <td class="test-name">Consistency</td>
                                 </tr>
                                 <tr><td colspan="3" class="sub-section-title">Chemical & Microscopic Examination</td></tr>
                                 <tr>
-                                    <td class="test-name">Mucus</td>
-                                    <td>
-                                        <select class="result-select">
-                                            <option value="">Select</option>
-                                            <option value="Nil">Nil</option>
-                                            <option value="Trace">Trace</option>
-                                            <option value="Present">Present</option>
-                                        </select>
-                                    </td>
                                     <td class="normal-range">${section.tests["Mucus"].range || ''}</td>
-                                </tr>
-                                <tr>
-                                    <td class="test-name">Blood</td>
                                     <td>
                                         <select class="result-select">
                                             <option value="">Select</option>
@@ -2754,41 +2748,42 @@
                                             <option value="Present">Present</option>
                                         </select>
                                     </td>
+                                    <td class="test-name">Mucus</td>
+                                </tr>
+                                <tr>
                                     <td class="normal-range">${section.tests["Blood"].range || ''}</td>
+                                    <td>
+                                        <select class="result-select">
+                                            <option value="">Select</option>
+                                            <option value="Nil">Nil</option>
+                                            <option value="Trace">Trace</option>
+                                            <option value="Present">Present</option>
+                                        </select>
+                                    </td>
+                                    <td class="test-name">Blood</td>
                                 </tr>
                                 <tr>
-                                    <td class="test-name">Ova/Parasite</td>
-                                    <td><input type="text" class="result-input" placeholder="e.g., E. histolytica"></td>
                                     <td class="normal-range">${section.tests["Ova/Parasite"].range || ''}</td>
+                                    <td><input type="text" class="result-input" placeholder="e.g., E. histolytica"></td>
+                                    <td class="test-name">Ova/Parasite</td>
                                 </tr>
                                 <tr>
-                                    <td class="test-name">WBC</td>
-                                    <td><input type="text" class="result-input"></td>
                                     <td class="normal-range">${section.tests["WBC"].range || ''}</td>
+                                    <td><input type="text" class="result-input"></td>
+                                    <td class="test-name">WBC</td>
                                 </tr>
                                 <tr>
-                                    <td class="test-name">RBC</td>
-                                    <td><input type="text" class="result-input"></td>
                                     <td class="normal-range">${section.tests["RBC"].range || ''}</td>
-                                </tr>
-                                <tr>
-                                    <td class="test-name">Fat Globules</td>
                                     <td><input type="text" class="result-input"></td>
+                                    <td class="test-name">RBC</td>
+                                </tr>
+                                <tr>
                                     <td class="normal-range">${section.tests["Fat Globules"].range || ''}</td>
+                                    <td><input type="text" class="result-input"></td>
+                                    <td class="test-name">Fat Globules</td>
                                 </tr>
                                 <tr>
-                                    <td class="test-name">Starch Granules</td>
-                                    <td>
-                                        <select class="result-select">
-                                            <option value="">Select</option>
-                                            <option value="Nil">Nil</option>
-                                            <option value="Present">Present</option>
-                                        </select>
-                                    </td>
                                     <td class="normal-range">${section.tests["Starch Granules"].range || ''}</td>
-                                </tr>
-                                <tr>
-                                    <td class="test-name">Undigested Muscle Fibers</td>
                                     <td>
                                         <select class="result-select">
                                             <option value="">Select</option>
@@ -2796,10 +2791,10 @@
                                             <option value="Present">Present</option>
                                         </select>
                                     </td>
+                                    <td class="test-name">Starch Granules</td>
+                                </tr>
+                                <tr>
                                     <td class="normal-range">${section.tests["Undigested Muscle Fibers"].range || ''}</td>
-                                </tr>
-                                <tr>
-                                    <td class="test-name">Yeast Cells</td>
                                     <td>
                                         <select class="result-select">
                                             <option value="">Select</option>
@@ -2807,10 +2802,21 @@
                                             <option value="Present">Present</option>
                                         </select>
                                     </td>
-                                    <td class="normal-range">${section.tests["Yeast Cells"].range || ''}</td>
+                                    <td class="test-name">Undigested Muscle Fibers</td>
                                 </tr>
                                 <tr>
-                                    <td class="test-name">Occult Blood</td>
+                                    <td class="normal-range">${section.tests["Yeast Cells"].range || ''}</td>
+                                    <td>
+                                        <select class="result-select">
+                                            <option value="">Select</option>
+                                            <option value="Nil">Nil</option>
+                                            <option value="Present">Present</option>
+                                        </select>
+                                    </td>
+                                    <td class="test-name">Yeast Cells</td>
+                                </tr>
+                                <tr>
+                                    <td class="normal-range">${section.tests["Occult Blood"].range || ''}</td>
                                     <td>
                                         <select class="result-select">
                                             <option value="">Select</option>
@@ -2818,13 +2824,13 @@
                                             <option value="Positive">Positive</option>
                                         </select>
                                     </td>
-                                    <td class="normal-range">${section.tests["Occult Blood"].range || ''}</td>
+                                    <td class="test-name">Occult Blood</td>
                                 </tr>
                             </tbody>
                         </table>
                     `;
                 } else if (section.id === 'serologySection' || section.id === 'viralSection') {
-                    tableHTML += `<table><thead><tr><th>Test</th><th>Result</th><th>Normal Range</th></tr></thead><tbody>`;
+                    tableHTML += `<table><thead><tr><th>النطاق الطبيعي</th><th>النتيجة</th><th>الاختبار</th></tr></thead><tbody>`;
                     for (const testName in section.tests) {
                         const testData = section.tests[testName];
                         let resultInputHTML = '';
@@ -2845,23 +2851,23 @@
 
                         tableHTML += `
                             <tr>
-                                <td class="test-name">${testName}</td>
-                                ${resultInputHTML}
                                 <td class="normal-range">${testData.range || ''}</td>
+                                ${resultInputHTML}
+                                <td class="test-name">${testName}</td>
                             </tr>
                         `;
                     }
                     tableHTML += `</tbody></table>`;
                 } else {
                     // الأقسام العادية
-                    tableHTML += `<table><thead><tr><th>Test</th><th>Result</th><th>Normal Range</th></tr></thead><tbody>`;
+                    tableHTML += `<table><thead><tr><th>النطاق الطبيعي</th><th>النتيجة</th><th>الاختبار</th></tr></thead><tbody>`;
                     for (const testName in section.tests) {
                         const testData = section.tests[testName];
                         tableHTML += `
                             <tr>
-                                <td class="test-name">${testName}</td>
-                                <td>${createResultInput({[testName]: testData})}</td>
                                 <td class="normal-range">${testData.range || ''}</td>
+                                <td>${createResultInput({[testName]: testData})}</td>
+                                <td class="test-name">${testName}</td>
                             </tr>
                         `;
                     }
@@ -3696,4 +3702,3 @@
     </script>
 </body>
 </html>
-
