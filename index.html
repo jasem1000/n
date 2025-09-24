@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -158,7 +159,7 @@
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 10px;
-            margin-bottom: 20px;
+            margin-bottom: 0; /* إزالة المسافة السفلية ليكون الجدول مباشرة بعدها */
             padding: 15px;
             border: 1px solid #ddd;
             border-radius: 8px;
@@ -202,6 +203,7 @@
             flex-direction: column;
             gap: 15px;
             display: table-row-group;
+            margin-top: 0; /* إزالة المسافة العلوية ليكون مباشرة بعد معلومات المريض */
         }
 
         .section {
@@ -211,6 +213,7 @@
             overflow: hidden;
             background-color: #fff;
             display: none;
+            margin-top: 0; /* ضمان عدم وجود مسافة علوية */
         }
 
         .section.active {
@@ -427,7 +430,6 @@
         }
 
         .lab-footer {
-            display: table-footer-group;
             background: linear-gradient(135deg, var(--header-color) 0%, #1a5e78 100%);
             padding: 15px;
             text-align: center;
@@ -435,7 +437,6 @@
             font-family: var(--footer-font);
             color: var(--footer-font-color);
             font-size: var(--footer-font-size);
-            position: running(footer);
         }
 
         .lab-footer-content {
@@ -1154,6 +1155,7 @@
                 page-break-inside: avoid;
                 border: var(--table-border-width) solid #ddd;
                 margin-bottom: 10px;
+                margin-top: 0; /* ضمان عدم وجود مسافة علوية */
             }
 
             .header {
@@ -1166,7 +1168,7 @@
 
             .patient-info {
                 border: 1px solid #ffffff;
-                margin-bottom: 10px;
+                margin-bottom: 0; /* إزالة المسافة السفلية */
                 padding: 10px;
                 background-color: var(--patient-info-bg);
             }
@@ -1225,6 +1227,7 @@
             .results-container {
                 gap: 10px;
                 display: table-row-group;
+                margin-top: 0; /* إزالة المسافة العلوية */
             }
 
             table {
@@ -1265,12 +1268,19 @@
             }
 
             .lab-footer {
-                display: table-footer-group;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                display: block;
                 border-top: 2px solid #000;
                 padding: 10px;
                 font-size: 12px;
                 color: #37f740;
                 background-color: #f9f9f9;
+                margin: 0;
+                width: 100%;
+                box-sizing: border-box;
             }
 
             .lab-footer-content {
@@ -2061,7 +2071,7 @@
                     "Progesterone": { type: "text", range: "ng/ml (F: varies by cycle phase)" }, 
                     "hCG": { type: "text", range: "mIU/ml (Negative in non-pregnant)" },
                     "Insulin": { type: "text", range: "µIU/ml (2-25)" }, 
-                    "C-Peptide": { type: "text", range: "ng/ml (0.5-2.0)" }, 
+                    "C-Peptide": { type: "text", range: "ng/ml (2-25)" }, 
                     "DHEA-S": { type: "text", range: "µg/dl (M: 80-560, F: 35-430)" },
                     "Growth Hormone (GH)": { type: "text", range: "ng/ml (0-10)" }, 
                     "IGF-1": { type: "text", range: "ng/ml (varies by age)" }, 
@@ -2833,6 +2843,7 @@
             });
 
             localStorage.setItem('customTests', JSON.stringify(customRanges));
+            
             loadLabStructure();
             alert('تم حفظ النطاقات الطبيعية بنجاح!');
             closeRangeManager();
@@ -3838,3 +3849,4 @@
     </script>
 </body>
 </html>
+```
