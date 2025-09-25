@@ -250,7 +250,7 @@
             margin: 0 auto;
             border-collapse: collapse;
             font-size: 14px;
-            direction: rtl;
+            direction: ltr;
         }
 
         th, td {
@@ -272,34 +272,36 @@
         td:nth-child(2) { width: 30%; }
         td:last-child { width: 30%; }
 
-        .test-name {
+          .test-name {
             font-size: var(--test-name-font-size);
-            font-weight: 600;
-            background-color: #f0f8f0;
+            font-weight: bold;
+            background-color: #e8f4e8;
+            padding-right: 10px;
             color: var(--test-name-font-color);
             font-family: var(--test-font);
         }
 
-        .normal-range {
+          .normal-range {
             font-size: var(--range-font-size);
-            font-weight: 500;
+            font-weight: bold;
             color: var(--range-font-color);
+            direction: rtl;
             font-family: var(--range-font);
         }
 
-        .result-input, .result-select {
+         .result-input, .result-select {
             width: 100%;
             height: var(--input-height);
             border: 1px dashed var(--button-color);
-            padding: 6px;
-            border-radius: var(--border-radius-small);
+            padding: 5px;
+            border-radius: 4px;
             text-align: center;
             font-family: var(--result-font);
-            background-color: #fafafa;
+            background-color: #f9f9f9;
             font-size: var(--result-font-size);
-            font-weight: 600;
+            font-weight: bolder;
+            direction: rtl;
             color: var(--result-font-color);
-            transition: all var(--transition-fast);
         }
 
         .result-input:focus, .result-select:focus {
@@ -1293,7 +1295,7 @@
             }
 
             .patient-info {
-                border: 1px solid #ddd;
+                border: 1px solid #000000;
                 margin-bottom: 0;
                 padding: 15px;
             }
@@ -1355,7 +1357,7 @@
                 width: var(--table-width);
                 page-break-inside: avoid;
                 font-size: 12px;
-                direction: rtl;
+                direction: ltr;
             }
 
             th, td {
