@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -12,25 +13,25 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --header-color: #2c7da0;
-            --background-color: #f5f7fa;
-            --button-color: #4CAF50;
+            --header-color: #007bff;
+            --background-color: #f0f8ff;
+            --button-color: #28a745;
             --title-font-size: 28px;
             --test-name-font-size: 16px;
             --result-font-size: 16px;
             --range-font-size: 16px;
             --footer-font-size: 14px;
             --doctor-font-size: 14px;
-            --title-font-color: #2c7da0;
-            --test-name-font-color: #333333;
-            --result-font-color: #333333;
-            --range-font-color: #b90f0f;
+            --title-font-color: #0056b3;
+            --test-name-font-color: #212529;
+            --result-font-color: #212529;
+            --range-font-color: #dc3545;
             --footer-font-color: #ffffff;
-            --doctor-font-color: #11be65;
-            --patient-info-bg: #eeeeee;
+            --doctor-font-color: #198754;
+            --patient-info-bg: #e9ecef;
             --header-bg: #ffffff;
             --table-border-width: 1px;
-            --table-border-color: #ddd;
+            --table-border-color: #dee2e6;
             --doctor-box-border-radius: 4px;
             --main-font: 'Cairo', sans-serif;
             --title-font: 'Amiri', serif;
@@ -268,7 +269,7 @@
             font-family: var(--subtitle-font);
         }
 
-        td:first-child { width: 40%; text-align: right; padding-right: 15px; }
+        td:first-child { width: 40%; text-align: center; padding: var(--cell-padding); }
         td:nth-child(2) { width: 30%; }
         td:last-child { width: 30%; }
 
@@ -276,7 +277,6 @@
             font-size: var(--test-name-font-size);
             font-weight: bold;
             background-color: #e8f4e8;
-            padding-right: 10px;
             color: var(--test-name-font-color);
             font-family: var(--test-font);
         }
@@ -1371,7 +1371,7 @@
             td:last-child { width: 30%; }
 
             .test-name {
-                text-align: right;
+                text-align: center;
             }
 
             .normal-range {
@@ -1526,19 +1526,19 @@
             <h3>تغيير الألوان</h3>
             <div class="color-picker">
                 <label>لون الهيدر:</label>
-                <input type="color" id="headerColor" class="color-input" value="#2c7da0">
+                <input type="color" id="headerColor" class="color-input" value="#007bff">
             </div>
             <div class="color-picker">
                 <label>لون الخلفية:</label>
-                <input type="color" id="backgroundColor" class="color-input" value="#f5f7fa">
+                <input type="color" id="backgroundColor" class="color-input" value="#f0f8ff">
             </div>
             <div class="color-picker">
                 <label>لون الأزرار:</label>
-                <input type="color" id="buttonColor" class="color-input" value="#4CAF50">
+                <input type="color" id="buttonColor" class="color-input" value="#28a745">
             </div>
             <div class="color-picker">
                 <label>لون خلفية معلومات المريض:</label>
-                <input type="color" id="patientInfoBg" class="color-input" value="#c11717">
+                <input type="color" id="patientInfoBg" class="color-input" value="#e9ecef">
             </div>
             <div class="color-picker">
                 <label>لون خلفية الرأس:</label>
@@ -1546,7 +1546,7 @@
             </div>
             <div class="color-picker">
                 <label>لون حدود الجدول:</label>
-                <input type="color" id="tableBorderColor" class="color-input" value="#ffffff">
+                <input type="color" id="tableBorderColor" class="color-input" value="#dee2e6">
             </div>
         </div>
         
@@ -1582,19 +1582,19 @@
             <h3>تغيير ألوان الخطوط</h3>
             <div class="color-picker">
                 <label>لون العنوان:</label>
-                <input type="color" id="titleFontColor" class="color-input" value="#2c7da0">
+                <input type="color" id="titleFontColor" class="color-input" value="#0056b3">
             </div>
             <div class="color-picker">
                 <label>لون اسم التحليل:</label>
-                <input type="color" id="testNameFontColor" class="color-input" value="#333333">
+                <input type="color" id="testNameFontColor" class="color-input" value="#212529">
             </div>
             <div class="color-picker">
                 <label>لون النتيجة:</label>
-                <input type="color" id="resultFontColor" class="color-input" value="#333333">
+                <input type="color" id="resultFontColor" class="color-input" value="#212529">
             </div>
             <div class="color-picker">
                 <label>لون النطاق الطبيعي:</label>
-                <input type="color" id="rangeFontColor" class="color-input" value="#b90f0f">
+                <input type="color" id="rangeFontColor" class="color-input" value="#dc3545">
             </div>
             <div class="color-picker">
                 <label>لون التذييل:</label>
@@ -1602,7 +1602,7 @@
             </div>
             <div class="color-picker">
                 <label>لون أسماء الأطباء:</label>
-                <input type="color" id="doctorFontColor" class="color-input" value="#11be65">
+                <input type="color" id="doctorFontColor" class="color-input" value="#198754">
             </div>
         </div>
         
@@ -2413,12 +2413,12 @@
             document.getElementById('doctor1Name').value = localStorage.getItem('doctor1Name') || 'الاول اسم الطبيب او التقني او البايلوجي ';
             document.getElementById('doctor2Name').value = localStorage.getItem('doctor2Name') || ' الثاني اسم الطبيب او التقني او البايلوجي';
 
-            document.getElementById('headerColor').value = localStorage.getItem('headerColor') || '#2c7da0';
-            document.getElementById('backgroundColor').value = localStorage.getItem('backgroundColor') || '#f5f7fa';
-            document.getElementById('buttonColor').value = localStorage.getItem('buttonColor') || '#4CAF50';
-            document.getElementById('patientInfoBg').value = localStorage.getItem('patientInfoBg') || '#c11717';
+            document.getElementById('headerColor').value = localStorage.getItem('headerColor') || '#007bff';
+            document.getElementById('backgroundColor').value = localStorage.getItem('backgroundColor') || '#f0f8ff';
+            document.getElementById('buttonColor').value = localStorage.getItem('buttonColor') || '#28a745';
+            document.getElementById('patientInfoBg').value = localStorage.getItem('patientInfoBg') || '#e9ecef';
             document.getElementById('headerBg').value = localStorage.getItem('headerBg') || '#ffffff';
-            document.getElementById('tableBorderColor').value = localStorage.getItem('tableBorderColor') || '#ddd';
+            document.getElementById('tableBorderColor').value = localStorage.getItem('tableBorderColor') || '#dee2e6';
 
             const savedLogo = localStorage.getItem('labLogo');
             if (savedLogo) {
@@ -2435,12 +2435,12 @@
             document.getElementById('tableBorderWidth').value = localStorage.getItem('tableBorderWidth') || '1';
             document.getElementById('doctorBoxBorderRadius').value = localStorage.getItem('doctorBoxBorderRadius') || '4';
 
-            document.getElementById('titleFontColor').value = localStorage.getItem('titleFontColor') || '#2c7da0';
-            document.getElementById('testNameFontColor').value = localStorage.getItem('testNameFontColor') || '#333333';
-            document.getElementById('resultFontColor').value = localStorage.getItem('resultFontColor') || '#333333';
-            document.getElementById('rangeFontColor').value = localStorage.getItem('rangeFontColor') || '#b90f0f';
+            document.getElementById('titleFontColor').value = localStorage.getItem('titleFontColor') || '#0056b3';
+            document.getElementById('testNameFontColor').value = localStorage.getItem('testNameFontColor') || '#212529';
+            document.getElementById('resultFontColor').value = localStorage.getItem('resultFontColor') || '#212529';
+            document.getElementById('rangeFontColor').value = localStorage.getItem('rangeFontColor') || '#dc3545';
             document.getElementById('footerFontColor').value = localStorage.getItem('footerFontColor') || '#ffffff';
-            document.getElementById('doctorFontColor').value = localStorage.getItem('doctorFontColor') || '#11be65';
+            document.getElementById('doctorFontColor').value = localStorage.getItem('doctorFontColor') || '#198754';
 
             document.getElementById('titleFont').value = localStorage.getItem('titleFont') || "'Amiri', serif";
             document.getElementById('mainFont').value = localStorage.getItem('mainFont') || "'Cairo', sans-serif";
@@ -2562,12 +2562,12 @@
                 logoElement.innerHTML = `<i class="fas fa-microscope"></i>`;
             }
 
-            document.documentElement.style.setProperty('--header-color', localStorage.getItem('headerColor') || '#2c7da0');
-            document.documentElement.style.setProperty('--background-color', localStorage.getItem('backgroundColor') || '#f5f7fa');
-            document.documentElement.style.setProperty('--button-color', localStorage.getItem('buttonColor') || '#4CAF50');
-            document.documentElement.style.setProperty('--patient-info-bg', localStorage.getItem('patientInfoBg') || '#c11717');
+            document.documentElement.style.setProperty('--header-color', localStorage.getItem('headerColor') || '#007bff');
+            document.documentElement.style.setProperty('--background-color', localStorage.getItem('backgroundColor') || '#f0f8ff');
+            document.documentElement.style.setProperty('--button-color', localStorage.getItem('buttonColor') || '#28a745');
+            document.documentElement.style.setProperty('--patient-info-bg', localStorage.getItem('patientInfoBg') || '#e9ecef');
             document.documentElement.style.setProperty('--header-bg', localStorage.getItem('headerBg') || '#ffffff');
-            document.documentElement.style.setProperty('--table-border-color', localStorage.getItem('tableBorderColor') || '#ddd');
+            document.documentElement.style.setProperty('--table-border-color', localStorage.getItem('tableBorderColor') || '#dee2e6');
             document.documentElement.style.setProperty('--table-border-width', (localStorage.getItem('tableBorderWidth') || '1') + 'px');
 
             document.documentElement.style.setProperty('--title-font-size', (localStorage.getItem('titleFontSize') || '28') + 'px');
@@ -2577,12 +2577,12 @@
             document.documentElement.style.setProperty('--footer-font-size', (localStorage.getItem('footerFontSize') || '14') + 'px');
             document.documentElement.style.setProperty('--doctor-font-size', (localStorage.getItem('doctorFontSize') || '14') + 'px');
 
-            document.documentElement.style.setProperty('--title-font-color', localStorage.getItem('titleFontColor') || '#2c7da0');
-            document.documentElement.style.setProperty('--test-name-font-color', localStorage.getItem('testNameFontColor') || '#333333');
-            document.documentElement.style.setProperty('--result-font-color', localStorage.getItem('resultFontColor') || '#333333');
-            document.documentElement.style.setProperty('--range-font-color', localStorage.getItem('rangeFontColor') || '#b90f0f');
+            document.documentElement.style.setProperty('--title-font-color', localStorage.getItem('titleFontColor') || '#0056b3');
+            document.documentElement.style.setProperty('--test-name-font-color', localStorage.getItem('testNameFontColor') || '#212529');
+            document.documentElement.style.setProperty('--result-font-color', localStorage.getItem('resultFontColor') || '#212529');
+            document.documentElement.style.setProperty('--range-font-color', localStorage.getItem('rangeFontColor') || '#dc3545');
             document.documentElement.style.setProperty('--footer-font-color', localStorage.getItem('footerFontColor') || '#ffffff');
-            document.documentElement.style.setProperty('--doctor-font-color', localStorage.getItem('doctorFontColor') || '#11be65');
+            document.documentElement.style.setProperty('--doctor-font-color', localStorage.getItem('doctorFontColor') || '#198754');
 
             document.documentElement.style.setProperty('--title-font', localStorage.getItem('titleFont') || "'Amiri', serif");
             document.documentElement.style.setProperty('--main-font', localStorage.getItem('mainFont') || "'Cairo', sans-serif");
@@ -3986,3 +3986,4 @@
     </script>
 </body>
 </html>
+```
