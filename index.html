@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -1486,6 +1485,19 @@
             .visits-dropdown-content {
                 display: none !important;
             }
+
+            /* تعديل للطباعة: إخفاء كل شيء عدا الجدول المدمج */
+            .header, .patient-info, .footer, .lab-footer, .section-title {
+                display: none !important;
+            }
+
+            .results-container {
+                display: block !important;
+            }
+
+            .results-container table {
+                display: table !important;
+            }
         }
 
         @media (max-width: 600px) {
@@ -2326,12 +2338,14 @@
                     "Salmonella typhi IgG": { type: "select", range: "Negative", choices: ["Positive", "Negative"] }, 
                     "Salmonella typhi IgM": { type: "select", range: "Negative", choices: ["Positive", "Negative"] }, 
                     "Rose Bengal (Brucella)": { type: "select", range: "Negative", choices: ["Positive", "Negative"] },
+                    "Rose Bengal (Brucella)": { type: "select", range: "Negative", choices: ["Positive", "Negative"] },
                     "H.pylori Ab": { type: "select", range: "Negative", choices: ["Positive", "Negative"] }, 
                     "CRP": { type: "text", range: "mg/L (<5)" }, 
                     "Rheumatoid Factor": { type: "text", range: "IU/ml (<20)" }, 
                     "A.S.O Titer": { type: "text", range: "IU/ml (<200)" },
                     "Toxoplasma IgG": { type: "select", range: "Negative", choices: ["Positive", "Negative"] }, 
                     "Toxoplasma IgM": { type: "select", range: "Negative", choices: ["Positive", "Negative"] }, 
+                    "Rose Bengal (Brucella)": { type: "select", range: "Negative", choices: ["Positive", "Negative"] },
                     "Pregnancy Test": { type: "select", range: "", choices: ["Positive", "Negative"] }, 
                     "CMV IgG": { type: "select", range: "Negative", choices: ["Positive", "Negative"] }, 
                     "CMV IgM": { type: "select", range: "Negative", choices: ["Positive", "Negative"] },
@@ -2483,6 +2497,9 @@
 
         // الرمز المطلوب (للإحصائيات فقط)
         const PASSWORD = '100200';
+
+        // متغير لحفظ الهيكل الأصلي للأقسام قبل الدمج
+        let originalResultsHTML = '';
 
         // دوال إدارة الإعدادات
         function handleLogoUpload(event) {
@@ -3312,7 +3329,7 @@
                 customTests[sectionId] = [];
             }
             
-            // التحقق من عدم التكرار في التحاليل المخصصة
+            // التحقق من عدم التكرار في في التحاليل المخصصة
             const existingTest = customTests[sectionId].find(test => test.name === testName);
             if (existingTest) {
                 alert('هذا التحليل موجود بالفعل.');
@@ -3874,99 +3891,60 @@
             printWindow.print();
         }
 
-        // دوال العرض والطباعة
-        function setCurrentDate() {
-            const now = new Date();
-            const year = now.getFullYear();
-            const month = String(now.getMonth() + 1).padStart(2, '0');
-            const day = String(now.getDate()).padStart(2, '0');
-            document.getElementById('currentDate').value = `${year}-${month}-${day}`;
-        }
+        // إضافة دالة دمج الجداول للطباعة
+        function mergeTablesForPrint() {
+            originalResultsHTML = document.getElementById('resultsContainer').innerHTML; // حفظ الهيكل الأصلي
+            
+            let mergedTableHTML = `
+                <table id="mergedPrintTable">
+                    <thead>
+                        <tr>
+                            <th>Test</th>
+                            <th>Result</th>
+                            <th>Normal Range</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
 
-        function setIssueDate() {
-            const now = new Date();
-            const year = now.getFullYear();
-            const month = String(now.getMonth() + 1).padStart(2, '0');
-            const day = String(now.getDate()).padStart(2, '0');
-            if (document.getElementById('issueDate')) {
-                document.getElementById('issueDate').value = `${year}-${month}-${day}`;
-            }
-        }
-
-        function showSelectedSection() {
-            const sections = document.querySelectorAll('.section');
-            const selectedSectionId = document.getElementById('test-select').value;
-            sections.forEach(section => {
-                if (section.id === selectedSectionId) {
-                    section.classList.add('active');
-                } else {
-                    section.classList.remove('active');
-                }
-            });
-        }
-
-        function clearAllFields() {
-            if(confirm('هل أنت متأكد من مسح جميع الحقول؟')) {
-                const inputs = document.querySelectorAll('input[type="text"], input[type="number"]');
-                inputs.forEach(input => {
-                    if (input.id !== 'currentDate' && input.id !== 'issueDate') {
-                        input.value = '';
-                    }
-                });
-                
-                const selects = document.querySelectorAll('select');
-                selects.forEach(select => {
-                    select.selectedIndex = 0;
-                });
-                
-                const radios = document.querySelectorAll('input[type="radio"]');
-                radios.forEach(radio => {
-                    radio.checked = false;
-                });
-                
-                document.querySelectorAll('.choice-option').forEach(option => {
-                    option.classList.remove('selected');
-                });
-                
-                setCurrentDate();
-                setIssueDate();
-                showSelectedSection();
-                updateFilledTests();
-                alert('تم مسح جميع الحقول بنجاح!');
-            }
-        }
-
-        function prepareForPrint() {
-            // إظهار جميع الأقسام للطباعة
             const allSections = document.querySelectorAll('.section');
             allSections.forEach(section => {
-                section.classList.add('active');
+                section.classList.add('active'); // إظهار جميع الأقسام مؤقتاً لجمع البيانات
+                
+                const rows = section.querySelectorAll('tbody tr');
+                rows.forEach(row => {
+                    const resultInput = row.querySelector('.result-input, .result-select');
+                    const multipleContainer = row.querySelector('.multiple-choice-container');
+                    let hasValue = false;
+
+                    if (resultInput) {
+                        hasValue = resultInput.value.trim() !== '' && 
+                                   (resultInput.tagName !== 'SELECT' || resultInput.selectedIndex > 0);
+                    } else if (multipleContainer) {
+                        hasValue = !!multipleContainer.querySelector('input[type="radio"]:checked');
+                    }
+
+                    if (hasValue) {
+                        // استبدال الخيارات المتعددة بالقيمة المختارة للطباعة
+                        if (multipleContainer) {
+                            const selectedValue = multipleContainer.querySelector('input[type="radio"]:checked').value;
+                            const resultCell = row.querySelector('td:nth-child(2)');
+                            resultCell.innerHTML = selectedValue;
+                        }
+
+                        mergedTableHTML += row.outerHTML;
+                    } else {
+                        row.classList.add('no-print-row');
+                    }
+                });
             });
 
-            // إخفاء الصفوف الفارغة
-            const allResultInputs = document.querySelectorAll('.result-input, .result-select');
-            allResultInputs.forEach(input => {
-                const row = input.closest('tr');
-                if ((input.value.trim() === '' || (input.tagName === 'SELECT' && input.selectedIndex === 0)) && row) {
-                    row.classList.add('no-print-row');
-                } else {
-                    row.classList.remove('no-print-row');
-                }
-            });
-            
-            // التعامل مع الخيارات المتعددة في الطباعة
-            const multipleContainers = document.querySelectorAll('.multiple-choice-container');
-            multipleContainers.forEach(container => {
-                const row = container.closest('tr');
-                const hasSelection = container.querySelector('input[type="radio"]:checked');
-                if (!hasSelection && row) {
-                    row.classList.add('no-print-row');
-                } else {
-                    row.classList.remove('no-print-row');
-                }
-            });
-            
-            // إخفاء معلومات المريض الفارغة
+            mergedTableHTML += '</tbody></table>';
+
+            // استبدال محتوى resultsContainer بالجدول المدمج
+            document.getElementById('resultsContainer').innerHTML = mergedTableHTML;
+
+            // إخفاء معلومات المريض الفارغة (كما في الكود الأصلي)
             const patientInfoInputs = document.querySelectorAll('#patientInfoSection .editable-field');
             patientInfoInputs.forEach(input => {
                 const infoItem = input.closest('.info-item');
@@ -3976,42 +3954,23 @@
                     infoItem.classList.remove('no-print-item');
                 }
             });
-            
-            // إخفاء الأقسام الفارغة بالكامل
-            const sections = document.querySelectorAll('.section');
-            sections.forEach(section => {
-                const inputsInSection = section.querySelectorAll('input, select');
-                let hasValue = false;
-                
-                inputsInSection.forEach(input => {
-                    if (input.value.trim() !== '' || (input.tagName === 'SELECT' && input.selectedIndex > 0)) {
-                        hasValue = true;
-                    }
-                });
-                
-                // التحقق من الخيارات المتعددة
-                const multipleContainersInSection = section.querySelectorAll('.multiple-choice-container');
-                multipleContainersInSection.forEach(container => {
-                    const selectedRadio = container.querySelector('input[type="radio"]:checked');
-                    if (selectedRadio) {
-                        hasValue = true;
-                    }
-                });
-                
-                if (!hasValue) {
-                    section.classList.add('no-print-section');
-                } else {
-                    section.classList.remove('no-print-section');
-                }
-            });
         }
 
+        // إعادة الهيكل بعد الطباعة
         function restoreAfterPrint() {
+            document.getElementById('resultsContainer').innerHTML = originalResultsHTML;
+            addEventListenersToResults(); // إعادة إضافة المستمعين
+            showSelectedSection();
+
             const hiddenElements = document.querySelectorAll('.no-print-row, .no-print-item, .no-print-section');
             hiddenElements.forEach(element => {
                 element.classList.remove('no-print-row', 'no-print-item', 'no-print-section');
             });
-            showSelectedSection();
+        }
+
+        function prepareForPrint() {
+            // إخفاء الصفوف الفارغة ودمج الجداول في جدول واحد
+            mergeTablesForPrint();
         }
 
         function printPage() {
@@ -4022,6 +3981,7 @@
             savePatientData();
             prepareForPrint();
             window.print();
+            restoreAfterPrint(); // إعادة الهيكل بعد الطباعة مباشرة
         }
 
         function updateFilledTests() {
@@ -4127,4 +4087,3 @@
     </script>
 </body>
 </html>
-```
