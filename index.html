@@ -1,4 +1,4 @@
-```html
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -6,11 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>برنامج اوسكار</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Scheherazade:wght@400;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@300;400;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Scheherazade:wght@300;400;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@300;400;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
             --header-color: #007bff;
@@ -22,6 +22,7 @@
             --range-font-size: 16px;
             --footer-font-size: 14px;
             --doctor-font-size: 14px;
+            --patient-info-font-size: 14px;
             --title-font-color: #0056b3;
             --test-name-font-color: #212529;
             --result-font-color: #212529;
@@ -30,6 +31,7 @@
             --doctor-font-color: #198754;
             --patient-info-bg: #e9ecef;
             --header-bg: #ffffff;
+            --footer-bg: #007bff;
             --table-border-width: 1px;
             --table-border-color: #dee2e6;
             --doctor-box-border-radius: 4px;
@@ -49,6 +51,17 @@
             --print-margin-left: 0.5cm;
             --print-margin-right: 0.5cm;
 
+            /* أوزان الخطوط الافتراضية المحدثة (زيادة الوزن) */
+            --title-font-weight: 700;
+            --main-font-weight: 500;
+            --subtitle-font-weight: 600;
+            --test-font-weight: 600;
+            --result-font-weight: 600;
+            --range-font-weight: 600;
+            --footer-font-weight: 600;
+            --doctor-font-weight: 600;
+            --patient-info-font-weight: 600;
+
             /* إضافات جديدة لتحسين التصميم */
             --shadow-light: 0 2px 10px rgba(0, 0, 0, 0.1);
             --shadow-medium: 0 4px 20px rgba(0, 0, 0, 0.15);
@@ -66,6 +79,7 @@
 
         body {
             font-family: var(--main-font);
+            font-weight: var(--main-font-weight);
             line-height: 1.6;
             color: #333;
             background-color: var(--background-color);
@@ -129,7 +143,7 @@
         .header h1 {
             color: var(--title-font-color);
             font-size: var(--title-font-size);
-            font-weight: 700;
+            font-weight: var(--title-font-weight);
             margin-bottom: 10px;
             font-family: var(--title-font);
             text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
@@ -148,7 +162,7 @@
             text-align: center;
             color: var(--doctor-font-color);
             font-size: var(--doctor-font-size);
-            font-weight: 600;
+            font-weight: var(--doctor-font-weight);
             padding: 8px 12px;
             border: 1px solid rgba(0, 128, 0, 0.2);
             border-radius: var(--doctor-box-border-radius);
@@ -164,7 +178,8 @@
         }
 
         .patient-info {
-            font-size: 14px;
+            font-size: var(--patient-info-font-size);
+            font-weight: var(--patient-info-font-weight);
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 15px;
@@ -183,14 +198,14 @@
         }
 
         .info-label {
-            font-weight: 600;
+            font-weight: var(--patient-info-font-weight);
             color: var(--header-color);
             font-family: var(--main-font);
         }
 
         .editable-field {
-            font-weight: 500;
-            font-size: 14px;
+            font-weight: var(--patient-info-font-weight);
+            font-size: var(--patient-info-font-size);
             border: 1px dashed var(--button-color);
             padding: 6px 12px;
             border-radius: var(--border-radius-small);
@@ -236,7 +251,7 @@
             color: white;
             padding: 12px 20px;
             font-size: 20px;
-            font-weight: 600;
+            font-weight: var(--subtitle-font-weight);
             text-align: center;
             display: flex;
             align-items: center;
@@ -264,7 +279,7 @@
 
         th {
             background-color: #f8f9fa;
-            font-weight: 600;
+            font-weight: var(--subtitle-font-weight);
             color: var(--header-color);
             font-family: var(--subtitle-font);
         }
@@ -275,7 +290,7 @@
 
           .test-name {
             font-size: var(--test-name-font-size);
-            font-weight: bold;
+            font-weight: var(--test-font-weight);
             background-color: #e8f4e8;
             color: var(--test-name-font-color);
             font-family: var(--test-font);
@@ -283,7 +298,7 @@
 
           .normal-range {
             font-size: var(--range-font-size);
-            font-weight: bold;
+            font-weight: var(--range-font-weight);
             color: var(--range-font-color);
             direction: rtl;
             font-family: var(--range-font);
@@ -297,9 +312,9 @@
             border-radius: 4px;
             text-align: center;
             font-family: var(--result-font);
+            font-weight: var(--result-font-weight);
             background-color: #f9f9f9;
             font-size: var(--result-font-size);
-            font-weight: bolder;
             direction: rtl;
             color: var(--result-font-color);
         }
@@ -330,6 +345,7 @@
             transition: all var(--transition-fast);
             font-size: 13px;
             font-family: var(--result-font);
+            font-weight: var(--result-font-weight);
             width: 100%;
         }
 
@@ -361,6 +377,7 @@
             color: #555;
             font-size: 14px;
             font-family: var(--footer-font);
+            font-weight: var(--footer-font-weight);
         }
 
         .signature-area {
@@ -378,6 +395,7 @@
             text-align: center;
             font-size: 14px;
             font-family: var(--main-font);
+            font-weight: var(--main-font-weight);
         }
 
         .signature-input {
@@ -386,6 +404,7 @@
             padding: 4px;
             text-align: center;
             font-family: var(--main-font);
+            font-weight: var(--main-font-weight);
             width: 100%;
             margin-top: 5px;
             font-size: 14px;
@@ -404,7 +423,7 @@
             border: none;
             border-radius: 30px;
             font-size: 15px;
-            font-weight: 600;
+            font-weight: var(--main-font-weight);
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -445,11 +464,12 @@
         }
 
         .lab-footer {
-            background: linear-gradient(135deg, var(--header-color) 0%, #1a5e78 100%);
+            background: var(--footer-bg);
             padding: 20px;
             text-align: center;
             border-top: 2px solid var(--button-color);
             font-family: var(--footer-font);
+            font-weight: var(--footer-font-weight);
             color: var(--footer-font-color);
             font-size: var(--footer-font-size);
             margin-top: 40px;
@@ -468,7 +488,7 @@
         }
 
         .lab-footer-title {
-            font-weight: 700;
+            font-weight: var(--footer-font-weight);
             color: var(--footer-font-color);
             margin-bottom: 8px;
             font-family: var(--title-font);
@@ -480,7 +500,7 @@
             align-items: center;
             gap: 15px;
             margin-bottom: 25px;
-            font-weight: 600;
+            font-weight: var(--main-font-weight);
             color: var(--header-color);
             flex-wrap: wrap;
             font-family: var(--main-font);
@@ -516,7 +536,7 @@
             color: rgba(0, 0, 0, 0.02);
             pointer-events: none;
             z-index: -1;
-            font-weight: 700;
+            font-weight: var(--title-font-weight);
             white-space: nowrap;
             font-family: var(--title-font);
         }
@@ -528,7 +548,7 @@
             padding: 12px 20px;
             background-color: #e8f4e8;
             border-top: 1px solid #ddd;
-            font-weight: 600;
+            font-weight: var(--main-font-weight);
             direction: rtl;
             font-family: var(--main-font);
         }
@@ -539,6 +559,7 @@
             border-radius: var(--border-radius-small);
             text-align: right;
             font-family: var(--main-font);
+            font-weight: var(--main-font-weight);
             width: 220px;
             background-color: white;
             transition: all var(--transition-fast);
@@ -548,7 +569,7 @@
             background-color: #e8f4e8;
             padding: 10px;
             text-align: center;
-            font-weight: 600;
+            font-weight: var(--subtitle-font-weight);
             border-bottom: 1px solid #ddd;
             direction: rtl;
             font-family: var(--subtitle-font);
@@ -600,6 +621,7 @@
             border: 1px solid #ddd;
             border-radius: var(--border-radius-small);
             font-family: var(--main-font);
+            font-weight: var(--main-font-weight);
             transition: all var(--transition-fast);
         }
 
@@ -623,6 +645,7 @@
             padding: 10px;
             text-align: center;
             font-family: var(--main-font);
+            font-weight: var(--main-font-weight);
         }
 
         .range-table th {
@@ -641,6 +664,7 @@
             align-items: center;
             gap: 8px;
             font-family: var(--main-font);
+            font-weight: var(--main-font-weight);
             transition: all var(--transition-slow);
         }
 
@@ -661,7 +685,7 @@
             align-items: center;
             gap: 10px;
             font-family: var(--main-font);
-            font-weight: 600;
+            font-weight: var(--main-font-weight);
             transition: all var(--transition-slow);
         }
 
@@ -705,7 +729,7 @@
             text-align: center;
             transition: all var(--transition-slow);
             font-family: var(--main-font);
-            font-weight: 500;
+            font-weight: var(--main-font-weight);
         }
 
         .modal-tab:hover {
@@ -715,7 +739,7 @@
         .modal-tab.active {
             border-bottom: 3px solid var(--button-color);
             color: var(--button-color);
-            font-weight: 700;
+            font-weight: var(--main-font-weight);
         }
 
         [data-tab] {
@@ -753,6 +777,7 @@
             border: 1px solid #ddd;
             border-radius: var(--border-radius-small);
             font-family: var(--main-font);
+            font-weight: var(--main-font-weight);
             transition: all var(--transition-fast);
         }
 
@@ -787,6 +812,7 @@
             border: 1px solid #ccc;
             border-radius: var(--border-radius-small);
             font-family: var(--main-font);
+            font-weight: var(--main-font-weight);
         }
 
         .remove-choice {
@@ -811,6 +837,7 @@
             cursor: pointer;
             font-size: 13px;
             font-family: var(--main-font);
+            font-weight: var(--main-font-weight);
             margin-top: 8px;
             transition: all var(--transition-slow);
         }
@@ -902,6 +929,7 @@
             margin-bottom: 12px;
             color: var(--header-color);
             font-family: var(--title-font);
+            font-weight: var(--title-font-weight);
             font-size: 18px;
         }
 
@@ -914,7 +942,7 @@
 
         .color-picker label {
             min-width: 120px;
-            font-weight: 500;
+            font-weight: var(--main-font-weight);
         }
 
         .color-input {
@@ -934,6 +962,7 @@
             border-radius: var(--border-radius-small);
             margin-bottom: 10px;
             font-family: var(--main-font);
+            font-weight: var(--main-font-weight);
             transition: all var(--transition-fast);
         }
 
@@ -949,6 +978,7 @@
             border-radius: var(--border-radius-small);
             margin-bottom: 10px;
             font-family: var(--main-font);
+            font-weight: var(--main-font-weight);
             transition: all var(--transition-fast);
         }
 
@@ -967,7 +997,7 @@
             width: 100%;
             margin-top: 12px;
             font-family: var(--main-font);
-            font-weight: 600;
+            font-weight: var(--main-font-weight);
             transition: all var(--transition-slow);
         }
 
@@ -985,10 +1015,30 @@
         
         .font-size-picker label {
             min-width: 130px;
-            font-weight: 500;
+            font-weight: var(--main-font-weight);
         }
         
         .font-size-input {
+            width: 70px;
+            padding: 6px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius-small);
+            text-align: center;
+        }
+
+        .font-weight-picker {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+            align-items: center;
+        }
+
+        .font-weight-picker label {
+            min-width: 130px;
+            font-weight: var(--main-font-weight);
+        }
+
+        .font-weight-input {
             width: 70px;
             padding: 6px;
             border: 1px solid #ddd;
@@ -1005,7 +1055,7 @@
 
         .border-picker label {
             min-width: 130px;
-            font-weight: 500;
+            font-weight: var(--main-font-weight);
         }
 
         .border-width-input, .border-radius-input {
@@ -1037,6 +1087,7 @@
             width: 100%;
             margin-top: 8px;
             font-family: var(--main-font);
+            font-weight: var(--main-font-weight);
             transition: all var(--transition-slow);
         }
 
@@ -1056,6 +1107,7 @@
             border-radius: var(--border-radius-small);
             border-left: 5px solid var(--button-color);
             font-family: var(--main-font);
+            font-weight: var(--main-font-weight);
             box-shadow: var(--shadow-light);
         }
 
@@ -1089,7 +1141,7 @@
 
         .stats-table th, .patients-table th {
             background-color: #f8f9fa;
-            font-weight: 600;
+            font-weight: var(--subtitle-font-weight);
         }
 
         .delete-btn {
@@ -1133,7 +1185,7 @@
         .stats-summary {
             text-align: center;
             font-size: 20px;
-            font-weight: 700;
+            font-weight: var(--title-font-weight);
             margin: 12px 0;
             color: var(--header-color);
         }
@@ -1151,6 +1203,7 @@
             border-radius: var(--border-radius-small);
             cursor: pointer;
             font-size: 13px;
+            font-weight: var(--main-font-weight);
             transition: all var(--transition-fast);
         }
 
@@ -1194,7 +1247,7 @@
         }
 
         .visit-date {
-            font-weight: 600;
+            font-weight: var(--main-font-weight);
             color: var(--header-color);
         }
 
@@ -1242,6 +1295,7 @@
             border: 1px solid #ddd;
             border-radius: var(--border-radius-small);
             font-family: var(--main-font);
+            font-weight: var(--main-font-weight);
         }
 
         @media print {
@@ -1404,7 +1458,7 @@
                 padding: 15px;
                 font-size: 12px;
                 color: #000;
-                background-color: #f9f9f9;
+                background-color: var(--footer-bg);
                 margin: 0;
                 width: 100%;
                 box-sizing: border-box;
@@ -1548,6 +1602,10 @@
                 <label>لون حدود الجدول:</label>
                 <input type="color" id="tableBorderColor" class="color-input" value="#dee2e6">
             </div>
+            <div class="color-picker">
+                <label>لون خلفية التذييل:</label>
+                <input type="color" id="footerBg" class="color-input" value="#007bff">
+            </div>
         </div>
         
         <div class="settings-group">
@@ -1575,6 +1633,50 @@
             <div class="font-size-picker">
                 <label>حجم أسماء الأطباء:</label>
                 <input type="number" id="doctorFontSize" class="font-size-input" value="14" min="10" max="30"> px
+            </div>
+            <div class="font-size-picker">
+                <label>حجم خطوط معلومات المريض:</label>
+                <input type="number" id="patientInfoFontSize" class="font-size-input" value="14" min="10" max="30"> px
+            </div>
+        </div>
+
+        <div class="settings-group">
+            <h3>التحكم بوزن الخطوط</h3>
+            <div class="font-weight-picker">
+                <label>وزن خط العنوان:</label>
+                <input type="number" id="titleFontWeight" class="font-weight-input" value="700" min="300" max="900"> 
+            </div>
+            <div class="font-weight-picker">
+                <label>وزن الخط الرئيسي:</label>
+                <input type="number" id="mainFontWeight" class="font-weight-input" value="500" min="300" max="900"> 
+            </div>
+            <div class="font-weight-picker">
+                <label>وزن خط العناوين الفرعية:</label>
+                <input type="number" id="subtitleFontWeight" class="font-weight-input" value="600" min="300" max="900"> 
+            </div>
+            <div class="font-weight-picker">
+                <label>وزن خط أسماء التحاليل:</label>
+                <input type="number" id="testFontWeight" class="font-weight-input" value="600" min="300" max="900"> 
+            </div>
+            <div class="font-weight-picker">
+                <label>وزن خط النتائج:</label>
+                <input type="number" id="resultFontWeight" class="font-weight-input" value="600" min="300" max="900"> 
+            </div>
+            <div class="font-weight-picker">
+                <label>وزن خط النطاقات:</label>
+                <input type="number" id="rangeFontWeight" class="font-weight-input" value="600" min="300" max="900"> 
+            </div>
+            <div class="font-weight-picker">
+                <label>وزن خط التذييل:</label>
+                <input type="number" id="footerFontWeight" class="font-weight-input" value="600" min="300" max="900"> 
+            </div>
+            <div class="font-weight-picker">
+                <label>وزن خط أسماء الأطباء:</label>
+                <input type="number" id="doctorFontWeight" class="font-weight-input" value="600" min="300" max="900"> 
+            </div>
+            <div class="font-weight-picker">
+                <label>وزن خط معلومات المريض:</label>
+                <input type="number" id="patientInfoFontWeight" class="font-weight-input" value="600" min="300" max="900"> 
             </div>
         </div>
         
@@ -2419,6 +2521,7 @@
             document.getElementById('patientInfoBg').value = localStorage.getItem('patientInfoBg') || '#e9ecef';
             document.getElementById('headerBg').value = localStorage.getItem('headerBg') || '#ffffff';
             document.getElementById('tableBorderColor').value = localStorage.getItem('tableBorderColor') || '#dee2e6';
+            document.getElementById('footerBg').value = localStorage.getItem('footerBg') || '#007bff';
 
             const savedLogo = localStorage.getItem('labLogo');
             if (savedLogo) {
@@ -2432,6 +2535,7 @@
             document.getElementById('rangeFontSize').value = localStorage.getItem('rangeFontSize') || '16';
             document.getElementById('footerFontSize').value = localStorage.getItem('footerFontSize') || '14';
             document.getElementById('doctorFontSize').value = localStorage.getItem('doctorFontSize') || '14';
+            document.getElementById('patientInfoFontSize').value = localStorage.getItem('patientInfoFontSize') || '14';
             document.getElementById('tableBorderWidth').value = localStorage.getItem('tableBorderWidth') || '1';
             document.getElementById('doctorBoxBorderRadius').value = localStorage.getItem('doctorBoxBorderRadius') || '4';
 
@@ -2450,6 +2554,17 @@
             document.getElementById('rangeFont').value = localStorage.getItem('rangeFont') || "'Cairo', sans-serif";
             document.getElementById('footerFont').value = localStorage.getItem('footerFont') || "'Cairo', sans-serif";
             document.getElementById('doctorFont').value = localStorage.getItem('doctorFont') || "'Cairo', sans-serif";
+
+            // تحميل أوزان الخطوط
+            document.getElementById('titleFontWeight').value = localStorage.getItem('titleFontWeight') || '700';
+            document.getElementById('mainFontWeight').value = localStorage.getItem('mainFontWeight') || '500';
+            document.getElementById('subtitleFontWeight').value = localStorage.getItem('subtitleFontWeight') || '600';
+            document.getElementById('testFontWeight').value = localStorage.getItem('testFontWeight') || '600';
+            document.getElementById('resultFontWeight').value = localStorage.getItem('resultFontWeight') || '600';
+            document.getElementById('rangeFontWeight').value = localStorage.getItem('rangeFontWeight') || '600';
+            document.getElementById('footerFontWeight').value = localStorage.getItem('footerFontWeight') || '600';
+            document.getElementById('doctorFontWeight').value = localStorage.getItem('doctorFontWeight') || '600';
+            document.getElementById('patientInfoFontWeight').value = localStorage.getItem('patientInfoFontWeight') || '600';
 
             document.getElementById('showDoctor1').checked = localStorage.getItem('showDoctor1') !== 'false';
             document.getElementById('showDoctor2').checked = localStorage.getItem('showDoctor2') !== 'false';
@@ -2477,6 +2592,7 @@
             localStorage.setItem('patientInfoBg', document.getElementById('patientInfoBg').value);
             localStorage.setItem('headerBg', document.getElementById('headerBg').value);
             localStorage.setItem('tableBorderColor', document.getElementById('tableBorderColor').value);
+            localStorage.setItem('footerBg', document.getElementById('footerBg').value);
 
             const logoPreview = document.getElementById('logoPreview');
             if (logoPreview.src && logoPreview.src !== '') {
@@ -2491,6 +2607,7 @@
             localStorage.setItem('rangeFontSize', document.getElementById('rangeFontSize').value);
             localStorage.setItem('footerFontSize', document.getElementById('footerFontSize').value);
             localStorage.setItem('doctorFontSize', document.getElementById('doctorFontSize').value);
+            localStorage.setItem('patientInfoFontSize', document.getElementById('patientInfoFontSize').value);
             localStorage.setItem('tableBorderWidth', document.getElementById('tableBorderWidth').value);
             localStorage.setItem('doctorBoxBorderRadius', document.getElementById('doctorBoxBorderRadius').value);
 
@@ -2509,6 +2626,17 @@
             localStorage.setItem('rangeFont', document.getElementById('rangeFont').value);
             localStorage.setItem('footerFont', document.getElementById('footerFont').value);
             localStorage.setItem('doctorFont', document.getElementById('doctorFont').value);
+
+            // حفظ أوزان الخطوط
+            localStorage.setItem('titleFontWeight', document.getElementById('titleFontWeight').value);
+            localStorage.setItem('mainFontWeight', document.getElementById('mainFontWeight').value);
+            localStorage.setItem('subtitleFontWeight', document.getElementById('subtitleFontWeight').value);
+            localStorage.setItem('testFontWeight', document.getElementById('testFontWeight').value);
+            localStorage.setItem('resultFontWeight', document.getElementById('resultFontWeight').value);
+            localStorage.setItem('rangeFontWeight', document.getElementById('rangeFontWeight').value);
+            localStorage.setItem('footerFontWeight', document.getElementById('footerFontWeight').value);
+            localStorage.setItem('doctorFontWeight', document.getElementById('doctorFontWeight').value);
+            localStorage.setItem('patientInfoFontWeight', document.getElementById('patientInfoFontWeight').value);
 
             localStorage.setItem('showDoctor1', document.getElementById('showDoctor1').checked);
             localStorage.setItem('showDoctor2', document.getElementById('showDoctor2').checked);
@@ -2567,6 +2695,7 @@
             document.documentElement.style.setProperty('--button-color', localStorage.getItem('buttonColor') || '#28a745');
             document.documentElement.style.setProperty('--patient-info-bg', localStorage.getItem('patientInfoBg') || '#e9ecef');
             document.documentElement.style.setProperty('--header-bg', localStorage.getItem('headerBg') || '#ffffff');
+            document.documentElement.style.setProperty('--footer-bg', localStorage.getItem('footerBg') || '#007bff');
             document.documentElement.style.setProperty('--table-border-color', localStorage.getItem('tableBorderColor') || '#dee2e6');
             document.documentElement.style.setProperty('--table-border-width', (localStorage.getItem('tableBorderWidth') || '1') + 'px');
 
@@ -2576,6 +2705,7 @@
             document.documentElement.style.setProperty('--range-font-size', (localStorage.getItem('rangeFontSize') || '16') + 'px');
             document.documentElement.style.setProperty('--footer-font-size', (localStorage.getItem('footerFontSize') || '14') + 'px');
             document.documentElement.style.setProperty('--doctor-font-size', (localStorage.getItem('doctorFontSize') || '14') + 'px');
+            document.documentElement.style.setProperty('--patient-info-font-size', (localStorage.getItem('patientInfoFontSize') || '14') + 'px');
 
             document.documentElement.style.setProperty('--title-font-color', localStorage.getItem('titleFontColor') || '#0056b3');
             document.documentElement.style.setProperty('--test-name-font-color', localStorage.getItem('testNameFontColor') || '#212529');
@@ -2592,6 +2722,17 @@
             document.documentElement.style.setProperty('--range-font', localStorage.getItem('rangeFont') || "'Cairo', sans-serif");
             document.documentElement.style.setProperty('--footer-font', localStorage.getItem('footerFont') || "'Cairo', sans-serif");
             document.documentElement.style.setProperty('--doctor-font', localStorage.getItem('doctorFont') || "'Cairo', sans-serif");
+
+            // تطبيق أوزان الخطوط
+            document.documentElement.style.setProperty('--title-font-weight', (localStorage.getItem('titleFontWeight') || '700'));
+            document.documentElement.style.setProperty('--main-font-weight', (localStorage.getItem('mainFontWeight') || '500'));
+            document.documentElement.style.setProperty('--subtitle-font-weight', (localStorage.getItem('subtitleFontWeight') || '600'));
+            document.documentElement.style.setProperty('--test-font-weight', (localStorage.getItem('testFontWeight') || '600'));
+            document.documentElement.style.setProperty('--result-font-weight', (localStorage.getItem('resultFontWeight') || '600'));
+            document.documentElement.style.setProperty('--range-font-weight', (localStorage.getItem('rangeFontWeight') || '600'));
+            document.documentElement.style.setProperty('--footer-font-weight', (localStorage.getItem('footerFontWeight') || '600'));
+            document.documentElement.style.setProperty('--doctor-font-weight', (localStorage.getItem('doctorFontWeight') || '600'));
+            document.documentElement.style.setProperty('--patient-info-font-weight', (localStorage.getItem('patientInfoFontWeight') || '600'));
 
             document.documentElement.style.setProperty('--doctor-box-border-radius', (localStorage.getItem('doctorBoxBorderRadius') || '4') + 'px');
 
@@ -3986,4 +4127,3 @@
     </script>
 </body>
 </html>
-```
