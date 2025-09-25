@@ -1110,7 +1110,7 @@
 
         @media print {
             @page {
-                size: A4;
+                size: A4 landscape; /* تعديل: جعل الطباعة أفقية لتناسب عرض الورقة الكامل */
                 margin: var(--print-margin-top) var(--print-margin-right) var(--print-margin-bottom) var(--print-margin-left);
             }
 
@@ -1226,7 +1226,7 @@
             }
 
             table {
-                width: var(--table-width);
+                width: 100%; /* تعديل: ضمان عرض الجدول الكامل للورقة */
                 page-break-inside: avoid;
                 font-size: 12px;
                 direction: ltr;
@@ -1971,6 +1971,7 @@
                     "S. Triglyceride": { type: "text", range: "mg/dl (35-165)" }, 
                     "VLDL": { type: "text", range: "mg/dl (5-30)" },
                     "S. LDL": { type: "text", range: "mg/dl (130-160)" }, 
+                    "S. LDL": { type: "text", range: "mg/dl (130-160)" }, 
                     "S. HDL": { type: "text", range: "mg/dl (35-65)" }, 
                     "Chol/HDL Ratio": { type: "text", range: "<5.0" },
                     "LDL/HDL Ratio": { type: "text", range: "<3.5" }
@@ -2191,6 +2192,7 @@
                     "APTT": { type: "text", range: "25-35 seconds" },
                     "Thrombin Time (TT)": { type: "text", range: "12-18 seconds" }, 
                     "Fibrinogen": { type: "text", range: "200-400 mg/dL" }, 
+                    "D-Dimer": { type: "text", range: "<500 ng/mL" },
                     "D-Dimer": { type: "text", range: "<500 ng/mL" },
                     "Platelet Function Assay (PFA)": { type: "text", range: "Closure Time (varies by instrument)" }
                 }
@@ -3684,8 +3686,8 @@
             });
             
             // إخفاء معلومات المريض الفارغة
-            const patientInfoInputs = document.querySelectorAll('#patientInfoSection .editable-field');
-            patientInfoInputs.forEach(input => {
+            const allPatientInfoInputs = document.querySelectorAll('#patientInfoSection .editable-field');
+            allPatientInfoInputs.forEach(input => {
                 const infoItem = input.closest('.info-item');
                 if (input.value.trim() === '' && infoItem) {
                     infoItem.classList.add('no-print-item');
@@ -3844,4 +3846,3 @@
     </script>
 </body>
 </html>
-
