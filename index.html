@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -253,9 +254,9 @@
             width: 33%;
         }
 
-        td:first-child { width: 30%; }
-        td:nth-child(2) { width: 35%; }
-        td:last-child { width: 35%; }
+        td:first-child { width: 40%; } /* تعديل عرض عمود الاختبار ليكون أوسع للنصوص العربية الطويلة */
+        td:nth-child(2) { width: 30%; } /* عرض النتيجة */
+        td:last-child { width: 30%; } /* عرض النطاق الطبيعي */
 
         .test-name {
             font-size: var(--test-name-font-size);
@@ -1237,6 +1238,10 @@
                 border: var(--table-border-width) solid var(--table-border-color);
                 vertical-align: top;
             }
+
+            td:first-child { width: 40%; } /* تعديل عرض عمود الاختبار للطباعة */
+            td:nth-child(2) { width: 30%; } /* عرض النتيجة */
+            td:last-child { width: 30%; } /* عرض النطاق الطبيعي */
 
             .test-name {
                 text-align: right;
@@ -3844,4 +3849,3 @@
     </script>
 </body>
 </html>
-
