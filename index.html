@@ -1,4 +1,4 @@
-
+```html
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -46,10 +46,10 @@
             --table-width: 100%; 
             --cell-padding: 8px; 
             --input-height: 30px;
-            --print-margin-top: 0.5cm;
-            --print-margin-bottom: 1.5cm;
-            --print-margin-left: 0.5cm;
-            --print-margin-right: 0.5cm;
+            --print-margin-top: 0.7cm;
+            --print-margin-bottom: 1.2cm;
+            --print-margin-left: 0.7cm;
+            --print-margin-right: 0.7cm;
 
             /* أوزان الخطوط الافتراضية المحدثة (زيادة الوزن) */
             --title-font-weight: 700;
@@ -1310,7 +1310,7 @@
                 margin: 0;
                 padding: 0;
                 background: white;
-                font-size: 12px;
+                font-size: 10pt;
                 display: flex;
                 flex-direction: column;
                 min-height: 100vh;
@@ -1832,19 +1832,19 @@
             </div>
             <div class="font-size-picker">
                 <label>هامش علوي (cm):</label>
-                <input type="number" id="printMarginTop" step="0.1" class="font-size-input" value="0.5" min="0" max="2"> cm
+                <input type="number" id="printMarginTop" step="0.1" class="font-size-input" value="0.7" min="0" max="2"> cm
             </div>
             <div class="font-size-picker">
                 <label>هامش سفلي (cm):</label>
-                <input type="number" id="printMarginBottom" step="0.1" class="font-size-input" value="1.5" min="0" max="2"> cm
+                <input type="number" id="printMarginBottom" step="0.1" class="font-size-input" value="1.2" min="0" max="2"> cm
             </div>
             <div class="font-size-picker">
                 <label>هامش يسار (cm):</label>
-                <input type="number" id="printMarginLeft" step="0.1" class="font-size-input" value="0.5" min="0" max="2"> cm
+                <input type="number" id="printMarginLeft" step="0.1" class="font-size-input" value="0.7" min="0" max="2"> cm
             </div>
             <div class="font-size-picker">
                 <label>هامش يمين (cm):</label>
-                <input type="number" id="printMarginRight" step="0.1" class="font-size-input" value="0.5" min="0" max="2"> cm
+                <input type="number" id="printMarginRight" step="0.1" class="font-size-input" value="0.7" min="0" max="2"> cm
             </div>
         </div>
         
@@ -2572,10 +2572,10 @@
             document.getElementById('tableWidth').value = localStorage.getItem('tableWidth') || '100';
             document.getElementById('cellPadding').value = localStorage.getItem('cellPadding') || '8';
             document.getElementById('inputHeight').value = localStorage.getItem('inputHeight') || '30';
-            document.getElementById('printMarginTop').value = localStorage.getItem('printMarginTop') || '0.5';
-            document.getElementById('printMarginBottom').value = localStorage.getItem('printMarginBottom') || '1.5';
-            document.getElementById('printMarginLeft').value = localStorage.getItem('printMarginLeft') || '0.5';
-            document.getElementById('printMarginRight').value = localStorage.getItem('printMarginRight') || '0.5';
+            document.getElementById('printMarginTop').value = localStorage.getItem('printMarginTop') || '0.7';
+            document.getElementById('printMarginBottom').value = localStorage.getItem('printMarginBottom') || '1.2';
+            document.getElementById('printMarginLeft').value = localStorage.getItem('printMarginLeft') || '0.7';
+            document.getElementById('printMarginRight').value = localStorage.getItem('printMarginRight') || '0.7';
         }
 
         function saveSettings() {
@@ -2739,10 +2739,10 @@
             document.documentElement.style.setProperty('--table-width', (localStorage.getItem('tableWidth') || '100') + '%');
             document.documentElement.style.setProperty('--cell-padding', (localStorage.getItem('cellPadding') || '8') + 'px');
             document.documentElement.style.setProperty('--input-height', (localStorage.getItem('inputHeight') || '30') + 'px');
-            document.documentElement.style.setProperty('--print-margin-top', (localStorage.getItem('printMarginTop') || '0.5') + 'cm');
-            document.documentElement.style.setProperty('--print-margin-bottom', (localStorage.getItem('printMarginBottom') || '1.5') + 'cm');
-            document.documentElement.style.setProperty('--print-margin-left', (localStorage.getItem('printMarginLeft') || '0.5') + 'cm');
-            document.documentElement.style.setProperty('--print-margin-right', (localStorage.getItem('printMarginRight') || '0.5') + 'cm');
+            document.documentElement.style.setProperty('--print-margin-top', (localStorage.getItem('printMarginTop') || '0.7') + 'cm');
+            document.documentElement.style.setProperty('--print-margin-bottom', (localStorage.getItem('printMarginBottom') || '1.2') + 'cm');
+            document.documentElement.style.setProperty('--print-margin-left', (localStorage.getItem('printMarginLeft') || '0.7') + 'cm');
+            document.documentElement.style.setProperty('--print-margin-right', (localStorage.getItem('printMarginRight') || '0.7') + 'cm');
 
             const showDoctor1 = localStorage.getItem('showDoctor1') !== 'false';
             const showDoctor2 = localStorage.getItem('showDoctor2') !== 'false';
@@ -4127,3 +4127,4 @@
     </script>
 </body>
 </html>
+```
