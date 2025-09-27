@@ -256,8 +256,8 @@
         }
 
         .section-title {
-            background-color: var(--section-title-bg-color);
-            color: var(--section-title-font-color);
+            background: linear-gradient(135deg, var(--button-color) 0%, #2E7D32 100%);
+            color: white;
             padding: 12px 20px;
             font-size: 20px;
             font-weight: var(--subtitle-font-weight);
@@ -1372,8 +1372,8 @@
             }
 
             .section-title {
-                background: #f2f2f2;
-                color: #000;
+                background: linear-gradient(135deg, var(--button-color) 0%, #2E7D32 100%);
+                color: white;
                 border-bottom: 1px solid #ddd;
                 padding: 10px 15px;
                 font-size: 16px;
@@ -2801,7 +2801,7 @@
             document.documentElement.style.setProperty('--cell-padding', (localStorage.getItem('cellPadding') || '8') + 'px');
             document.documentElement.style.setProperty('--input-height', (localStorage.getItem('inputHeight') || '30') + 'px');
             document.documentElement.style.setProperty('--print-margin-top', (localStorage.getItem('printMarginTop') || '0.7') + 'cm');
-            document.documentElement.style.setProperty('--print-margin-bottom', (localStorage.getItem('printMarginBottom') || '1.2') + 'cm');
+            document.documentElement.style.setProperty('--print-margin-bottom', localStorage.getItem('printMarginBottom') || '1.2' + 'cm');
             document.documentElement.style.setProperty('--print-margin-left', (localStorage.getItem('printMarginLeft') || '0.7') + 'cm');
             document.documentElement.style.setProperty('--print-margin-right', (localStorage.getItem('printMarginRight') || '0.7') + 'cm');
 
@@ -2887,8 +2887,16 @@
         function loadLabStructure() {
             const customSections = JSON.parse(localStorage.getItem('customSections')) || {};
             const customTests = JSON.parse(localStorage.getItem('customTests') || '{}');
+            const customSectionTitles = JSON.parse(localStorage.getItem('customSectionTitles') || '{}');
 
             labStructure = JSON.parse(JSON.stringify(defaultLabStructure));
+
+            // تطبيق التعديلات على أسماء الأقسام الافتراضية
+            labStructure.forEach(section => {
+                if (customSectionTitles[section.id]) {
+                    section.title = customSectionTitles[section.id];
+                }
+            });
 
             // إضافة الأقسام المخصصة
             for (const sectionId in customSections) {
@@ -2914,6 +2922,13 @@
                     });
                 }
             }
+
+            // تطبيق التعديلات على أسماء الأقسام المخصصة إذا كان هناك
+            labStructure.forEach(section => {
+                if (customSectionTitles[section.id]) {
+                    section.title = customSectionTitles[section.id];
+                }
+            });
 
             renderLabStructure();
             updateSelectMenus();
@@ -3027,7 +3042,7 @@
                 let value = input.value.trim();
                 
                 // إزالة أي رموز سابقة إذا كانت موجودة
-                value = value.replace(/ [↑↓N]$/, '');
+                value = value.replace(/[ ↑↓N]$/, '');
                 
                 const row = input.closest('tr');
                 if (row) {
@@ -3235,14 +3250,18 @@
                 selectedSection.title = newName;
             }
 
-            // تحديث في localStorage إذا كان قسم مخصص
-            let customSections = JSON.parse(localStorage.getItem('customSections')) || {};
+            // حفظ التعديل في localStorage
+            let customSectionTitles = JSON.parse(localStorage.getItem('customSectionTitles') || '{}');
+            customSectionTitles[sectionId] = newName;
+            localStorage.setItem('customSectionTitles', JSON.stringify(customSectionTitles));
+
+            // إذا كان قسم مخصص، تحديث في customSections أيضًا
+            let customSections = JSON.parse(localStorage.getItem('customSections') || '{}');
             if (customSections[sectionId]) {
                 customSections[sectionId].name = newName;
                 localStorage.setItem('customSections', JSON.stringify(customSections));
             }
             
-            // تحديث الهيكل
             loadLabStructure();
             alert('تم تعديل اسم القسم بنجاح!');
             loadSectionRanges(); // إعادة تحميل الجدول
@@ -3251,7 +3270,7 @@
         function saveRanges() {
             const inputs = document.querySelectorAll('#rangeTableContainer .normal-range-input');
             const typeSelects = document.querySelectorAll('#rangeTableContainer select');
-            const customRanges = JSON.parse(localStorage.getItem('customTests')) || {};
+            const customRanges = JSON.parse(localStorage.getItem('customTests') || '{}');
 
             let index = 0;
             inputs.forEach((input, i) => {
@@ -3296,7 +3315,7 @@
                     delete section.tests[testName];
                     
                     // تحديث localStorage
-                    let customTests = JSON.parse(localStorage.getItem('customTests')) || {};
+                    let customTests = JSON.parse(localStorage.getItem('customTests') || '{}');
                     if (customTests[sectionId]) {
                         customTests[sectionId] = customTests[sectionId].filter(test => test.name !== testName);
                         if (customTests[sectionId].length === 0) {
@@ -3383,7 +3402,7 @@
                 return;
             }
             
-            let customSections = JSON.parse(localStorage.getItem('customSections')) || {};
+            let customSections = JSON.parse(localStorage.getItem('customSections') || '{}');
             customSections[sectionId] = {
                 name: sectionName,
                 icon: sectionIcon,
