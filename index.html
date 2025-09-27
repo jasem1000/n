@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -65,6 +66,10 @@
             --test-name-bg-color: #e8f4e8; /* خلفية أسماء التحاليل */
             --normal-range-bg-color: #ffffff; /* خلفية النورمل رانج */
             --result-bg-color: #f9f9f9; /* خلفية النتائج */
+
+            /* إضافات جديدة لألوان عناوين الأقسام */
+            --section-title-font-color: #ffffff; /* لون خط عنوان القسم */
+            --section-title-bg-color: #28a745; /* لون خلفية عنوان القسم */
 
             /* إضافات جديدة لتحسين التصميم */
             --shadow-light: 0 2px 10px rgba(0, 0, 0, 0.1);
@@ -251,8 +256,8 @@
         }
 
         .section-title {
-            background: linear-gradient(135deg, var(--button-color) 0%, #2E7D32 100%);
-            color: white;
+            background-color: var(--section-title-bg-color);
+            color: var(--section-title-font-color);
             padding: 12px 20px;
             font-size: 20px;
             font-weight: var(--subtitle-font-weight);
@@ -1626,6 +1631,14 @@
                 <label>خلفية النتائج:</label>
                 <input type="color" id="resultBgColor" class="color-input" value="#f9f9f9">
             </div>
+            <div class="color-picker">
+                <label>لون خط عنوان القسم:</label>
+                <input type="color" id="sectionTitleFontColor" class="color-input" value="#ffffff">
+            </div>
+            <div class="color-picker">
+                <label>لون خلفية عنوان القسم:</label>
+                <input type="color" id="sectionTitleBgColor" class="color-input" value="#28a745">
+            </div>
         </div>
         
         <div class="settings-group">
@@ -2070,6 +2083,14 @@
                     <select id="sectionSelect" onchange="loadSectionRanges()" class="form-input" style="width: 100%; margin-top: 5px;">
                         <option value="">اختر قسم...</option>
                     </select>
+                </div>
+                
+                <div id="sectionNameEdit" style="display: none; margin-bottom: 15px;">
+                    <label for="editSectionName">تعديل اسم القسم:</label>
+                    <input type="text" id="editSectionName" class="form-input" style="width: 100%; margin-top: 5px;">
+                    <button class="btn btn-save" onclick="saveSectionName()" style="margin-top: 10px; width: 100%;">
+                        <i class="fas fa-save"></i> حفظ اسم القسم
+                    </button>
                 </div>
                 
                 <div id="rangeTableContainer">
@@ -2536,7 +2557,7 @@
             document.getElementById('labHeaderInput').value = localStorage.getItem('labHeader') || '';
             document.getElementById('labAddressInput').value = localStorage.getItem('labAddress') || '    للشراء البرنامج تواصل معنا';
             document.getElementById('labPhoneInput').value = localStorage.getItem('labPhone') || '07901821264';
-            document.getElementById('biologistNameInput').value = localStorage.getItem('biologistName') || 'شكراً لزيارتكم';
+            document.getElementById('biologistNameInput').value = localStorage.getItem('biologistName') || 'شكراً لزيارتككم';
             document.getElementById('doctor1Name').value = localStorage.getItem('doctor1Name') || 'الاول اسم الطبيب او التقني او البايلوجي ';
             document.getElementById('doctor2Name').value = localStorage.getItem('doctor2Name') || ' الثاني اسم الطبيب او التقني او البايلوجي';
 
@@ -2550,6 +2571,8 @@
             document.getElementById('testNameBgColor').value = localStorage.getItem('testNameBgColor') || '#e8f4e8';
             document.getElementById('normalRangeBgColor').value = localStorage.getItem('normalRangeBgColor') || '#ffffff';
             document.getElementById('resultBgColor').value = localStorage.getItem('resultBgColor') || '#f9f9f9';
+            document.getElementById('sectionTitleFontColor').value = localStorage.getItem('sectionTitleFontColor') || '#ffffff';
+            document.getElementById('sectionTitleBgColor').value = localStorage.getItem('sectionTitleBgColor') || '#28a745';
 
             const savedLogo = localStorage.getItem('labLogo');
             if (savedLogo) {
@@ -2624,6 +2647,8 @@
             localStorage.setItem('testNameBgColor', document.getElementById('testNameBgColor').value);
             localStorage.setItem('normalRangeBgColor', document.getElementById('normalRangeBgColor').value);
             localStorage.setItem('resultBgColor', document.getElementById('resultBgColor').value);
+            localStorage.setItem('sectionTitleFontColor', document.getElementById('sectionTitleFontColor').value);
+            localStorage.setItem('sectionTitleBgColor', document.getElementById('sectionTitleBgColor').value);
 
             const logoPreview = document.getElementById('logoPreview');
             if (logoPreview.src && logoPreview.src !== '') {
@@ -2699,7 +2724,7 @@
             const labHeader = localStorage.getItem('labHeader') || '';
             const labAddress = localStorage.getItem('labAddress') || '  للشراء البرنامج تواصل معنا';
             const labPhone = localStorage.getItem('labPhone') || '07901821264';
-            const biologistName = localStorage.getItem('biologistName') || 'شكراً لزيارتكم';
+            const biologistName = localStorage.getItem('biologistName') || 'شكراً لزيارتككم';
             const doctor1Name = localStorage.getItem('doctor1Name') || 'الاول اسم الطبيب او التقني او البايلوجي';
             const doctor2Name = localStorage.getItem('doctor2Name') || ' الثاني اسم الطبيب او التقني او البايلوجي';
 
@@ -2731,6 +2756,8 @@
             document.documentElement.style.setProperty('--test-name-bg-color', localStorage.getItem('testNameBgColor') || '#e8f4e8');
             document.documentElement.style.setProperty('--normal-range-bg-color', localStorage.getItem('normalRangeBgColor') || '#ffffff');
             document.documentElement.style.setProperty('--result-bg-color', localStorage.getItem('resultBgColor') || '#f9f9f9');
+            document.documentElement.style.setProperty('--section-title-font-color', localStorage.getItem('sectionTitleFontColor') || '#ffffff');
+            document.documentElement.style.setProperty('--section-title-bg-color', localStorage.getItem('sectionTitleBgColor') || '#28a745');
             document.documentElement.style.setProperty('--table-border-width', (localStorage.getItem('tableBorderWidth') || '1') + 'px');
 
             document.documentElement.style.setProperty('--title-font-size', (localStorage.getItem('titleFontSize') || '28') + 'px');
@@ -2975,10 +3002,10 @@
         function addEventListenersToResults() {
             // إضافة مستمعين للـ inputs والـ selects
             document.querySelectorAll('.result-input, .result-select').forEach(input => {
-                input.removeEventListener('input', updateFilledTests);
-                input.removeEventListener('change', updateFilledTests);
-                input.addEventListener('input', updateFilledTests);
-                input.addEventListener('change', updateFilledTests);
+                input.removeEventListener('input', handleResultChange);
+                input.removeEventListener('change', handleResultChange);
+                input.addEventListener('input', handleResultChange);
+                input.addEventListener('change', handleResultChange);
             });
 
             // إضافة مستمعين للخيارات المتعددة
@@ -2992,6 +3019,74 @@
                 option.removeEventListener('click', handleChoiceClick);
                 option.addEventListener('click', handleChoiceClick);
             });
+        }
+
+        function handleResultChange(event) {
+            const input = event.target;
+            if (input.classList.contains('result-input') && input.type === 'text') {
+                let value = input.value.trim();
+                
+                // إزالة أي رموز سابقة إذا كانت موجودة
+                value = value.replace(/ [↑↓N]$/, '');
+                
+                const row = input.closest('tr');
+                if (row) {
+                    const rangeElement = row.querySelector('.normal-range');
+                    if (rangeElement) {
+                        const rangeStr = rangeElement.textContent.trim();
+                        const parsedRange = parseRange(rangeStr);
+                        if (parsedRange) {
+                            const num = parseFloat(value);
+                            if (!isNaN(num)) {
+                                let indicator = '';
+                                if (parsedRange.max !== undefined && num > parsedRange.max) {
+                                    indicator = ' ↑';
+                                } else if (parsedRange.min !== undefined && num < parsedRange.min) {
+                                    indicator = ' ↓';
+                                } else if ((parsedRange.min === undefined || num >= parsedRange.min) && 
+                                           (parsedRange.max === undefined || num <= parsedRange.max)) {
+                                    indicator = ' N';
+                                }
+                                input.value = value + indicator;
+                            }
+                        }
+                    }
+                }
+            }
+            updateFilledTests();
+        }
+
+        function parseRange(rangeStr) {
+            // إزالة الوحدات والأقواس
+            let cleaned = rangeStr.replace(/[^0-9.<>-]/g, '').trim();
+            
+            // حالات مختلفة
+            if (cleaned.includes('-')) {
+                const [min, max] = cleaned.split('-').map(Number);
+                if (!isNaN(min) && !isNaN(max)) {
+                    return { min, max };
+                }
+            } else if (cleaned.startsWith('<')) {
+                const max = Number(cleaned.slice(1));
+                if (!isNaN(max)) {
+                    return { max, isLessThan: true };
+                }
+            } else if (cleaned.startsWith('>')) {
+                const min = Number(cleaned.slice(1));
+                if (!isNaN(min)) {
+                    return { min, isGreaterThan: true };
+                }
+            } else {
+                // محاولة استخراج أرقام
+                const numbers = cleaned.match(/\d+\.?\d*/g);
+                if (numbers && numbers.length === 2) {
+                    return { min: Number(numbers[0]), max: Number(numbers[1]) };
+                } else if (numbers && numbers.length === 1) {
+                    // افتراض أنه max إذا كان < أو min إذا >
+                    return null; // للبساطة، تجاهل إذا غير واضح
+                }
+            }
+            return null;
         }
 
         function handleChoiceClick(element) {
@@ -3070,14 +3165,20 @@
             const sectionId = document.getElementById('sectionSelect').value;
             if (!sectionId) {
                 document.getElementById('rangeTableContainer').innerHTML = '<p>يرجى اختيار قسم لعرض التحاليل</p>';
+                document.getElementById('sectionNameEdit').style.display = 'none';
                 return;
             }
             
             const selectedSection = labStructure.find(sec => sec.id === sectionId);
             if (!selectedSection) {
                 document.getElementById('rangeTableContainer').innerHTML = '<p>القسم غير موجود</p>';
+                document.getElementById('sectionNameEdit').style.display = 'none';
                 return;
             }
+
+            // عرض حقل تعديل اسم القسم
+            document.getElementById('editSectionName').value = selectedSection.title;
+            document.getElementById('sectionNameEdit').style.display = 'block';
 
             let tableHTML = `
                 <table class="range-table">
@@ -3118,6 +3219,33 @@
             
             tableHTML += `</table>`;
             document.getElementById('rangeTableContainer').innerHTML = tableHTML;
+        }
+
+        function saveSectionName() {
+            const sectionId = document.getElementById('sectionSelect').value;
+            const newName = document.getElementById('editSectionName').value.trim();
+            
+            if (!newName) {
+                alert('يرجى إدخال اسم جديد للقسم.');
+                return;
+            }
+            
+            const selectedSection = labStructure.find(sec => sec.id === sectionId);
+            if (selectedSection) {
+                selectedSection.title = newName;
+            }
+
+            // تحديث في localStorage إذا كان قسم مخصص
+            let customSections = JSON.parse(localStorage.getItem('customSections')) || {};
+            if (customSections[sectionId]) {
+                customSections[sectionId].name = newName;
+                localStorage.setItem('customSections', JSON.stringify(customSections));
+            }
+            
+            // تحديث الهيكل
+            loadLabStructure();
+            alert('تم تعديل اسم القسم بنجاح!');
+            loadSectionRanges(); // إعادة تحميل الجدول
         }
 
         function saveRanges() {
@@ -4126,7 +4254,14 @@
             });
         }
 
-        // إضافة مستمعين للخروج من النوافذ المنبثقة باستخدام ESC
+        // إغلاق الـ dropdown عند النقر خارجها
+        document.addEventListener('click', function(event) {
+            if (!event.target.closest('.patient-visits-dropdown')) {
+                document.querySelectorAll('.visits-dropdown-content').forEach(dd => dd.classList.remove('show'));
+            }
+        });
+
+        // إغلاق النوافذ المنبثقة باستخدام ESC
         document.addEventListener('keydown', function(event) {
             if (event.key === 'Escape') {
                 const modals = document.querySelectorAll('.modal');
@@ -4160,3 +4295,4 @@
     </script>
 </body>
 </html>
+```
