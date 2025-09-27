@@ -1,4 +1,4 @@
-
+```html
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -22,7 +22,7 @@
             --range-font-size: 16px;
             --footer-font-size: 14px;
             --doctor-font-size: 14px;
-            --patient-info-font-size: 14px;
+            --patient-info-font-size: 12px; /* تم تصغير حجم خط معلومات المريض افتراضياً */
             --title-font-color: #0056b3;
             --test-name-font-color: #212529;
             --result-font-color: #212529;
@@ -61,6 +61,11 @@
             --footer-font-weight: 600;
             --doctor-font-weight: 600;
             --patient-info-font-weight: 600;
+
+            /* إضافات جديدة لتحكم في ألوان الخلفيات */
+            --test-name-bg-color: #e8f4e8; /* خلفية أسماء التحاليل */
+            --normal-range-bg-color: #ffffff; /* خلفية النورمل رانج */
+            --result-bg-color: #f9f9f9; /* خلفية النتائج */
 
             /* إضافات جديدة لتحسين التصميم */
             --shadow-light: 0 2px 10px rgba(0, 0, 0, 0.1);
@@ -194,7 +199,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 8px 0;
+            padding: 4px 0; /* تم تصغير البادينج لتصغير معلومات المريض */
         }
 
         .info-label {
@@ -207,9 +212,9 @@
             font-weight: var(--patient-info-font-weight);
             font-size: var(--patient-info-font-size);
             border: 1px dashed var(--button-color);
-            padding: 6px 12px;
+            padding: 4px 8px; /* تم تصغير البادينج لتصغير معلومات المريض */
             border-radius: var(--border-radius-small);
-            min-width: 150px;
+            min-width: 120px; /* تم تصغير العرض الأدنى */
             text-align: right;
             background-color: white;
             font-family: var(--main-font);
@@ -288,23 +293,24 @@
         td:nth-child(2) { width: 30%; }
         td:last-child { width: 30%; }
 
-          .test-name {
+        .test-name {
             font-size: var(--test-name-font-size);
             font-weight: var(--test-font-weight);
-            background-color: #e8f4e8;
+            background-color: var(--test-name-bg-color); /* خلفية أسماء التحاليل */
             color: var(--test-name-font-color);
             font-family: var(--test-font);
         }
 
-          .normal-range {
+        .normal-range {
             font-size: var(--range-font-size);
             font-weight: var(--range-font-weight);
             color: var(--range-font-color);
             direction: rtl;
             font-family: var(--range-font);
+            background-color: var(--normal-range-bg-color); /* خلفية النورمل رانج */
         }
 
-         .result-input, .result-select {
+        .result-input, .result-select {
             width: 100%;
             height: var(--input-height);
             border: 1px dashed var(--button-color);
@@ -313,7 +319,7 @@
             text-align: center;
             font-family: var(--result-font);
             font-weight: var(--result-font-weight);
-            background-color: #f9f9f9;
+            background-color: var(--result-bg-color); /* خلفية النتائج */
             font-size: var(--result-font-size);
             direction: rtl;
             color: var(--result-font-color);
@@ -1352,6 +1358,7 @@
                 border: 1px solid #000000;
                 margin-bottom: 0;
                 padding: 0px;
+                font-size: var(--patient-info-font-size); /* الحفاظ على الحجم في الطباعة */
             }
 
             .logo {
@@ -1378,7 +1385,7 @@
             .result-input, .result-select {
                 height: var(--input-height);
                 border: none;
-                background-color: transparent;
+                background-color: var(--result-bg-color); /* الحفاظ على خلفية النتائج في الطباعة */
                 padding: 0;
                 text-align: center !important;
                 width: 100%;
@@ -1426,10 +1433,12 @@
 
             .test-name {
                 text-align: center;
+                background-color: var(--test-name-bg-color); /* الحفاظ على خلفية أسماء التحاليل في الطباعة */
             }
 
             .normal-range {
                 text-align: center;
+                background-color: var(--normal-range-bg-color); /* الحفاظ على خلفية النورمل رانج في الطباعة */
             }
 
             .footer {
@@ -1606,6 +1615,18 @@
                 <label>لون خلفية التذييل:</label>
                 <input type="color" id="footerBg" class="color-input" value="#007bff">
             </div>
+            <div class="color-picker">
+                <label>خلفية أسماء التحاليل:</label>
+                <input type="color" id="testNameBgColor" class="color-input" value="#e8f4e8">
+            </div>
+            <div class="color-picker">
+                <label>خلفية النورمل رانج:</label>
+                <input type="color" id="normalRangeBgColor" class="color-input" value="#ffffff">
+            </div>
+            <div class="color-picker">
+                <label>خلفية النتائج:</label>
+                <input type="color" id="resultBgColor" class="color-input" value="#f9f9f9">
+            </div>
         </div>
         
         <div class="settings-group">
@@ -1636,7 +1657,7 @@
             </div>
             <div class="font-size-picker">
                 <label>حجم خطوط معلومات المريض:</label>
-                <input type="number" id="patientInfoFontSize" class="font-size-input" value="14" min="10" max="30"> px
+                <input type="number" id="patientInfoFontSize" class="font-size-input" value="12" min="10" max="30"> px
             </div>
         </div>
 
@@ -2527,6 +2548,9 @@
             document.getElementById('headerBg').value = localStorage.getItem('headerBg') || '#ffffff';
             document.getElementById('tableBorderColor').value = localStorage.getItem('tableBorderColor') || '#dee2e6';
             document.getElementById('footerBg').value = localStorage.getItem('footerBg') || '#007bff';
+            document.getElementById('testNameBgColor').value = localStorage.getItem('testNameBgColor') || '#e8f4e8';
+            document.getElementById('normalRangeBgColor').value = localStorage.getItem('normalRangeBgColor') || '#ffffff';
+            document.getElementById('resultBgColor').value = localStorage.getItem('resultBgColor') || '#f9f9f9';
 
             const savedLogo = localStorage.getItem('labLogo');
             if (savedLogo) {
@@ -2540,7 +2564,7 @@
             document.getElementById('rangeFontSize').value = localStorage.getItem('rangeFontSize') || '16';
             document.getElementById('footerFontSize').value = localStorage.getItem('footerFontSize') || '14';
             document.getElementById('doctorFontSize').value = localStorage.getItem('doctorFontSize') || '14';
-            document.getElementById('patientInfoFontSize').value = localStorage.getItem('patientInfoFontSize') || '14';
+            document.getElementById('patientInfoFontSize').value = localStorage.getItem('patientInfoFontSize') || '12';
             document.getElementById('tableBorderWidth').value = localStorage.getItem('tableBorderWidth') || '1';
             document.getElementById('doctorBoxBorderRadius').value = localStorage.getItem('doctorBoxBorderRadius') || '4';
 
@@ -2598,6 +2622,9 @@
             localStorage.setItem('headerBg', document.getElementById('headerBg').value);
             localStorage.setItem('tableBorderColor', document.getElementById('tableBorderColor').value);
             localStorage.setItem('footerBg', document.getElementById('footerBg').value);
+            localStorage.setItem('testNameBgColor', document.getElementById('testNameBgColor').value);
+            localStorage.setItem('normalRangeBgColor', document.getElementById('normalRangeBgColor').value);
+            localStorage.setItem('resultBgColor', document.getElementById('resultBgColor').value);
 
             const logoPreview = document.getElementById('logoPreview');
             if (logoPreview.src && logoPreview.src !== '') {
@@ -2702,6 +2729,9 @@
             document.documentElement.style.setProperty('--header-bg', localStorage.getItem('headerBg') || '#ffffff');
             document.documentElement.style.setProperty('--footer-bg', localStorage.getItem('footerBg') || '#007bff');
             document.documentElement.style.setProperty('--table-border-color', localStorage.getItem('tableBorderColor') || '#dee2e6');
+            document.documentElement.style.setProperty('--test-name-bg-color', localStorage.getItem('testNameBgColor') || '#e8f4e8');
+            document.documentElement.style.setProperty('--normal-range-bg-color', localStorage.getItem('normalRangeBgColor') || '#ffffff');
+            document.documentElement.style.setProperty('--result-bg-color', localStorage.getItem('resultBgColor') || '#f9f9f9');
             document.documentElement.style.setProperty('--table-border-width', (localStorage.getItem('tableBorderWidth') || '1') + 'px');
 
             document.documentElement.style.setProperty('--title-font-size', (localStorage.getItem('titleFontSize') || '28') + 'px');
@@ -2710,7 +2740,7 @@
             document.documentElement.style.setProperty('--range-font-size', (localStorage.getItem('rangeFontSize') || '16') + 'px');
             document.documentElement.style.setProperty('--footer-font-size', (localStorage.getItem('footerFontSize') || '14') + 'px');
             document.documentElement.style.setProperty('--doctor-font-size', (localStorage.getItem('doctorFontSize') || '14') + 'px');
-            document.documentElement.style.setProperty('--patient-info-font-size', (localStorage.getItem('patientInfoFontSize') || '14') + 'px');
+            document.documentElement.style.setProperty('--patient-info-font-size', (localStorage.getItem('patientInfoFontSize') || '12') + 'px');
 
             document.documentElement.style.setProperty('--title-font-color', localStorage.getItem('titleFontColor') || '#0056b3');
             document.documentElement.style.setProperty('--test-name-font-color', localStorage.getItem('testNameFontColor') || '#212529');
@@ -3462,10 +3492,10 @@
                 if (visits.length > 0) {
                     if (visits.length === 1) {
                         // إذا كانت مراجعة واحدة فقط، حمّلها مباشرة
-                        loadVisitData(visits[0]);
+                        loadVisitData(visits[0].id);
                     } else {
-                        // إذا كانت مراجعات متعددة، اعرض قائمة للاختيار
-                        showVisitsList(visits);
+                        // إذا كانت مراجعات متعددة، اعرض قائمة
+                        showVisitsList(visits, patientName);
                     }
                 } else {
                     alert('لم يتم العثور على بيانات لهذا المريض.');
@@ -3478,7 +3508,7 @@
             };
         }
 
-        function showVisitsList(visits) {
+        function showVisitsList(visits, patientName) {
             let listHTML = '<div style="text-align: center; margin: 20px 0;"><h3>اختر مراجعة للاستعادة:</h3><ul style="list-style: none; padding: 0;">';
             visits.forEach(visit => {
                 listHTML += `<li style="padding: 10px; border: 1px solid #ddd; margin: 5px 0; border-radius: 5px;">
@@ -3487,7 +3517,6 @@
                 </li>`;
             });
             listHTML += '</ul></div>';
-            // يمكن عرض هذا في modal منفصل أو هنا، للبساطة نستخدم alert أو نعدل searchModal
             const modalContent = document.querySelector('#searchModal .modal-content');
             modalContent.innerHTML = `<span class="close" onclick="closeSearchModal()">&times;</span>
                 <h2 style="text-align: center;">مراجعات المريض: ${patientName}</h2>
@@ -4132,3 +4161,4 @@
     </script>
 </body>
 </html>
+```
