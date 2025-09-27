@@ -1,4 +1,4 @@
-```html
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -182,9 +182,9 @@
             font-weight: var(--patient-info-font-weight);
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 0px;
-            margin-bottom: 8px;
-            padding: 6px;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 20px;
             border: 1px solid rgba(0,0,0,0.1);
             border-radius: var(--border-radius-small);
             background-color: var(--patient-info-bg);
@@ -674,7 +674,7 @@
         }
 
         .add-section-btn {
-            background: linear-gradient(135deg, #9C27B0 0%, #7B1FA2 100%);
+            background: linear-gradient(135deg, #9C27B0 0%, #6A1B9A 100%);
             color: white;
             border: none;
             padding: 12px 24px;
@@ -1298,26 +1298,15 @@
             font-weight: var(--main-font-weight);
         }
 
-.print-header, .print-footer {
-    display: none;
-}
-@media print {
-    .print-header {
-        display: block !important;
-    }
-    .print-footer {
-        display: block !important;
-    }
-}
         @media print {
             @page {
                 size: A4;
-                margin: var(--print-margin-top) var(--print-margin-right) var(--print-margin-bottom) var(--print-margin-left);
+                margin: 0;
             }
 
             body, html {
                 width: 100%;
-                height: auto;
+                height: 100vh;
                 margin: 0;
                 padding: 0;
                 background: white;
@@ -1325,6 +1314,10 @@
                 display: flex;
                 flex-direction: column;
                 min-height: 100vh;
+                background-image: url('background.jpg');
+                background-size: 21cm 29.7cm;
+                background-position: center;
+                background-repeat: no-repeat;
             }
 
             body * {
@@ -1335,10 +1328,12 @@
                 width: 100%;
                 max-width: 100%;
                 margin: 0;
-                padding: 15px;
+                padding: 4cm 1cm 4cm 1cm; /* زيادة الهامش العلوي والسفلي لتجنب التداخل */
                 box-shadow: none;
                 border-radius: 0;
                 flex-grow: 1;
+                background-color: transparent !important;
+                position: relative;
             }
 
             .no-print, .action-buttons, .test-selection, .settings-toggle, .filled-tests {
@@ -1347,23 +1342,21 @@
 
             .section {
                 display: block;
-                border: var(--table-border-width) solid #ddd;
-                margin-bottom: 15px;
+                page-break-inside: avoid;
+                border: none;
+                margin: 0;
                 box-shadow: none;
-                page-break-inside: auto; /* السماح بتقسيم القسم عبر الصفحات */
-                page-break-before: auto; /* يمكن أن يبدأ في صفحة جديدة إذا لزم */
+                background-color: transparent !important;
             }
 
-            .header {
-                border-bottom: 2px solid #000;
-                margin-bottom: 15px;
-                padding-bottom: 15px;
+            .header, .lab-footer {
+                display: none !important;
             }
 
             .patient-info {
-                border: 1px solid #000000;
-                margin-bottom: 0;
-                padding: 0px;
+                margin: 0;
+                padding: 0cm;
+                background-color: wheat
             }
 
             .logo {
@@ -1378,7 +1371,6 @@
                 border-bottom: 1px solid #ddd;
                 padding: 10px 15px;
                 font-size: 16px;
-                page-break-after: avoid; /* تجنب فصل العنوان عن الجدول */
             }
 
             .editable-field, .signature-input {
@@ -1422,22 +1414,9 @@
 
             table {
                 width: var(--table-width);
+                page-break-inside: avoid;
                 font-size: 12px;
                 direction: ltr;
-                page-break-inside: auto; /* السماح بتقسيم الجدول عبر الصفحات */
-            }
-
-            thead {
-                display: table-header-group; /* تكرار الهيدر في كل صفحة */
-            }
-
-            tbody {
-                page-break-inside: auto; /* السماح بالتقسيم داخل الجسم */
-            }
-
-            tr {
-                page-break-inside: avoid; /* تجنب تقسيم الصفوف */
-                page-break-after: auto; /* السماح بفصل بعد الصف */
             }
 
             th, td {
@@ -1475,32 +1454,7 @@
             }
 
             .lab-footer {
-                position: fixed;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                display: block;
-                border-top: 2px solid #000;
-                padding: 15px;
-                font-size: 12px;
-                color: #000;
-                background-color: var(--footer-bg);
-                margin: 0;
-                width: 100%;
-                box-sizing: border-box;
-            }
-
-            .lab-footer-content {
-                max-width: 100%;
-                grid-template-columns: repeat(3, 1fr);
-            }
-
-            .lab-footer-item {
-                text-align: center;
-            }
-
-            .lab-footer-title {
-                color: #000;
+                display: none !important;
             }
 
             /* Print styles for stats and patients */
@@ -1569,7 +1523,6 @@
     </style>
 </head>
 <body>
-    <div class="print-header no-print"></div>
     <div class="settings-toggle no-print" onclick="toggleSettings()">
         <i class="fas fa-cog"></i>
     </div>
@@ -1602,40 +1555,6 @@
                 <i class="fas fa-trash"></i> إعادة اللوغو الافتراضي
             </button>
         </div>
-        
-        <div class="settings-group">
-            <h3>إضافة خلفية للطباعة</h3>
-            <img id="backgroundPreview" src="" alt="معاينة الخلفية" style="display: none; width: 200px; height: auto; border-radius: 0; margin: 12px auto;">
-            <input type="file" id="backgroundUpload" accept="image/*" style="display: none;" onchange="handleBackgroundUpload(event)">
-            <button class="logo-upload-btn" onclick="document.getElementById('backgroundUpload').click()">
-                <i class="fas fa-upload"></i> تحميل صورة خلفية
-            </button>
-            <button class="logo-upload-btn" onclick="resetBackground()" style="background: #f44336;">
-                <i class="fas fa-trash"></i> إزالة الخلفية
-            </button>
-        </div>
-<div class="settings-group">
-    <h3>إضافة هيدر للطباعة (صورة)</h3>
-    <img id="printHeaderPreview" src="" alt="معاينة الهيدر" style="display: none; width: 100%; height: auto; margin: 12px 0; border: 1px solid #ddd;">
-    <input type="file" id="printHeaderUpload" accept="image/*" style="display: none;" onchange="handlePrintHeaderUpload(event)">
-    <button class="logo-upload-btn" onclick="document.getElementById('printHeaderUpload').click()">
-        <i class="fas fa-upload"></i> تحميل صورة الهيدر
-    </button>
-    <button class="logo-upload-btn" onclick="resetPrintHeader()" style="background: #f44336;">
-        <i class="fas fa-trash"></i> إزالة الهيدر
-    </button>
-</div>
-<div class="settings-group">
-    <h3>إضافة فوتر للطباعة (صورة)</h3>
-    <img id="printFooterPreview" src="" alt="معاينة الفوتر" style="display: none; width: 100%; height: auto; margin: 12px 0; border: 1px solid #ddd;">
-    <input type="file" id="printFooterUpload" accept="image/*" style="display: none;" onchange="handlePrintFooterUpload(event)">
-    <button class="logo-upload-btn" onclick="document.getElementById('printFooterUpload').click()">
-        <i class="fas fa-upload"></i> تحميل صورة الفوتر
-    </button>
-    <button class="logo-upload-btn" onclick="resetPrintFooter()" style="background: #f44336;">
-        <i class="fas fa-trash"></i> إزالة الفوتر
-    </button>
-</div>
         
         <div class="settings-group">
             <h3>تغيير الألوان</h3>
@@ -2225,102 +2144,8 @@
             </div>
         </div>
     </div>
-<div class="print-footer no-print"></div>
 
     <script>
-function handlePrintHeaderUpload(event) {
-    const file = event.target.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const preview = document.getElementById('printHeaderPreview');
-            preview.src = e.target.result;
-            preview.style.display = 'block';
-        };
-        reader.readAsDataURL(file);
-    }
-}
-
-function resetPrintHeader() {
-    document.getElementById('printHeaderPreview').src = '';
-    document.getElementById('printHeaderPreview').style.display = 'none';
-    document.getElementById('printHeaderUpload').value = '';
-    localStorage.removeItem('printHeaderImage');
-    applyPrintHeaderFooter();
-}
-
-function handlePrintFooterUpload(event) {
-    const file = event.target.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const preview = document.getElementById('printFooterPreview');
-            preview.src = e.target.result;
-            preview.style.display = 'block';
-        };
-        reader.readAsDataURL(file);
-    }
-}
-
-function resetPrintFooter() {
-    document.getElementById('printFooterPreview').src = '';
-    document.getElementById('printFooterPreview').style.display = 'none';
-    document.getElementById('printFooterUpload').value = '';
-    localStorage.removeItem('printFooterImage');
-    applyPrintHeaderFooter();
-}
-
-function applyPrintHeaderFooter() {
-    const printHeaderImage = localStorage.getItem('printHeaderImage');
-    const printFooterImage = localStorage.getItem('printFooterImage');
-
-    const style = document.createElement('style');
-    let styleText = '@media print {';
-    if (printHeaderImage) {
-        styleText += `
-            .print-header {
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100px; /* adjust height as needed */
-                background-image: url('${printHeaderImage}');
-                background-size: contain;
-                background-repeat: no-repeat;
-                background-position: center;
-                z-index: 1000;
-            }
-            .container {
-                margin-top: 110px; /* adjust to fit header */
-            }
-        `;
-    }
-    if (printFooterImage) {
-        styleText += `
-            .print-footer {
-                position: fixed;
-                bottom: 0;
-                left: 0;
-                width: 100%;
-                height: 100px; /* adjust height as needed */
-                background-image: url('${printFooterImage}');
-                background-size: contain;
-                background-repeat: no-repeat;
-                background-position: center;
-                z-index: 1000;
-            }
-            .container {
-                margin-bottom: 110px; /* adjust to fit footer */
-            }
-            .lab-footer {
-                display: none;
-            }
-        `;
-    }
-    styleText += '}';
-    style.innerHTML = styleText;
-    document.head.appendChild(style);
-}
         // متغيرات قاعدة البيانات
         const DB_NAME = 'LabDatabase';
         const DB_VERSION = 3; // زيادة الإصدار لدعم المراجعات المتعددة
@@ -2661,27 +2486,6 @@ function applyPrintHeaderFooter() {
             logoElement.innerHTML = `<i class="fas fa-microscope"></i>`;
         }
 
-        function handleBackgroundUpload(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const preview = document.getElementById('backgroundPreview');
-                    preview.src = e.target.result;
-                    preview.style.display = 'block';
-                };
-                reader.readAsDataURL(file);
-            }
-        }
-
-        function resetBackground() {
-            document.getElementById('backgroundPreview').src = '';
-            document.getElementById('backgroundPreview').style.display = 'none';
-            document.getElementById('backgroundUpload').value = '';
-            localStorage.removeItem('printBackground');
-            applyBackground();
-        }
-
         function loadCurrentSettings() {
             // إزالة تحميل اسم المختبر لأنه ثابت
             document.getElementById('labHeaderInput').value = localStorage.getItem('labHeader') || '';
@@ -2704,22 +2508,6 @@ function applyPrintHeaderFooter() {
                 document.getElementById('logoPreview').src = savedLogo;
                 document.getElementById('logoPreview').style.display = 'block';
             }
-
-            const savedBackground = localStorage.getItem('printBackground');
-            if (savedBackground) {
-                document.getElementById('backgroundPreview').src = savedBackground;
-                document.getElementById('backgroundPreview').style.display = 'block';
-            }
-const savedHeader = localStorage.getItem('printHeaderImage');
-if (savedHeader) {
-    document.getElementById('printHeaderPreview').src = savedHeader;
-    document.getElementById('printHeaderPreview').style.display = 'block';
-}
-const savedFooter = localStorage.getItem('printFooterImage');
-if (savedFooter) {
-    document.getElementById('printFooterPreview').src = savedFooter;
-    document.getElementById('printFooterPreview').style.display = 'block';
-}
 
             document.getElementById('titleFontSize').value = localStorage.getItem('titleFontSize') || '28';
             document.getElementById('testNameFontSize').value = localStorage.getItem('testNameFontSize') || '16';
@@ -2771,18 +2559,6 @@ if (savedFooter) {
         }
 
         function saveSettings() {
-const printHeaderPreview = document.getElementById('printHeaderPreview');
-if (printHeaderPreview.src && printHeaderPreview.src !== '') {
-    localStorage.setItem('printHeaderImage', printHeaderPreview.src);
-} else {
-    localStorage.removeItem('printHeaderImage');
-}
-const printFooterPreview = document.getElementById('printFooterPreview');
-if (printFooterPreview.src && printFooterPreview.src !== '') {
-    localStorage.setItem('printFooterImage', printFooterPreview.src);
-} else {
-    localStorage.removeItem('printFooterImage');
-}
             localStorage.setItem('labHeader', document.getElementById('labHeaderInput').value);
             localStorage.setItem('labAddress', document.getElementById('labAddressInput').value);
             localStorage.setItem('labPhone', document.getElementById('labPhoneInput').value);
@@ -2803,13 +2579,6 @@ if (printFooterPreview.src && printFooterPreview.src !== '') {
                 localStorage.setItem('labLogo', logoPreview.src);
             } else {
                 localStorage.removeItem('labLogo');
-            }
-
-            const backgroundPreview = document.getElementById('backgroundPreview');
-            if (backgroundPreview.src && backgroundPreview.src !== '') {
-                localStorage.setItem('printBackground', backgroundPreview.src);
-            } else {
-                localStorage.removeItem('printBackground');
             }
 
             localStorage.setItem('titleFontSize', document.getElementById('titleFontSize').value);
@@ -2966,30 +2735,6 @@ if (printFooterPreview.src && printFooterPreview.src !== '') {
             } else {
                 doctorsContainer.style.display = 'flex';
             }
-
-            const printBackground = localStorage.getItem('printBackground');
-            if (printBackground) {
-                const style = document.createElement('style');
-                style.innerHTML = `
-                    @media print {
-                        body {
-                            background-image: url('${printBackground}');
-                            background-size: cover;
-                            background-repeat: no-repeat;
-                            background-position: center;
-                            background-attachment: fixed;
-                        }
-                        .container {
-                            background: transparent;
-                        }
-                        .header, .lab-footer {
-                            background: transparent;
-                        }
-                    }
-                `;
-                document.head.appendChild(style);
-            }
-applyPrintHeaderFooter();
         }
 
         function toggleSettings() {
@@ -4362,4 +4107,3 @@ applyPrintHeaderFooter();
     </script>
 </body>
 </html>
-```
