@@ -1298,6 +1298,17 @@
             font-weight: var(--main-font-weight);
         }
 
+.print-header, .print-footer {
+    display: none;
+}
+@media print {
+    .print-header {
+        display: block !important;
+    }
+    .print-footer {
+        display: block !important;
+    }
+}
         @media print {
             @page {
                 size: A4;
@@ -1558,6 +1569,7 @@
     </style>
 </head>
 <body>
+    <div class="print-header no-print"></div>
     <div class="settings-toggle no-print" onclick="toggleSettings()">
         <i class="fas fa-cog"></i>
     </div>
@@ -1602,6 +1614,28 @@
                 <i class="fas fa-trash"></i> إزالة الخلفية
             </button>
         </div>
+<div class="settings-group">
+    <h3>إضافة هيدر للطباعة (صورة)</h3>
+    <img id="printHeaderPreview" src="" alt="معاينة الهيدر" style="display: none; width: 100%; height: auto; margin: 12px 0; border: 1px solid #ddd;">
+    <input type="file" id="printHeaderUpload" accept="image/*" style="display: none;" onchange="handlePrintHeaderUpload(event)">
+    <button class="logo-upload-btn" onclick="document.getElementById('printHeaderUpload').click()">
+        <i class="fas fa-upload"></i> تحميل صورة الهيدر
+    </button>
+    <button class="logo-upload-btn" onclick="resetPrintHeader()" style="background: #f44336;">
+        <i class="fas fa-trash"></i> إزالة الهيدر
+    </button>
+</div>
+<div class="settings-group">
+    <h3>إضافة فوتر للطباعة (صورة)</h3>
+    <img id="printFooterPreview" src="" alt="معاينة الفوتر" style="display: none; width: 100%; height: auto; margin: 12px 0; border: 1px solid #ddd;">
+    <input type="file" id="printFooterUpload" accept="image/*" style="display: none;" onchange="handlePrintFooterUpload(event)">
+    <button class="logo-upload-btn" onclick="document.getElementById('printFooterUpload').click()">
+        <i class="fas fa-upload"></i> تحميل صورة الفوتر
+    </button>
+    <button class="logo-upload-btn" onclick="resetPrintFooter()" style="background: #f44336;">
+        <i class="fas fa-trash"></i> إزالة الفوتر
+    </button>
+</div>
         
         <div class="settings-group">
             <h3>تغيير الألوان</h3>
@@ -2191,8 +2225,102 @@
             </div>
         </div>
     </div>
+<div class="print-footer no-print"></div>
 
     <script>
+function handlePrintHeaderUpload(event) {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const preview = document.getElementById('printHeaderPreview');
+            preview.src = e.target.result;
+            preview.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+function resetPrintHeader() {
+    document.getElementById('printHeaderPreview').src = '';
+    document.getElementById('printHeaderPreview').style.display = 'none';
+    document.getElementById('printHeaderUpload').value = '';
+    localStorage.removeItem('printHeaderImage');
+    applyPrintHeaderFooter();
+}
+
+function handlePrintFooterUpload(event) {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const preview = document.getElementById('printFooterPreview');
+            preview.src = e.target.result;
+            preview.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+function resetPrintFooter() {
+    document.getElementById('printFooterPreview').src = '';
+    document.getElementById('printFooterPreview').style.display = 'none';
+    document.getElementById('printFooterUpload').value = '';
+    localStorage.removeItem('printFooterImage');
+    applyPrintHeaderFooter();
+}
+
+function applyPrintHeaderFooter() {
+    const printHeaderImage = localStorage.getItem('printHeaderImage');
+    const printFooterImage = localStorage.getItem('printFooterImage');
+
+    const style = document.createElement('style');
+    let styleText = '@media print {';
+    if (printHeaderImage) {
+        styleText += `
+            .print-header {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100px; /* adjust height as needed */
+                background-image: url('${printHeaderImage}');
+                background-size: contain;
+                background-repeat: no-repeat;
+                background-position: center;
+                z-index: 1000;
+            }
+            .container {
+                margin-top: 110px; /* adjust to fit header */
+            }
+        `;
+    }
+    if (printFooterImage) {
+        styleText += `
+            .print-footer {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                width: 100%;
+                height: 100px; /* adjust height as needed */
+                background-image: url('${printFooterImage}');
+                background-size: contain;
+                background-repeat: no-repeat;
+                background-position: center;
+                z-index: 1000;
+            }
+            .container {
+                margin-bottom: 110px; /* adjust to fit footer */
+            }
+            .lab-footer {
+                display: none;
+            }
+        `;
+    }
+    styleText += '}';
+    style.innerHTML = styleText;
+    document.head.appendChild(style);
+}
         // متغيرات قاعدة البيانات
         const DB_NAME = 'LabDatabase';
         const DB_VERSION = 3; // زيادة الإصدار لدعم المراجعات المتعددة
@@ -2582,6 +2710,16 @@
                 document.getElementById('backgroundPreview').src = savedBackground;
                 document.getElementById('backgroundPreview').style.display = 'block';
             }
+const savedHeader = localStorage.getItem('printHeaderImage');
+if (savedHeader) {
+    document.getElementById('printHeaderPreview').src = savedHeader;
+    document.getElementById('printHeaderPreview').style.display = 'block';
+}
+const savedFooter = localStorage.getItem('printFooterImage');
+if (savedFooter) {
+    document.getElementById('printFooterPreview').src = savedFooter;
+    document.getElementById('printFooterPreview').style.display = 'block';
+}
 
             document.getElementById('titleFontSize').value = localStorage.getItem('titleFontSize') || '28';
             document.getElementById('testNameFontSize').value = localStorage.getItem('testNameFontSize') || '16';
@@ -2633,6 +2771,18 @@
         }
 
         function saveSettings() {
+const printHeaderPreview = document.getElementById('printHeaderPreview');
+if (printHeaderPreview.src && printHeaderPreview.src !== '') {
+    localStorage.setItem('printHeaderImage', printHeaderPreview.src);
+} else {
+    localStorage.removeItem('printHeaderImage');
+}
+const printFooterPreview = document.getElementById('printFooterPreview');
+if (printFooterPreview.src && printFooterPreview.src !== '') {
+    localStorage.setItem('printFooterImage', printFooterPreview.src);
+} else {
+    localStorage.removeItem('printFooterImage');
+}
             localStorage.setItem('labHeader', document.getElementById('labHeaderInput').value);
             localStorage.setItem('labAddress', document.getElementById('labAddressInput').value);
             localStorage.setItem('labPhone', document.getElementById('labPhoneInput').value);
@@ -2839,6 +2989,7 @@
                 `;
                 document.head.appendChild(style);
             }
+applyPrintHeaderFooter();
         }
 
         function toggleSettings() {
