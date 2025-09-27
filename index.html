@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -66,13 +65,6 @@
             --test-name-bg-color: #e8f4e8; /* خلفية أسماء التحاليل */
             --normal-range-bg-color: #ffffff; /* خلفية النورمل رانج */
             --result-bg-color: #f9f9f9; /* خلفية النتائج */
-
-            /* متغيرات خلفية الطباعة */
-            --print-background-display: none;
-            --print-background-image: none;
-            --print-header-display: block;
-            --print-footer-display: block;
-            --print-content-padding: var(--print-margin-top) var(--print-margin-right) var(--print-margin-bottom) var(--print-margin-left);
 
             /* إضافات جديدة لتحسين التصميم */
             --shadow-light: 0 2px 10px rgba(0, 0, 0, 0.1);
@@ -1314,44 +1306,7 @@
         @media print {
             @page {
                 size: A4;
-                margin: 0; /* إزالة الهوامش للخلفية */
-            }
-
-            /* خلفية الطباعة */
-            body::before {
-                content: '';
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background-size: cover;
-                background-position: center;
-                background-repeat: no-repeat;
-                z-index: -1;
-                display: var(--print-background-display, none);
-                background-image: var(--print-background-image);
-            }
-
-            /* منطقة المحتوى الرئيسي */
-            .print-content-area {
-                flex: 1;
-                display: flex;
-                flex-direction: column;
-                justify-content: flex-start;
-                align-items: center;
-                padding: var(--print-content-padding, 3cm 2cm 4cm 2cm);
-                min-height: calc(100vh - 6cm);
-            }
-
-            /* إخفاء الهيدر الأصلي في الطباعة عند وجود خلفية */
-            .header {
-                display: var(--print-header-display, block);
-            }
-
-            /* إخفاء التذييل الأصلي في الطباعة عند وجود خلفية */
-            .lab-footer {
-                display: var(--print-footer-display, block);
+                margin: var(--print-margin-top) var(--print-margin-right) var(--print-margin-bottom) var(--print-margin-left);
             }
 
             body, html {
@@ -1627,21 +1582,6 @@
             <button class="logo-upload-btn" onclick="resetLogo()" style="background: #f44336;">
                 <i class="fas fa-trash"></i> إعادة اللوغو الافتراضي
             </button>
-        </div>
-
-        <div class="settings-group">
-            <h3>صورة خلفية الطباعة</h3>
-            <img id="backgroundPreview" class="logo-preview" src="" alt="معاينة خلفية الطباعة" style="display: none;">
-            <input type="file" id="backgroundUpload" accept="image/*" style="display: none;" onchange="handleBackgroundUpload(event)">
-            <button class="logo-upload-btn" onclick="document.getElementById('backgroundUpload').click()">
-                <i class="fas fa-upload"></i> تحميل صورة خلفية للطباعة
-            </button>
-            <button class="logo-upload-btn" onclick="resetBackground()" style="background: #f44336;">
-                <i class="fas fa-trash"></i> إزالة الخلفية
-            </button>
-            <p style="font-size: 12px; color: #666; margin-top: 10px;">
-                تأكد أن الصورة تحتوي على هيدر وفوتر جاهزين مع مساحة فارغة في المنتصف للمحتوى
-            </p>
         </div>
         
         <div class="settings-group">
@@ -2591,37 +2531,6 @@
             logoElement.innerHTML = `<i class="fas fa-microscope"></i>`;
         }
 
-        function handleBackgroundUpload(event) {
-            const file = event.target.files[0];
-            if (file) {
-                if (file.size > 5 * 1024 * 1024) { // 5MB limit
-                    alert('حجم الصورة كبير جداً. يرجى اختيار صورة أصغر من 5 ميجابايت.');
-                    return;
-                }
-                
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const backgroundPreview = document.getElementById('backgroundPreview');
-                    backgroundPreview.src = e.target.result;
-                    backgroundPreview.style.display = 'block';
-                };
-                reader.readAsDataURL(file);
-            }
-        }
-
-        function resetBackground() {
-            document.getElementById('backgroundPreview').src = '';
-            document.getElementById('backgroundPreview').style.display = 'none';
-            document.getElementById('backgroundUpload').value = '';
-            
-            // إزالة الخلفية من CSS
-            document.documentElement.style.setProperty('--print-background-image', '');
-            document.documentElement.style.setProperty('--print-background-display', 'none');
-            document.documentElement.style.setProperty('--print-header-display', 'block');
-            document.documentElement.style.setProperty('--print-footer-display', 'block');
-            document.documentElement.style.setProperty('--print-content-padding', 'var(--print-margin-top) var(--print-margin-right) var(--print-margin-bottom) var(--print-margin-left)');
-        }
-
         function loadCurrentSettings() {
             // إزالة تحميل اسم المختبر لأنه ثابت
             document.getElementById('labHeaderInput').value = localStorage.getItem('labHeader') || '';
@@ -2646,13 +2555,6 @@
             if (savedLogo) {
                 document.getElementById('logoPreview').src = savedLogo;
                 document.getElementById('logoPreview').style.display = 'block';
-            }
-
-            // تحميل صورة الخلفية
-            const savedBackground = localStorage.getItem('printBackground');
-            if (savedBackground) {
-                document.getElementById('backgroundPreview').src = savedBackground;
-                document.getElementById('backgroundPreview').style.display = 'block';
             }
 
             document.getElementById('titleFontSize').value = localStorage.getItem('titleFontSize') || '28';
@@ -2728,13 +2630,6 @@
                 localStorage.setItem('labLogo', logoPreview.src);
             } else {
                 localStorage.removeItem('labLogo');
-            }
-
-            const backgroundPreview = document.getElementById('backgroundPreview');
-            if (backgroundPreview.src && backgroundPreview.src !== '') {
-                localStorage.setItem('printBackground', backgroundPreview.src);
-            } else {
-                localStorage.removeItem('printBackground');
             }
 
             localStorage.setItem('titleFontSize', document.getElementById('titleFontSize').value);
@@ -2882,23 +2777,6 @@
             document.documentElement.style.setProperty('--print-margin-bottom', (localStorage.getItem('printMarginBottom') || '1.2') + 'cm');
             document.documentElement.style.setProperty('--print-margin-left', (localStorage.getItem('printMarginLeft') || '0.7') + 'cm');
             document.documentElement.style.setProperty('--print-margin-right', (localStorage.getItem('printMarginRight') || '0.7') + 'cm');
-
-            // تطبيق صورة خلفية الطباعة
-            const savedBackground = localStorage.getItem('printBackground');
-            if (savedBackground) {
-                document.documentElement.style.setProperty('--print-background-image', `url("${savedBackground}")`);
-                document.documentElement.style.setProperty('--print-background-display', 'block');
-                // إخفاء الهيدر والفوتر الأصليين عند وجود خلفية
-                document.documentElement.style.setProperty('--print-header-display', 'none');
-                document.documentElement.style.setProperty('--print-footer-display', 'none');
-                // تعديل المسافات للمحتوى
-                document.documentElement.style.setProperty('--print-content-padding', '3cm 2cm 4cm 2cm');
-            } else {
-                document.documentElement.style.setProperty('--print-background-display', 'none');
-                document.documentElement.style.setProperty('--print-header-display', 'block');
-                document.documentElement.style.setProperty('--print-footer-display', 'block');
-                document.documentElement.style.setProperty('--print-content-padding', 'var(--print-margin-top) var(--print-margin-right) var(--print-margin-bottom) var(--print-margin-left)');
-            }
 
             const showDoctor1 = localStorage.getItem('showDoctor1') !== 'false';
             const showDoctor2 = localStorage.getItem('showDoctor2') !== 'false';
@@ -4092,23 +3970,6 @@
         }
 
         function prepareForPrint() {
-            // التحقق من وجود صورة خلفية
-            const hasBackground = localStorage.getItem('printBackground');
-            
-            if (hasBackground) {
-                // إذا كانت هناك خلفية، نحتاج لتجهيز المحتوى بطريقة خاصة
-                
-                // إخفاء الهيدر والفوتر الأصليين
-                document.querySelector('.header').style.display = 'none';
-                document.querySelector('.lab-footer').style.display = 'none';
-                
-                // إنشاء منطقة المحتوى للطباعة
-                const container = document.querySelector('.container');
-                container.classList.add('print-content-area');
-                
-                // باقي الكود...
-            }
-
             // إظهار جميع الأقسام للطباعة
             const allSections = document.querySelectorAll('.section');
             allSections.forEach(section => {
@@ -4299,4 +4160,3 @@
     </script>
 </body>
 </html>
-```
