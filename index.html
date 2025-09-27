@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -1335,10 +1336,11 @@
 
             .section {
                 display: block;
-                page-break-inside: avoid;
                 border: var(--table-border-width) solid #ddd;
                 margin-bottom: 15px;
                 box-shadow: none;
+                page-break-inside: auto; /* السماح بتقسيم القسم عبر الصفحات */
+                page-break-before: auto; /* يمكن أن يبدأ في صفحة جديدة إذا لزم */
             }
 
             .header {
@@ -1365,6 +1367,7 @@
                 border-bottom: 1px solid #ddd;
                 padding: 10px 15px;
                 font-size: 16px;
+                page-break-after: avoid; /* تجنب فصل العنوان عن الجدول */
             }
 
             .editable-field, .signature-input {
@@ -1408,9 +1411,22 @@
 
             table {
                 width: var(--table-width);
-                page-break-inside: avoid;
                 font-size: 12px;
                 direction: ltr;
+                page-break-inside: auto; /* السماح بتقسيم الجدول عبر الصفحات */
+            }
+
+            thead {
+                display: table-header-group; /* تكرار الهيدر في كل صفحة */
+            }
+
+            tbody {
+                page-break-inside: auto; /* السماح بالتقسيم داخل الجسم */
+            }
+
+            tr {
+                page-break-inside: avoid; /* تجنب تقسيم الصفوف */
+                page-break-after: auto; /* السماح بفصل بعد الصف */
             }
 
             th, td {
@@ -4195,3 +4211,4 @@
     </script>
 </body>
 </html>
+```
