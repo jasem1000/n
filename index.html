@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -1353,7 +1352,7 @@
                 width: 100%;
                 max-width: 100%;
                 margin: 0;
-                padding: 0px;
+                padding: 15px;
                 box-shadow: none;
                 border-radius: 0;
                 flex-grow: 1;
@@ -1371,17 +1370,10 @@
                 box-shadow: none;
             }
 
-            .header, .lab-footer {
-                display: none !important;
-            }
-
-            #print-header, #print-footer {
-                display: block !important;
-            }
-
-            #print-header img, #print-footer img {
-                width: 100%;
-                height: auto;
+            .header {
+                border-bottom: 2px solid #000;
+                margin-bottom: 15px;
+                padding-bottom: 15px;
             }
 
             .patient-info {
@@ -1490,6 +1482,22 @@
                 font-size: 12px;
             }
 
+            .lab-footer {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                display: block;
+                border-top: 2px solid #000;
+                padding: 15px;
+                font-size: 12px;
+                color: #000;
+                background-color: var(--footer-bg);
+                margin: 0;
+                width: 100%;
+                box-sizing: border-box;
+            }
+
             .lab-footer-content {
                 max-width: 100%;
                 grid-template-columns: repeat(3, 1fr);
@@ -1580,22 +1588,9 @@
                 grid-template-columns: 1fr; /* في الشاشات الصغيرة، واحد في كل سطر */
             }
         }
-
-        #print-header, #print-footer {
-            display: none;
-        }
-
-        #print-header img, #print-footer img {
-            width: 100%;
-            height: auto;
-        }
     </style>
 </head>
 <body>
-    <div id="print-header">
-        <!-- استبدل src بمسار الصورة الأولى (الخضراء) أو استخدم base64 إذا كان متاحاً -->
-        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOEAAADhCAMAAAAJbSJIAAAAA1BMVEX///+nxBvIAAAAIE1EQVR4nO3BgQAAAADDoPlTX+AIVXBAAAAAElFTkSuQmCC" alt="Print Header" style="width: 100%;">
-    </div>
     <div class="settings-toggle no-print" onclick="toggleSettings()">
         <i class="fas fa-cog"></i>
     </div>
@@ -1628,6 +1623,30 @@
             </button>
             <button class="logo-upload-btn" onclick="resetLogo()" style="background: #f44336;">
                 <i class="fas fa-trash"></i> إعادة اللوغو الافتراضي
+            </button>
+        </div>
+
+        <div class="settings-group">
+            <h3>تغيير هيدر الطباعة</h3>
+            <img id="printHeaderPreview" src="" alt="معاينة هيدر الطباعة" style="display: none; border-radius: 0; width: 200px; height: auto; border: 2px dashed var(--button-color); box-shadow: var(--shadow-light); margin: 12px auto;">
+            <input type="file" id="printHeaderUpload" accept="image/*" style="display: none;" onchange="handlePrintHeaderUpload(event)">
+            <button class="logo-upload-btn" onclick="document.getElementById('printHeaderUpload').click()">
+                <i class="fas fa-upload"></i> تحميل صورة هيدر الطباعة
+            </button>
+            <button class="logo-upload-btn" onclick="resetPrintHeader()" style="background: #f44336;">
+                <i class="fas fa-trash"></i> إعادة الافتراضي
+            </button>
+        </div>
+
+        <div class="settings-group">
+            <h3>تغيير فوتر الطباعة</h3>
+            <img id="printFooterPreview" src="" alt="معاينة فوتر الطباعة" style="display: none; border-radius: 0; width: 200px; height: auto; border: 2px dashed var(--button-color); box-shadow: var(--shadow-light); margin: 12px auto;">
+            <input type="file" id="printFooterUpload" accept="image/*" style="display: none;" onchange="handlePrintFooterUpload(event)">
+            <button class="logo-upload-btn" onclick="document.getElementById('printFooterUpload').click()">
+                <i class="fas fa-upload"></i> تحميل صورة فوتر الطباعة
+            </button>
+            <button class="logo-upload-btn" onclick="resetPrintFooter()" style="background: #f44336;">
+                <i class="fas fa-trash"></i> إعادة الافتراضي
             </button>
         </div>
         
@@ -2262,6 +2281,10 @@
         </div>
     </div>
 
+    <div id="print-header">
+        <!-- استبدل src بمسار الصورة الأولى (الخضراء) أو استخدم base64 إذا كان متاحاً -->
+        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOEAAADhCAMAAAAJbSJIAAAAA1BMVEX///+nxBvIAAAAIE1EQVR4nO3BgQAAAADDoPlTX+AIVXBAAAAAElFTkSuQmCC" alt="Print Header" style="width: 100%;">
+    </div>
     <div id="print-footer">
         <!-- استبدل src بمسار الصورة الثانية (الزرقاء) أو استخدم base64 إذا كان متاحاً -->
         <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOEAAADhCAMAAAAJbSJIAAAAA1BMVEX///+nxBvIAAAAIE1EQVR4nO3BgQAAAADDoPlTX+AIVXBAAAAAElFTkSuQmCC" alt="Print Footer" style="width: 100%;">
@@ -2608,6 +2631,46 @@
             logoElement.innerHTML = `<i class="fas fa-microscope"></i>`;
         }
 
+        function handlePrintHeaderUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.getElementById('printHeaderPreview');
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function resetPrintHeader() {
+            document.getElementById('printHeaderPreview').src = '';
+            document.getElementById('printHeaderPreview').style.display = 'none';
+            document.getElementById('printHeaderUpload').value = '';
+            document.querySelector('#print-header img').src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOEAAADhCAMAAAAJbSJIAAAAA1BMVEX///+nxBvIAAAAIE1EQVR4nO3BgQAAAADDoPlTX+AIVXBAAAAAElFTkSuQmCC';
+        }
+
+        function handlePrintFooterUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.getElementById('printFooterPreview');
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function resetPrintFooter() {
+            document.getElementById('printFooterPreview').src = '';
+            document.getElementById('printFooterPreview').style.display = 'none';
+            document.getElementById('printFooterUpload').value = '';
+            document.querySelector('#print-footer img').src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOEAAADhCAMAAAAJbSJIAAAAA1BMVEX///+nxBvIAAAAIE1EQVR4nO3BgQAAAADDoPlTX+AIVXBAAAAAElFTkSuQmCC';
+        }
+
         function loadCurrentSettings() {
             // إزالة تحميل اسم المختبر لأنه ثابت
             document.getElementById('labHeaderInput').value = localStorage.getItem('labHeader') || '';
@@ -2636,6 +2699,18 @@
             if (savedLogo) {
                 document.getElementById('logoPreview').src = savedLogo;
                 document.getElementById('logoPreview').style.display = 'block';
+            }
+
+            const savedPrintHeader = localStorage.getItem('printHeader');
+            if (savedPrintHeader) {
+                document.getElementById('printHeaderPreview').src = savedPrintHeader;
+                document.getElementById('printHeaderPreview').style.display = 'block';
+            }
+
+            const savedPrintFooter = localStorage.getItem('printFooter');
+            if (savedPrintFooter) {
+                document.getElementById('printFooterPreview').src = savedPrintFooter;
+                document.getElementById('printFooterPreview').style.display = 'block';
             }
 
             document.getElementById('titleFontSize').value = localStorage.getItem('titleFontSize') || '28';
@@ -2718,6 +2793,20 @@
                 localStorage.setItem('labLogo', logoPreview.src);
             } else {
                 localStorage.removeItem('labLogo');
+            }
+
+            const printHeaderPreview = document.getElementById('printHeaderPreview');
+            if (printHeaderPreview.src && printHeaderPreview.src !== '') {
+                localStorage.setItem('printHeader', printHeaderPreview.src);
+            } else {
+                localStorage.removeItem('printHeader');
+            }
+
+            const printFooterPreview = document.getElementById('printFooterPreview');
+            if (printFooterPreview.src && printFooterPreview.src !== '') {
+                localStorage.setItem('printFooter', printFooterPreview.src);
+            } else {
+                localStorage.removeItem('printFooter');
             }
 
             localStorage.setItem('titleFontSize', document.getElementById('titleFontSize').value);
@@ -2814,6 +2903,16 @@
                 logoElement.innerHTML = `<img src="${savedLogo}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
             } else {
                 logoElement.innerHTML = `<i class="fas fa-microscope"></i>`;
+            }
+
+            const savedPrintHeader = localStorage.getItem('printHeader');
+            if (savedPrintHeader) {
+                document.querySelector('#print-header img').src = savedPrintHeader;
+            }
+
+            const savedPrintFooter = localStorage.getItem('printFooter');
+            if (savedPrintFooter) {
+                document.querySelector('#print-footer img').src = savedPrintFooter;
             }
 
             document.documentElement.style.setProperty('--header-color', localStorage.getItem('headerColor') || '#007bff');
@@ -2957,9 +3056,6 @@
                 console.log("Database initialized successfully");
             };
         }
-
-        // الرمز المطلوب (للإحصائيات فقط)
-        const PASSWORD = '100200';
 
         // دوال إدارة هيكل المختبر
         function loadLabStructure() {
@@ -4361,4 +4457,3 @@
     </script>
 </body>
 </html>
-```
