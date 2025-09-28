@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -84,6 +85,8 @@
             --form-background: none;
             --form-header-height: 4cm;
             --form-footer-height: 4cm;
+            --form-right-margin: 1cm;
+            --form-left-margin: 1cm;
             --use-custom-form: false;
         }
 
@@ -1585,23 +1588,65 @@
             position: relative;
             min-height: 29.7cm; /* A4 height */
             background-image: var(--form-background);
-            background-size: cover;
-            background-position: center;
+            background-size: 100% 100%; /* تغيير من cover إلى 100% 100% لملء كامل الصفحة */
+            background-position: top center;
             background-repeat: no-repeat;
+            padding: 0; /* إزالة البادينج الافتراضي */
         }
 
         .custom-form-overlay {
             position: absolute;
-            top: var(--form-header-height);
-            left: 0;
-            right: 0;
-            bottom: var(--form-footer-height);
-            padding: 1cm;
+            top: 4.2cm; /* تعديل المسافة العلوية بناءً على حجم الهيدر في الصورة */
+            left: 1cm;
+            right: 1cm;
+            bottom: 4.5cm; /* تعديل المسافة السفلية بناءً على حجم الفوتر في الصورة */
+            padding: 0.5cm;
+            background-color: transparent;
         }
 
+        /* إخفاء الهيدر والفوتر الأصليين */
         .hide-original-header-footer .header,
         .hide-original-header-footer .lab-footer {
             display: none !important;
+        }
+
+        /* تعديل معلومات المريض في الفورما المخصصة */
+        .custom-form-container .patient-info {
+            background-color: transparent;
+            border: none;
+            margin-bottom: 20px;
+            padding: 10px;
+        }
+
+        .custom-form-container .editable-field {
+            background-color: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(0, 0, 0, 0.3);
+        }
+
+        /* تحسين مظهر الجداول في الفورما */
+        .custom-form-container table {
+            background-color: rgba(255, 255, 255, 0.95);
+            border: 1px solid #333;
+        }
+
+        .custom-form-container th,
+        .custom-form-container td {
+            border: 1px solid #333;
+            background-color: transparent;
+        }
+
+        .custom-form-container .section-title {
+            background-color: rgba(40, 167, 69, 0.9);
+        }
+
+        .custom-form-container .test-name {
+            background-color: rgba(232, 244, 232, 0.8);
+        }
+
+        .custom-form-container .result-input,
+        .custom-form-container .result-select {
+            background-color: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(0, 0, 0, 0.3);
         }
 
         .form-preview {
@@ -1973,12 +2018,20 @@
         <label for="useCustomForm">استخدام الفورما المخصصة</label>
     </div>
     <div class="font-size-picker">
-        <label>ارتفاع الهيدر:</label>
-        <input type="number" id="formHeaderHeight" class="font-size-input" value="4" min="1" max="8" step="0.5"> cm
+        <label>مسافة من الأعلى:</label>
+        <input type="number" id="formHeaderHeight" class="font-size-input" value="4.2" min="1" max="8" step="0.1"> cm
     </div>
     <div class="font-size-picker">
-        <label>ارتفاع الفوتر:</label>
-        <input type="number" id="formFooterHeight" class="font-size-input" value="4" min="1" max="8" step="0.5"> cm
+        <label>مسافة من الأسفل:</label>
+        <input type="number" id="formFooterHeight" class="font-size-input" value="4.5" min="1" max="8" step="0.1"> cm
+    </div>
+    <div class="font-size-picker">
+        <label>مسافة من اليمين:</label>
+        <input type="number" id="formRightMargin" class="font-size-input" value="1" min="0.5" max="3" step="0.1"> cm
+    </div>
+    <div class="font-size-picker">
+        <label>مسافة من اليسار:</label>
+        <input type="number" id="formLeftMargin" class="font-size-input" value="1" min="0.5" max="3" step="0.1"> cm
     </div>
 </div>
         
@@ -2743,8 +2796,10 @@
     const useCustomForm = localStorage.getItem('useCustomForm') === 'true';
     document.getElementById('useCustomForm').checked = useCustomForm;
     
-    document.getElementById('formHeaderHeight').value = localStorage.getItem('formHeaderHeight') || '4';
-    document.getElementById('formFooterHeight').value = localStorage.getItem('formFooterHeight') || '4';
+    document.getElementById('formHeaderHeight').value = localStorage.getItem('formHeaderHeight') || '4.2';
+    document.getElementById('formFooterHeight').value = localStorage.getItem('formFooterHeight') || '4.5';
+    document.getElementById('formRightMargin').value = localStorage.getItem('formRightMargin') || '1';
+    document.getElementById('formLeftMargin').value = localStorage.getItem('formLeftMargin') || '1';
         }
 
         function saveSettings() {
@@ -2827,6 +2882,8 @@
     // حفظ إعدادات الفورما
     localStorage.setItem('formHeaderHeight', document.getElementById('formHeaderHeight').value);
     localStorage.setItem('formFooterHeight', document.getElementById('formFooterHeight').value);
+    localStorage.setItem('formRightMargin', document.getElementById('formRightMargin').value);
+    localStorage.setItem('formLeftMargin', document.getElementById('formLeftMargin').value);
     
     const useCustomForm = document.getElementById('useCustomForm').checked;
     localStorage.setItem('useCustomForm', useCustomForm);
@@ -2946,8 +3003,10 @@
             }
 
     // تطبيق إعدادات الفورما
-    const formHeaderHeight = localStorage.getItem('formHeaderHeight') || '4';
-    const formFooterHeight = localStorage.getItem('formFooterHeight') || '4';
+    const formHeaderHeight = localStorage.getItem('formHeaderHeight') || '4.2';
+    const formFooterHeight = localStorage.getItem('formFooterHeight') || '4.5';
+    const formRightMargin = localStorage.getItem('formRightMargin') || '1';
+    const formLeftMargin = localStorage.getItem('formLeftMargin') || '1';
     const useCustomForm = localStorage.getItem('useCustomForm') === 'true';
     
     document.documentElement.style.setProperty('--form-header-height', formHeaderHeight + 'cm');
@@ -2956,12 +3015,22 @@
     if (useCustomForm) {
         const customForm = localStorage.getItem('customForm');
         if (customForm) {
-            document.querySelector('.container').classList.add('custom-form-container', 'hide-original-header-footer');
+            const container = document.querySelector('.container');
+            container.classList.add('custom-form-container', 'hide-original-header-footer');
             document.documentElement.style.setProperty('--form-background', `url(${customForm})`);
+            
+            // تطبيق المسافات الجانبية
+            const overlay = container.querySelector('.custom-form-overlay');
+            if (overlay) {
+                overlay.style.left = formLeftMargin + 'cm';
+                overlay.style.right = formRightMargin + 'cm';
+                overlay.style.top = formHeaderHeight + 'cm';
+                overlay.style.bottom = formFooterHeight + 'cm';
+            }
+            
             document.getElementById('useCustomForm').checked = true;
         }
     }
-
         }
 
         function toggleSettings() {
@@ -4410,7 +4479,7 @@ function handleFormUpload(event) {
     }
 }
 
-// ضضضدالة إزالة الفورما المخصصة
+// دالة إزالة الفورما المخصصة
 function removeCustomForm() {
     document.getElementById('formPreview').src = '';
     document.getElementById('formPreview').style.display = 'none';
@@ -4431,6 +4500,20 @@ function toggleCustomForm() {
         if (customForm) {
             container.classList.add('custom-form-container', 'hide-original-header-footer');
             document.documentElement.style.setProperty('--form-background', `url(${customForm})`);
+            
+            // تطبيق المسافات المخصصة
+            const formHeaderHeight = localStorage.getItem('formHeaderHeight') || '4.2';
+            const formFooterHeight = localStorage.getItem('formFooterHeight') || '4.5';
+            const formRightMargin = localStorage.getItem('formRightMargin') || '1';
+            const formLeftMargin = localStorage.getItem('formLeftMargin') || '1';
+            
+            const overlay = container.querySelector('.custom-form-overlay');
+            if (overlay) {
+                overlay.style.left = formLeftMargin + 'cm';
+                overlay.style.right = formRightMargin + 'cm';
+                overlay.style.top = formHeaderHeight + 'cm';
+                overlay.style.bottom = formFooterHeight + 'cm';
+            }
         } else {
             alert('يرجى تحميل فورما المختبر أولاً');
             document.getElementById('useCustomForm').checked = false;
@@ -4485,3 +4568,4 @@ function toggleCustomForm() {
     </script>
 </body>
 </html>
+```
