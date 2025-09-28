@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -85,8 +84,6 @@
             --form-background: none;
             --form-header-height: 4cm;
             --form-footer-height: 4cm;
-            --form-right-margin: 1cm;
-            --form-left-margin: 1cm;
             --use-custom-form: false;
         }
 
@@ -3241,7 +3238,7 @@
         }
 
         function addEventListenersToResults() {
-            // إضافة مستمعين للـ inputs والـ selects
+            // إضافة مستمعين للـ inputs العادية والـ selects
             document.querySelectorAll('.result-input, .result-select').forEach(input => {
                 input.removeEventListener('input', updateFilledTests);
                 input.removeEventListener('change', updateFilledTests);
@@ -4568,4 +4565,3 @@ function toggleCustomForm() {
     </script>
 </body>
 </html>
-```
