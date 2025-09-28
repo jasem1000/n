@@ -161,7 +161,7 @@
             letter-spacing: 1.5px;
         }
 
-        .doctors-container {
+              .doctors-container {
             display: flex;
             justify-content: center;
             width: 100%;
@@ -169,7 +169,7 @@
         }
 
         .header .doctor-name {
-            flex: 0 1 24%;
+            flex: 0 1 48%;
             text-align: center;
             color: var(--doctor-font-color);
             font-size: var(--doctor-font-size);
@@ -1523,12 +1523,13 @@
             .hln-select {
                 width: 1cm;
                 display: inline-block;
+               appearance: none !important; /* إخفاء السهم المنسدل للـ select في الطباعة */
+
             }
 
             /* إخفاء العناصر المطلوبة في الطباعة */
-            .hln-select {
-                display: none !important; /* إخفاء H L N في الطباعة */
-            }
+            
+            
         }
 
         @media (max-width: 600px) {
@@ -3042,7 +3043,7 @@
             // إضافة الخيار الصغير H N L
             const hlnHTML = `
                 <select class="hln-select" data-test-name="${testName}">
-                    <option value="">-</option>
+                    <option value=""></option>
                     <option value="H">H</option>
                     <option value="N">N</option>
                     <option value="L">L</option>
