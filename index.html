@@ -1,4 +1,4 @@
-
+```html
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -161,8 +161,9 @@
             letter-spacing: 1.5px;
         }
 
-              .doctors-container {
-            display: flex;
+        .doctors-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); /* اثنين في كل سطر */
             justify-content: center;
             width: 100%;
             gap: 15px;
@@ -1583,6 +1584,10 @@
                 flex-direction: column;
                 gap: 10px;
             }
+
+            .doctors-container {
+                grid-template-columns: 1fr; /* في الشاشات الصغيرة، واحد في كل سطر */
+            }
         }
     </style>
 </head>
@@ -2875,7 +2880,7 @@
             if (!showDoctor1 && !showDoctor2 && !showDoctor3 && !showDoctor4) {
                 doctorsContainer.style.display = 'none';
             } else {
-                doctorsContainer.style.display = 'flex';
+                doctorsContainer.style.display = 'grid';
             }
         }
 
@@ -3503,7 +3508,7 @@
                 customTests[sectionId] = [];
             }
             
-            // التحقق من عدم التكرار في التحاليل المخصصة
+            // التحقق من عدم عدم التكرار في التحاليل المخصصة
             const existingTest = customTests[sectionId].find(test => test.name === testName);
             if (existingTest) {
                 alert('هذا التحليل موجود بالفعل.');
@@ -4344,3 +4349,4 @@
     </script>
 </body>
 </html>
+```
