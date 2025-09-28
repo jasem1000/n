@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -1325,6 +1326,31 @@
             font-weight: var(--main-font-weight);
         }
 
+        /* Print Header and Footer Styles */
+        .print-only {
+            display: none;
+        }
+
+        .print-header {
+            position: relative;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            page-break-inside: avoid;
+            margin-bottom: 20px;
+        }
+
+        .print-footer {
+            position: relative;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            page-break-inside: avoid;
+            margin-top: 20px;
+        }
+
         @media print {
             @page {
                 size: A4;
@@ -1347,6 +1373,33 @@
                 visibility: visible;
             }
 
+            /* Show print header and footer only during printing */
+            .print-only {
+                display: block !important;
+            }
+
+            .print-header {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                z-index: 1000;
+                page-break-inside: avoid;
+                background: white;
+                padding: 10px 0;
+            }
+
+            .print-footer {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                z-index: 1000;
+                page-break-inside: avoid;
+                background: white;
+                padding: 10px 0;
+            }
+
             .container {
                 width: 100%;
                 max-width: 100%;
@@ -1355,6 +1408,8 @@
                 box-shadow: none;
                 border-radius: 0;
                 flex-grow: 1;
+                margin-top: 170px; /* Space for header image */
+                margin-bottom: 170px; /* Space for footer image */
             }
 
             .no-print, .action-buttons, .test-selection, .settings-toggle, .filled-tests {
@@ -1609,6 +1664,32 @@
                 <i class="fas fa-trash"></i> إعادة اللوغو الافتراضي
             </button>
         </div>
+        
+<div class="settings-group">
+    <h3>هيدر الطباعة (صورة PNG)</h3>
+    <img id="printHeaderPreview" class="logo-preview" src="" alt="معاينة هيدر الطباعة" style="display: none;">
+    <input type="file" id="printHeaderUpload" accept="image/png" style="display: none;" onchange="handlePrintHeaderUpload(event)">
+    <button class="logo-upload-btn" onclick="document.getElementById('printHeaderUpload').click()">
+        <i class="fas fa-upload"></i> تحميل صورة الهيدر للطباعة
+    </button>
+    <button class="logo-upload-btn" onclick="resetPrintHeader()" style="background: #f44336;">
+        <i class="fas fa-trash"></i> حذف صورة الهيدر
+    </button>
+    <small>هذه الصورة ستظهر في أعلى الصفحة عند الطباعة فقط</small>
+</div>
+
+<div class="settings-group">
+    <h3>فوتر الطباعة (صورة PNG)</h3>
+    <img id="printFooterPreview" class="logo-preview" src="" alt="معاينة فوتر الطباعة" style="display: none;">
+    <input type="file" id="printFooterUpload" accept="image/png" style="display: none;" onchange="handlePrintFooterUpload(event)">
+    <button class="logo-upload-btn" onclick="document.getElementById('printFooterUpload').click()">
+        <i class="fas fa-upload"></i> تحميل صورة الفوتر للطباعة
+    </button>
+    <button class="logo-upload-btn" onclick="resetPrintFooter()" style="background: #f44336;">
+        <i class="fas fa-trash"></i> حذف صورة الفوتر
+    </button>
+    <small>هذه الصورة ستظهر في أسفل الصفحة عند الطباعة فقط</small>
+</div>
         
         <div class="settings-group">
             <h3>تغيير الألوان</h3>
@@ -1913,6 +1994,11 @@
 
     <div class="watermark" id="watermark">برنامج اوسكار  </div>
     
+<!-- Print Header Image (only visible during printing) -->
+<div class="print-only print-header" id="printHeaderImage" style="display: none;">
+    <img id="printHeaderImg" src="" alt="Header" style="width: 100%; height: auto; max-height: 150px; object-fit: contain;">
+</div>
+
     <div class="container">
         <div class="header">
             <div class="logo-container">
@@ -2230,6 +2316,11 @@
             </div>
         </div>
     </div>
+
+<!-- Print Footer Image (only visible during printing) -->
+<div class="print-only print-footer" id="printFooterImage" style="display: none;">
+    <img id="printFooterImg" src="" alt="Footer" style="width: 100%; height: auto; max-height: 150px; object-fit: contain;">
+</div>
 
     <script>
         // متغيرات قاعدة البيانات
@@ -2572,6 +2663,50 @@
             logoElement.innerHTML = `<i class="fas fa-microscope"></i>`;
         }
 
+function handlePrintHeaderUpload(event) {
+    const file = event.target.files[0];
+    if (file && file.type === 'image/png') {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const headerPreview = document.getElementById('printHeaderPreview');
+            headerPreview.src = e.target.result;
+            headerPreview.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    } else {
+        alert('يرجى اختيار ملف PNG فقط للهيدر');
+        event.target.value = '';
+    }
+}
+
+function resetPrintHeader() {
+    document.getElementById('printHeaderPreview').src = '';
+    document.getElementById('printHeaderPreview').style.display = 'none';
+    document.getElementById('printHeaderUpload').value = '';
+}
+
+function handlePrintFooterUpload(event) {
+    const file = event.target.files[0];
+    if (file && file.type === 'image/png') {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const footerPreview = document.getElementById('printFooterPreview');
+            footerPreview.src = e.target.result;
+            footerPreview.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    } else {
+        alert('يرجى اختيار ملف PNG فقط للفوتر');
+        event.target.value = '';
+    }
+}
+
+function resetPrintFooter() {
+    document.getElementById('printFooterPreview').src = '';
+    document.getElementById('printFooterPreview').style.display = 'none';
+    document.getElementById('printFooterUpload').value = '';
+}
+
         function loadCurrentSettings() {
             // إزالة تحميل اسم المختبر لأنه ثابت
             document.getElementById('labHeaderInput').value = localStorage.getItem('labHeader') || '';
@@ -2648,6 +2783,18 @@
             document.getElementById('printMarginBottom').value = localStorage.getItem('printMarginBottom') || '1.2';
             document.getElementById('printMarginLeft').value = localStorage.getItem('printMarginLeft') || '0.7';
             document.getElementById('printMarginRight').value = localStorage.getItem('printMarginRight') || '0.7';
+
+const savedPrintHeader = localStorage.getItem('printHeaderImage');
+if (savedPrintHeader) {
+    document.getElementById('printHeaderPreview').src = savedPrintHeader;
+    document.getElementById('printHeaderPreview').style.display = 'block';
+}
+
+const savedPrintFooter = localStorage.getItem('printFooterImage');
+if (savedPrintFooter) {
+    document.getElementById('printFooterPreview').src = savedPrintFooter;
+    document.getElementById('printFooterPreview').style.display = 'block';
+}
         }
 
         function saveSettings() {
@@ -2726,6 +2873,20 @@
             localStorage.setItem('printMarginBottom', document.getElementById('printMarginBottom').value);
             localStorage.setItem('printMarginLeft', document.getElementById('printMarginLeft').value);
             localStorage.setItem('printMarginRight', document.getElementById('printMarginRight').value);
+
+const printHeaderPreview = document.getElementById('printHeaderPreview');
+if (printHeaderPreview.src && printHeaderPreview.src !== '') {
+    localStorage.setItem('printHeaderImage', printHeaderPreview.src);
+} else {
+    localStorage.removeItem('printHeaderImage');
+}
+
+const printFooterPreview = document.getElementById('printFooterPreview');
+if (printFooterPreview.src && printFooterPreview.src !== '') {
+    localStorage.setItem('printFooterImage', printFooterPreview.src);
+} else {
+    localStorage.removeItem('printFooterImage');
+}
 
             applySettings();
             toggleSettings();
@@ -2839,6 +3000,27 @@
             } else {
                 doctorsContainer.style.display = 'flex';
             }
+
+// Apply print header and footer images
+const savedPrintHeader = localStorage.getItem('printHeaderImage');
+const printHeaderImg = document.getElementById('printHeaderImg');
+const printHeaderDiv = document.getElementById('printHeaderImage');
+if (savedPrintHeader) {
+    printHeaderImg.src = savedPrintHeader;
+    printHeaderDiv.style.display = 'block';
+} else {
+    printHeaderDiv.style.display = 'none';
+}
+
+const savedPrintFooter = localStorage.getItem('printFooterImage');
+const printFooterImg = document.getElementById('printFooterImg');
+const printFooterDiv = document.getElementById('printFooterImage');
+if (savedPrintFooter) {
+    printFooterImg.src = savedPrintFooter;
+    printFooterDiv.style.display = 'block';
+} else {
+    printFooterDiv.style.display = 'none';
+}
         }
 
         function toggleSettings() {
@@ -2934,7 +3116,7 @@
                     icon: customSection.icon,
                     tests: tests
                 });
-            }
+            };
 
             // إضافة التحاليل المخصصة للأقسام الموجودة
             for (const sectionId in customTests) {
@@ -4306,7 +4488,4 @@
     </script>
 </body>
 </html>
-
-
-
-
+```
