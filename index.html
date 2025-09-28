@@ -1,4 +1,4 @@
-```html
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -169,7 +169,7 @@
         }
 
         .header .doctor-name {
-            flex: 0 1 48%;
+            flex: 0 1 24%;
             text-align: center;
             color: var(--doctor-font-color);
             font-size: var(--doctor-font-size);
@@ -1605,6 +1605,8 @@
             <input type="text" id="biologistNameInput" class="settings-input" placeholder="اسم البايلوجي">
             <input type="text" id="doctor1Name" class="settings-input" placeholder="اسم الدكتور الأول">
             <input type="text" id="doctor2Name" class="settings-input" placeholder="اسم الدكتور الثاني">
+            <input type="text" id="doctor3Name" class="settings-input" placeholder="اسم الدكتور الثالث">
+            <input type="text" id="doctor4Name" class="settings-input" placeholder="اسم الدكتور الرابع">
         </div>
         
         <div class="settings-group">
@@ -1881,6 +1883,14 @@
                 <input type="checkbox" id="showDoctor2" checked>
                 <label for="showDoctor2">إظهار الدكتور الثاني</label>
             </div>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <input type="checkbox" id="showDoctor3" checked>
+                <label for="showDoctor3">إظهار الدكتور الثالث</label>
+            </div>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <input type="checkbox" id="showDoctor4" checked>
+                <label for="showDoctor4">إظهار الدكتور الرابع</label>
+            </div>
         </div>
         
         <div class="settings-group">
@@ -1933,6 +1943,8 @@
                     <div class="doctors-container">
                         <div class="doctor-name" id="doctor1">  الاول اسم الطبيب او التقني او البايلوجي  </div>
                         <div class="doctor-name" id="doctor2">   الثاني اسم الطبيب او التقني او البايلوجي    </div>
+                        <div class="doctor-name" id="doctor3">   الثالث اسم الطبيب او التقني او البايلوجي    </div>
+                        <div class="doctor-name" id="doctor4">   الرابع اسم الطبيب او التقني او البايلوجي    </div>
                     </div>
                 </div>
             </div>
@@ -2290,7 +2302,6 @@
                     "S. Triglyceride": { type: "text", range: "mg/dl (35-165)" }, 
                     "VLDL": { type: "text", range: "mg/dl (5-30)" },
                     "S. LDL": { type: "text", range: "mg/dl (130-160)" }, 
-                    "S. LDL": { type: "text", range: "mg/dl (130-160)" }, 
                     "S. HDL": { type: "text", range: "mg/dl (35-65)" }, 
                     "Chol/HDL Ratio": { type: "text", range: "<5.0" },
                     "LDL/HDL Ratio": { type: "text", range: "<3.5" }
@@ -2590,6 +2601,8 @@
             document.getElementById('biologistNameInput').value = localStorage.getItem('biologistName') || 'شكراً لزيارتككم';
             document.getElementById('doctor1Name').value = localStorage.getItem('doctor1Name') || 'الاول اسم الطبيب او التقني او البايلوجي ';
             document.getElementById('doctor2Name').value = localStorage.getItem('doctor2Name') || ' الثاني اسم الطبيب او التقني او البايلوجي';
+            document.getElementById('doctor3Name').value = localStorage.getItem('doctor3Name') || ' الثالث اسم الطبيب او التقني او البايلوجي';
+            document.getElementById('doctor4Name').value = localStorage.getItem('doctor4Name') || ' الرابع اسم الطبيب او التقني او البايلوجي';
 
             document.getElementById('headerColor').value = localStorage.getItem('headerColor') || '#007bff';
             document.getElementById('backgroundColor').value = localStorage.getItem('backgroundColor') || '#f0f8ff';
@@ -2650,6 +2663,8 @@
 
             document.getElementById('showDoctor1').checked = localStorage.getItem('showDoctor1') !== 'false';
             document.getElementById('showDoctor2').checked = localStorage.getItem('showDoctor2') !== 'false';
+            document.getElementById('showDoctor3').checked = localStorage.getItem('showDoctor3') !== 'false';
+            document.getElementById('showDoctor4').checked = localStorage.getItem('showDoctor4') !== 'false';
             
             document.getElementById('tableWidth').value = localStorage.getItem('tableWidth') || '100';
             document.getElementById('cellPadding').value = localStorage.getItem('cellPadding') || '8';
@@ -2667,6 +2682,8 @@
             localStorage.setItem('biologistName', document.getElementById('biologistNameInput').value);
             localStorage.setItem('doctor1Name', document.getElementById('doctor1Name').value);
             localStorage.setItem('doctor2Name', document.getElementById('doctor2Name').value);
+            localStorage.setItem('doctor3Name', document.getElementById('doctor3Name').value);
+            localStorage.setItem('doctor4Name', document.getElementById('doctor4Name').value);
 
             localStorage.setItem('headerColor', document.getElementById('headerColor').value);
             localStorage.setItem('backgroundColor', document.getElementById('backgroundColor').value);
@@ -2728,6 +2745,8 @@
 
             localStorage.setItem('showDoctor1', document.getElementById('showDoctor1').checked);
             localStorage.setItem('showDoctor2', document.getElementById('showDoctor2').checked);
+            localStorage.setItem('showDoctor3', document.getElementById('showDoctor3').checked);
+            localStorage.setItem('showDoctor4', document.getElementById('showDoctor4').checked);
 
             localStorage.setItem('tableWidth', document.getElementById('tableWidth').value);
             localStorage.setItem('cellPadding', document.getElementById('cellPadding').value);
@@ -2759,6 +2778,8 @@
             const biologistName = localStorage.getItem('biologistName') || 'شكراً لزيارتككم';
             const doctor1Name = localStorage.getItem('doctor1Name') || 'الاول اسم الطبيب او التقني او البايلوجي';
             const doctor2Name = localStorage.getItem('doctor2Name') || ' الثاني اسم الطبيب او التقني او البايلوجي';
+            const doctor3Name = localStorage.getItem('doctor3Name') || ' الثالث اسم الطبيب او التقني او البايلوجي';
+            const doctor4Name = localStorage.getItem('doctor4Name') || ' الرابع اسم الطبيب او التقني او البايلوجي';
 
             // العنوان ثابت - لا يتم تغييره
          
@@ -2769,6 +2790,8 @@
             document.getElementById('labPhone').textContent = labPhone;
             document.getElementById('doctor1').textContent = doctor1Name;
             document.getElementById('doctor2').textContent = doctor2Name;
+            document.getElementById('doctor3').textContent = doctor3Name;
+            document.getElementById('doctor4').textContent = doctor4Name;
 
             const savedLogo = localStorage.getItem('labLogo');
             const logoElement = document.getElementById('labLogo');
@@ -2840,11 +2863,15 @@
 
             const showDoctor1 = localStorage.getItem('showDoctor1') !== 'false';
             const showDoctor2 = localStorage.getItem('showDoctor2') !== 'false';
+            const showDoctor3 = localStorage.getItem('showDoctor3') !== 'false';
+            const showDoctor4 = localStorage.getItem('showDoctor4') !== 'false';
             document.getElementById('doctor1').classList.toggle('hidden', !showDoctor1);
             document.getElementById('doctor2').classList.toggle('hidden', !showDoctor2);
+            document.getElementById('doctor3').classList.toggle('hidden', !showDoctor3);
+            document.getElementById('doctor4').classList.toggle('hidden', !showDoctor4);
 
             const doctorsContainer = document.querySelector('.doctors-container');
-            if (!showDoctor1 && !showDoctor2) {
+            if (!showDoctor1 && !showDoctor2 && !showDoctor3 && !showDoctor4) {
                 doctorsContainer.style.display = 'none';
             } else {
                 doctorsContainer.style.display = 'flex';
@@ -2944,7 +2971,7 @@
                     icon: customSection.icon,
                     tests: tests
                 });
-            };
+            }
 
             // إضافة التحاليل المخصصة للأقسام الموجودة
             for (const sectionId in customTests) {
@@ -3885,7 +3912,6 @@
 
         function printStats() {
             const printWindow = window.open('', '_blank');
-            const printWindow = window.open('', '_blank');
             const statsHtml = document.getElementById('statsModal').innerHTML;
             printWindow.document.write(`
                 <html><head><title>إحصائيات التحاليل</title>
@@ -4317,4 +4343,3 @@
     </script>
 </body>
 </html>
-```
