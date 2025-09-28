@@ -1625,30 +1625,6 @@
                 <i class="fas fa-trash"></i> إعادة اللوغو الافتراضي
             </button>
         </div>
-
-        <div class="settings-group">
-            <h3>تغيير هيدر الطباعة</h3>
-            <img id="printHeaderPreview" src="" alt="معاينة هيدر الطباعة" style="display: none; border-radius: 0; width: 200px; height: auto; border: 2px dashed var(--button-color); box-shadow: var(--shadow-light); margin: 12px auto;">
-            <input type="file" id="printHeaderUpload" accept="image/*" style="display: none;" onchange="handlePrintHeaderUpload(event)">
-            <button class="logo-upload-btn" onclick="document.getElementById('printHeaderUpload').click()">
-                <i class="fas fa-upload"></i> تحميل صورة هيدر الطباعة
-            </button>
-            <button class="logo-upload-btn" onclick="resetPrintHeader()" style="background: #f44336;">
-                <i class="fas fa-trash"></i> إعادة الافتراضي
-            </button>
-        </div>
-
-        <div class="settings-group">
-            <h3>تغيير فوتر الطباعة</h3>
-            <img id="printFooterPreview" src="" alt="معاينة فوتر الطباعة" style="display: none; border-radius: 0; width: 200px; height: auto; border: 2px dashed var(--button-color); box-shadow: var(--shadow-light); margin: 12px auto;">
-            <input type="file" id="printFooterUpload" accept="image/*" style="display: none;" onchange="handlePrintFooterUpload(event)">
-            <button class="logo-upload-btn" onclick="document.getElementById('printFooterUpload').click()">
-                <i class="fas fa-upload"></i> تحميل صورة فوتر الطباعة
-            </button>
-            <button class="logo-upload-btn" onclick="resetPrintFooter()" style="background: #f44336;">
-                <i class="fas fa-trash"></i> إعادة الافتراضي
-            </button>
-        </div>
         
         <div class="settings-group">
             <h3>تغيير الألوان</h3>
@@ -1968,7 +1944,7 @@
                     <i class="fas fa-microscope"></i>
                 </div>
                 <div class="header-text">
-                    <h1 id="labTitle">مختبر المسار الصحيح الطبي</h1>
+                    <h1 id="labTitle">   مختبر الدكتورة نور جعفر التخصصي</h1>
                     <div class="doctors-container">
                         <div class="doctor-name" id="doctor1">  الاول اسم الطبيب او التقني او البايلوجي  </div>
                         <div class="doctor-name" id="doctor2">   الثاني اسم الطبيب او التقني او البايلوجي    </div>
@@ -2267,7 +2243,7 @@
     <div class="lab-footer">
         <div class="lab-footer-content">
             <div class="lab-footer-item">
-                <div class="lab-footer-title">مختبر المسار الصحيح الطبي</div>
+                <div class="lab-footer-title">  مختبر الدكتورة نور جعفر التخصصي </div>
                 <div id="biologistName">شكراً للشراء البرنامج</div>
             </div>
             <div class="lab-footer-item">
@@ -2279,15 +2255,6 @@
                 <div id="labPhone">07806810264</div>
             </div>
         </div>
-    </div>
-
-    <div id="print-header">
-        <!-- استبدل src بمسار الصورة الأولى (الخضراء) أو استخدم base64 إذا كان متاحاً -->
-        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOEAAADhCAMAAAAJbSJIAAAAA1BMVEX///+nxBvIAAAAIE1EQVR4nO3BgQAAAADDoPlTX+AIVXBAAAAAElFTkSuQmCC" alt="Print Header" style="width: 100%;">
-    </div>
-    <div id="print-footer">
-        <!-- استبدل src بمسار الصورة الثانية (الزرقاء) أو استخدم base64 إذا كان متاحاً -->
-        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOEAAADhCAMAAAAJbSJIAAAAA1BMVEX///+nxBvIAAAAIE1EQVR4nO3BgQAAAADDoPlTX+AIVXBAAAAAElFTkSuQmCC" alt="Print Footer" style="width: 100%;">
     </div>
 
     <script>
@@ -2631,51 +2598,11 @@
             logoElement.innerHTML = `<i class="fas fa-microscope"></i>`;
         }
 
-        function handlePrintHeaderUpload(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const preview = document.getElementById('printHeaderPreview');
-                    preview.src = e.target.result;
-                    preview.style.display = 'block';
-                };
-                reader.readAsDataURL(file);
-            }
-        }
-
-        function resetPrintHeader() {
-            document.getElementById('printHeaderPreview').src = '';
-            document.getElementById('printHeaderPreview').style.display = 'none';
-            document.getElementById('printHeaderUpload').value = '';
-            document.querySelector('#print-header img').src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOEAAADhCAMAAAAJbSJIAAAAA1BMVEX///+nxBvIAAAAIE1EQVR4nO3BgQAAAADDoPlTX+AIVXBAAAAAElFTkSuQmCC';
-        }
-
-        function handlePrintFooterUpload(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const preview = document.getElementById('printFooterPreview');
-                    preview.src = e.target.result;
-                    preview.style.display = 'block';
-                };
-                reader.readAsDataURL(file);
-            }
-        }
-
-        function resetPrintFooter() {
-            document.getElementById('printFooterPreview').src = '';
-            document.getElementById('printFooterPreview').style.display = 'none';
-            document.getElementById('printFooterUpload').value = '';
-            document.querySelector('#print-footer img').src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOEAAADhCAMAAAAJbSJIAAAAA1BMVEX///+nxBvIAAAAIE1EQVR4nO3BgQAAAADDoPlTX+AIVXBAAAAAElFTkSuQmCC';
-        }
-
         function loadCurrentSettings() {
             // إزالة تحميل اسم المختبر لأنه ثابت
             document.getElementById('labHeaderInput').value = localStorage.getItem('labHeader') || '';
             document.getElementById('labAddressInput').value = localStorage.getItem('labAddress') || '    للشراء البرنامج تواصل معنا';
-            document.getElementById('labPhoneInput').value = localStorage.getItem('labPhone') || '07806810264';
+            document.getElementById('labPhoneInput').value = localStorage.getItem('labPhone') || '07901821264';
             document.getElementById('biologistNameInput').value = localStorage.getItem('biologistName') || 'شكراً لزيارتككم';
             document.getElementById('doctor1Name').value = localStorage.getItem('doctor1Name') || 'الاول اسم الطبيب او التقني او البايلوجي ';
             document.getElementById('doctor2Name').value = localStorage.getItem('doctor2Name') || ' الثاني اسم الطبيب او التقني او البايلوجي';
@@ -2699,18 +2626,6 @@
             if (savedLogo) {
                 document.getElementById('logoPreview').src = savedLogo;
                 document.getElementById('logoPreview').style.display = 'block';
-            }
-
-            const savedPrintHeader = localStorage.getItem('printHeader');
-            if (savedPrintHeader) {
-                document.getElementById('printHeaderPreview').src = savedPrintHeader;
-                document.getElementById('printHeaderPreview').style.display = 'block';
-            }
-
-            const savedPrintFooter = localStorage.getItem('printFooter');
-            if (savedPrintFooter) {
-                document.getElementById('printFooterPreview').src = savedPrintFooter;
-                document.getElementById('printFooterPreview').style.display = 'block';
             }
 
             document.getElementById('titleFontSize').value = localStorage.getItem('titleFontSize') || '28';
@@ -2793,20 +2708,6 @@
                 localStorage.setItem('labLogo', logoPreview.src);
             } else {
                 localStorage.removeItem('labLogo');
-            }
-
-            const printHeaderPreview = document.getElementById('printHeaderPreview');
-            if (printHeaderPreview.src && printHeaderPreview.src !== '') {
-                localStorage.setItem('printHeader', printHeaderPreview.src);
-            } else {
-                localStorage.removeItem('printHeader');
-            }
-
-            const printFooterPreview = document.getElementById('printFooterPreview');
-            if (printFooterPreview.src && printFooterPreview.src !== '') {
-                localStorage.setItem('printFooter', printFooterPreview.src);
-            } else {
-                localStorage.removeItem('printFooter');
             }
 
             localStorage.setItem('titleFontSize', document.getElementById('titleFontSize').value);
@@ -2903,16 +2804,6 @@
                 logoElement.innerHTML = `<img src="${savedLogo}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
             } else {
                 logoElement.innerHTML = `<i class="fas fa-microscope"></i>`;
-            }
-
-            const savedPrintHeader = localStorage.getItem('printHeader');
-            if (savedPrintHeader) {
-                document.querySelector('#print-header img').src = savedPrintHeader;
-            }
-
-            const savedPrintFooter = localStorage.getItem('printFooter');
-            if (savedPrintFooter) {
-                document.querySelector('#print-footer img').src = savedPrintFooter;
             }
 
             document.documentElement.style.setProperty('--header-color', localStorage.getItem('headerColor') || '#007bff');
