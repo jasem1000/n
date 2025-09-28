@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -1410,6 +1411,9 @@
                 padding: 0;
                 text-align: center !important;
                 width: 100%;
+                appearance: none !important; /* إخفاء السهم المنسدل للـ select في الطباعة */
+                -webkit-appearance: none !important;
+                -moz-appearance: none !important;
             }
 
             .multiple-choice-container {
@@ -1519,6 +1523,11 @@
             .hln-select {
                 width: 1cm;
                 display: inline-block;
+            }
+
+            /* إخفاء العناصر المطلوبة في الطباعة */
+            .hln-select {
+                display: none !important; /* إخفاء H L N في الطباعة */
             }
         }
 
@@ -2281,6 +2290,7 @@
                     "S. Triglyceride": { type: "text", range: "mg/dl (35-165)" }, 
                     "VLDL": { type: "text", range: "mg/dl (5-30)" },
                     "S. LDL": { type: "text", range: "mg/dl (130-160)" }, 
+                    "S. LDL": { type: "text", range: "mg/dl (130-160)" }, 
                     "S. HDL": { type: "text", range: "mg/dl (35-65)" }, 
                     "Chol/HDL Ratio": { type: "text", range: "<5.0" },
                     "LDL/HDL Ratio": { type: "text", range: "<3.5" }
@@ -2934,7 +2944,7 @@
                     icon: customSection.icon,
                     tests: tests
                 });
-            }
+            };
 
             // إضافة التحاليل المخصصة للأقسام الموجودة
             for (const sectionId in customTests) {
@@ -3875,6 +3885,7 @@
 
         function printStats() {
             const printWindow = window.open('', '_blank');
+            const printWindow = window.open('', '_blank');
             const statsHtml = document.getElementById('statsModal').innerHTML;
             printWindow.document.write(`
                 <html><head><title>إحصائيات التحاليل</title>
@@ -4306,3 +4317,4 @@
     </script>
 </body>
 </html>
+```
