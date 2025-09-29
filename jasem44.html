@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -22,7 +21,7 @@
             --range-font-size: 16px;
             --footer-font-size: 14px;
             --doctor-font-size: 14px;
-            --patient-info-font-size: 12px;
+            --patient-info-font-size: 14px;
             --title-font-color: #0056b3;
             --test-name-font-color: #212529;
             --result-font-color: #212529;
@@ -50,6 +49,8 @@
             --print-margin-bottom: 1.2cm;
             --print-margin-left: 0.7cm;
             --print-margin-right: 0.7cm;
+
+            /* أوزان الخطوط الافتراضية المحدثة (زيادة الوزن) */
             --title-font-weight: 700;
             --main-font-weight: 500;
             --subtitle-font-weight: 600;
@@ -59,12 +60,8 @@
             --footer-font-weight: 600;
             --doctor-font-weight: 600;
             --patient-info-font-weight: 600;
-            --test-name-bg-color: #e8f4e8;
-            --normal-range-bg-color: #ffffff;
-            --result-bg-color: #f9f9f9;
-            --section-title-font-color: #ffffff;
-            --section-title-bg-color: #28a745;
-            --section-title-font-size: 20px;
+
+            /* إضافات جديدة لتحسين التصميم */
             --shadow-light: 0 2px 10px rgba(0, 0, 0, 0.1);
             --shadow-medium: 0 4px 20px rgba(0, 0, 0, 0.15);
             --border-radius-small: 8px;
@@ -153,8 +150,7 @@
         }
 
         .doctors-container {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            display: flex;
             justify-content: center;
             width: 100%;
             gap: 15px;
@@ -185,9 +181,9 @@
             font-weight: var(--patient-info-font-weight);
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 0px;
-            margin-bottom: 8px;
-            padding: 6px;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 20px;
             border: 1px solid rgba(0,0,0,0.1);
             border-radius: var(--border-radius-small);
             background-color: var(--patient-info-bg);
@@ -197,7 +193,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 4px 0;
+            padding: 8px 0;
         }
 
         .info-label {
@@ -210,9 +206,9 @@
             font-weight: var(--patient-info-font-weight);
             font-size: var(--patient-info-font-size);
             border: 1px dashed var(--button-color);
-            padding: 4px 8px;
+            padding: 6px 12px;
             border-radius: var(--border-radius-small);
-            min-width: 120px;
+            min-width: 150px;
             text-align: right;
             background-color: white;
             font-family: var(--main-font);
@@ -250,10 +246,10 @@
         }
 
         .section-title {
-            background-color: var(--section-title-bg-color);
-            color: var(--section-title-font-color);
+            background: linear-gradient(135deg, var(--button-color) 0%, #2E7D32 100%);
+            color: white;
             padding: 12px 20px;
-            font-size: var(--section-title-font-size);
+            font-size: 20px;
             font-weight: var(--subtitle-font-weight);
             text-align: center;
             display: flex;
@@ -291,30 +287,23 @@
         td:nth-child(2) { width: 30%; }
         td:last-child { width: 30%; }
 
-        .test-name {
+          .test-name {
             font-size: var(--test-name-font-size);
             font-weight: var(--test-font-weight);
-            background-color: var(--test-name-bg-color);
+            background-color: #e8f4e8;
             color: var(--test-name-font-color);
             font-family: var(--test-font);
         }
 
-        .normal-range {
+          .normal-range {
             font-size: var(--range-font-size);
             font-weight: var(--range-font-weight);
             color: var(--range-font-color);
-            direction: ltr;
+            direction: rtl;
             font-family: var(--range-font);
-            background-color: var(--normal-range-bg-color);
         }
 
-        .result-container {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .result-input, .result-select {
+         .result-input, .result-select {
             width: 100%;
             height: var(--input-height);
             border: 1px dashed var(--button-color);
@@ -323,7 +312,7 @@
             text-align: center;
             font-family: var(--result-font);
             font-weight: var(--result-font-weight);
-            background-color: var(--result-bg-color);
+            background-color: #f9f9f9;
             font-size: var(--result-font-size);
             direction: rtl;
             color: var(--result-font-color);
@@ -334,16 +323,6 @@
             border: 1px solid #2E7D32;
             background-color: #f0fff0;
             box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
-        }
-
-        .hln-select {
-            width: 20%;
-            height: var(--input-height);
-            border: none;
-            background-color: transparent;
-            font-size: 12px;
-            color: #333;
-            text-align: center;
         }
 
         .multiple-choice-container {
@@ -400,6 +379,36 @@
             font-weight: var(--footer-font-weight);
         }
 
+        .signature-area {
+            margin-top: 40px;
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 25px;
+        }
+
+        .signature-box {
+            width: 220px;
+            border-top: 1px solid #333;
+            padding-top: 8px;
+            text-align: center;
+            font-size: 14px;
+            font-family: var(--main-font);
+            font-weight: var(--main-font-weight);
+        }
+
+        .signature-input {
+            border: none;
+            border-bottom: 1px dashed #333;
+            padding: 4px;
+            text-align: center;
+            font-family: var(--main-font);
+            font-weight: var(--main-font-weight);
+            width: 100%;
+            margin-top: 5px;
+            font-size: 14px;
+        }
+
         .action-buttons {
             display: flex;
             justify-content: center;
@@ -430,6 +439,26 @@
 
         .btn-print {
             background: linear-gradient(135deg, var(--button-color) 0%, #2E7D32 100%);
+            color: white;
+        }
+
+        .btn-clear {
+            background: linear-gradient(135deg, #f44336 0%, #b71c1c 100%);
+            color: white;
+        }
+
+        .btn-save {
+            background: linear-gradient(135deg, var(--header-color) 0%, #1a5e78 100%);
+            color: white;
+        }
+
+        .btn-load {
+            background: linear-gradient(135deg, #FFC107 0%, #FF9800 100%);
+            color: white;
+        }
+
+        .btn-manage {
+            background: linear-gradient(135deg, #9C27B0 0%, #7B1FA2 100%);
             color: white;
         }
 
@@ -476,6 +505,27 @@
             font-family: var(--main-font);
         }
 
+        .test-selection label {
+            white-space: nowrap;
+        }
+
+        .test-selection select {
+            padding: 10px 15px;
+            border: 1px solid var(--button-color);
+            border-radius: var(--border-radius-small);
+            font-family: var(--main-font);
+            font-size: 15px;
+            cursor: pointer;
+            background-color: #f9f9f9;
+            transition: all var(--transition-fast);
+        }
+
+        .test-selection select:focus {
+            outline: none;
+            border-color: #2E7D32;
+            box-shadow: 0 0 8px rgba(46, 125, 50, 0.3);
+        }
+
         .watermark {
             position: fixed;
             top: 50%;
@@ -488,6 +538,40 @@
             font-weight: var(--title-font-weight);
             white-space: nowrap;
             font-family: var(--title-font);
+        }
+
+        .examiner-name {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 20px;
+            background-color: #e8f4e8;
+            border-top: 1px solid #ddd;
+            font-weight: var(--main-font-weight);
+            direction: rtl;
+            font-family: var(--main-font);
+        }
+
+        .examiner-input {
+            border: 1px dashed var(--button-color);
+            padding: 6px 12px;
+            border-radius: var(--border-radius-small);
+            text-align: right;
+            font-family: var(--main-font);
+            font-weight: var(--main-font-weight);
+            width: 220px;
+            background-color: white;
+            transition: all var(--transition-fast);
+        }
+
+        .sub-section-title {
+            background-color: #e8f4e8;
+            padding: 10px;
+            text-align: center;
+            font-weight: var(--subtitle-font-weight);
+            border-bottom: 1px solid #ddd;
+            direction: rtl;
+            font-family: var(--subtitle-font);
         }
 
         .modal {
@@ -528,6 +612,272 @@
         .close:focus {
             color: #000;
             text-decoration: none;
+        }
+
+        .normal-range-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius-small);
+            font-family: var(--main-font);
+            font-weight: var(--main-font-weight);
+            transition: all var(--transition-fast);
+        }
+
+        .normal-range-input:focus {
+            border-color: var(--button-color);
+            box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
+        }
+
+        .range-management {
+            margin: 20px 0;
+        }
+
+        .range-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        .range-table th, .range-table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+            font-family: var(--main-font);
+            font-weight: var(--main-font-weight);
+        }
+
+        .range-table th {
+            background-color: #f8f9fa;
+        }
+
+        .add-test-btn {
+            background: linear-gradient(135deg, #2196F3 0%, #0D47A1 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: var(--border-radius-small);
+            cursor: pointer;
+            margin: 15px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: var(--main-font);
+            font-weight: var(--main-font-weight);
+            transition: all var(--transition-slow);
+        }
+
+        .add-test-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-light);
+        }
+
+        .add-section-btn {
+            background: linear-gradient(135deg, #9C27B0 0%, #6A1B9A 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 30px;
+            cursor: pointer;
+            margin: 20px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: var(--main-font);
+            font-weight: var(--main-font-weight);
+            transition: all var(--transition-slow);
+        }
+
+        .add-section-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .test-controls {
+            display: flex;
+            justify-content: flex-end;
+            padding: 8px 15px;
+            background-color: #f5f5f5;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .remove-test {
+            color: #f44336;
+            cursor: pointer;
+            font-size: 18px;
+            padding: 6px;
+            transition: all var(--transition-fast);
+        }
+
+        .remove-test:hover {
+            background-color: #ffebee;
+            border-radius: 50%;
+        }
+
+        .modal-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .modal-tab {
+            padding: 12px 20px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            flex: 1;
+            text-align: center;
+            transition: all var(--transition-slow);
+            font-family: var(--main-font);
+            font-weight: var(--main-font-weight);
+        }
+
+        .modal-tab:hover {
+            background-color: #f8f9fa;
+        }
+
+        .modal-tab.active {
+            border-bottom: 3px solid var(--button-color);
+            color: var(--button-color);
+            font-weight: var(--main-font-weight);
+        }
+
+        [data-tab] {
+            cursor: pointer;
+            transition: all var(--transition-slow);
+        }
+
+        [data-tab]:hover {
+            background-color: #f8f9fa;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .new-test-form, .new-section-form {
+            display: grid;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .form-group {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .form-input {
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius-small);
+            font-family: var(--main-font);
+            font-weight: var(--main-font-weight);
+            transition: all var(--transition-fast);
+        }
+
+        .form-input:focus {
+            border-color: var(--button-color);
+            box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
+        }
+
+        .choices-container {
+            margin-top: 15px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius-small);
+            background-color: #f9f9f9;
+        }
+
+        .choice-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 10px;
+            padding: 8px;
+            background-color: white;
+            border-radius: var(--border-radius-small);
+            border: 1px solid #eee;
+            transition: all var(--transition-fast);
+        }
+
+        .choice-text-input {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: var(--border-radius-small);
+            font-family: var(--main-font);
+            font-weight: var(--main-font-weight);
+        }
+
+        .remove-choice {
+            color: #f44336;
+            cursor: pointer;
+            font-size: 18px;
+            padding: 6px;
+            border-radius: 50%;
+            transition: all var(--transition-fast);
+        }
+
+        .remove-choice:hover {
+            background-color: #ffebee;
+        }
+
+        .add-choice-btn {
+            background: var(--button-color);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: var(--border-radius-small);
+            cursor: pointer;
+            font-size: 13px;
+            font-family: var(--main-font);
+            font-weight: var(--main-font-weight);
+            margin-top: 8px;
+            transition: all var(--transition-slow);
+        }
+
+        .add-choice-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-light);
+        }
+
+        .test-list {
+            max-height: 350px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: var(--border-radius-small);
+            margin: 15px 0;
+            background-color: #f9f9f9;
+        }
+
+        .test-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            background: #fff;
+            margin-bottom: 12px;
+            border-radius: var(--border-radius-small);
+            border: 1px solid #ddd;
+            transition: all var(--transition-fast);
+        }
+
+        .test-item:hover {
+            box-shadow: var(--shadow-light);
+        }
+
+        .test-item:last-child {
+            border-bottom: none;
+        }
+
+        .test-name-input, .test-range-input {
+            margin-bottom: 8px;
         }
 
         .settings-panel {
@@ -582,6 +932,139 @@
             font-size: 18px;
         }
 
+        .color-picker {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+            align-items: center;
+        }
+
+        .color-picker label {
+            min-width: 120px;
+            font-weight: var(--main-font-weight);
+        }
+
+        .color-input {
+            width: 50px;
+            height: 50px;
+            padding: 0;
+            border: none;
+            border-radius: var(--border-radius-small);
+            cursor: pointer;
+            box-shadow: var(--shadow-light);
+        }
+
+        .settings-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius-small);
+            margin-bottom: 10px;
+            font-family: var(--main-font);
+            font-weight: var(--main-font-weight);
+            transition: all var(--transition-fast);
+        }
+
+        .settings-input:focus {
+            border-color: var(--button-color);
+            box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
+        }
+
+        .settings-select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius-small);
+            margin-bottom: 10px;
+            font-family: var(--main-font);
+            font-weight: var(--main-font-weight);
+            transition: all var(--transition-fast);
+        }
+
+        .settings-select:focus {
+            border-color: var(--button-color);
+            box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
+        }
+
+        .settings-btn {
+            background: var(--button-color);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: var(--border-radius-small);
+            cursor: pointer;
+            width: 100%;
+            margin-top: 12px;
+            font-family: var(--main-font);
+            font-weight: var(--main-font-weight);
+            transition: all var(--transition-slow);
+        }
+
+        .settings-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .font-size-picker {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+            align-items: center;
+        }
+        
+        .font-size-picker label {
+            min-width: 130px;
+            font-weight: var(--main-font-weight);
+        }
+        
+        .font-size-input {
+            width: 70px;
+            padding: 6px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius-small);
+            text-align: center;
+        }
+
+        .font-weight-picker {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+            align-items: center;
+        }
+
+        .font-weight-picker label {
+            min-width: 130px;
+            font-weight: var(--main-font-weight);
+        }
+
+        .font-weight-input {
+            width: 70px;
+            padding: 6px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius-small);
+            text-align: center;
+        }
+
+        .border-picker {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+            align-items: center;
+        }
+
+        .border-picker label {
+            min-width: 130px;
+            font-weight: var(--main-font-weight);
+        }
+
+        .border-width-input, .border-radius-input {
+            width: 70px;
+            padding: 6px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius-small);
+            text-align: center;
+        }
+        
         .logo-preview {
             width: 100px;
             height: 100px;
@@ -612,8 +1095,29 @@
             box-shadow: var(--shadow-light);
         }
 
+        .filled-tests {
+            font-size: 13px;
+            color: #555;
+            margin-bottom: 15px;
+            text-align: center;
+            display: none;
+            padding: 12px;
+            background-color: #e8f5e8;
+            border-radius: var(--border-radius-small);
+            border-left: 5px solid var(--button-color);
+            font-family: var(--main-font);
+            font-weight: var(--main-font-weight);
+            box-shadow: var(--shadow-light);
+        }
+
         .no-print-row, .no-print-item, .no-print-section {
             display: none !important;
+        }
+
+        .range-table .btn {
+            padding: 6px 12px;
+            font-size: 13px;
+            border-radius: var(--border-radius-small);
         }
 
         .hidden {
@@ -796,63 +1300,227 @@
         @media print {
             @page {
                 size: A4;
-                margin: 0; /* Margin is often controlled by the background image itself */
+                margin: 0;
             }
 
             body, html {
+                width: 100%;
+                height: 100vh;
+                margin: 0;
+                padding: 0;
                 background: white;
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
+                font-size: 10pt;
+                display: flex;
+                flex-direction: column;
+                min-height: 100vh;
+                background-image: url('background.jpg');
+                background-size: 21cm 29.7cm;
+                background-position: center;
+                background-repeat: repeat;
             }
-            
-            /* Hide original header, footer, and other non-printable elements */
-            .header, 
-            .lab-footer, 
-            .no-print, 
-            .action-buttons, 
-            .test-selection, 
-            .settings-toggle, 
-            .filled-tests {
-                display: none !important;
+
+            body * {
+                visibility: visible;
             }
-            
-            /* Make the main container transparent to show the body background */
+
             .container {
                 width: 100%;
                 max-width: 100%;
                 margin: 0;
-                padding: var(--print-margin-top) var(--print-margin-right) var(--print-margin-bottom) var(--print-margin-left);
-                box-shadow: none !important;
+                padding: 4.5cm 1cm 4cm 1cm; /* زيادة الهامش العلوي والسفلي لتجنب التداخل */
+                box-shadow:none;
                 border-radius: 0;
+                flex-grow: 1;
                 background-color: transparent !important;
-                border: none !important;
+                position: relative;
+            }
+
+            .no-print, .action-buttons, .test-selection, .settings-toggle, .filled-tests {
+                display: none !important;
             }
 
             .section {
+                display: block;
                 page-break-inside: avoid;
                 border: none;
+                margin: 0;
                 box-shadow: none;
-                background-color: transparent;
+                background-color: transparent !important;
             }
 
-            .editable-field, .result-input, .result-select {
+            .header, .lab-footer {
+                display: none !important;
+            }
+
+            .patient-info {
+                margin: 0;
+                padding: 0cm;
+                background-color: rgb(97, 236, 246)
+            }
+
+            .logo {
+                background: white;
+                color: var(--button-color);
+                border: 2px solid var(--button-color);
+            }
+
+            .section-title {
+                background: #f2f2f2;
+                color: #000;
+                border-bottom: 1px solid #ddd;
+                padding: 10px 15px;
+                font-size: 16px;
+            }
+
+            .editable-field, .signature-input {
                 border: none;
                 background-color: transparent;
+                padding: 0;
+                text-align: right !important;
             }
 
-            /* (Other existing print styles remain) */
+            .result-input, .result-select {
+                height: var(--input-height);
+                border: none;
+                background-color: transparent;
+                padding: 0;
+                text-align: center !important;
+                width: 100%;
+            }
+
+            .multiple-choice-container {
+                display: flex;
+                flex-direction: column;
+                gap: 0;
+                font-size: 12px;
+            }
+
+            .choice-option {
+                margin: 0;
+                padding: 2px 6px;
+                font-size: 12px;
+            }
+
+            .choice-radio {
+                transform: scale(1);
+                margin: 0;
+            }
+
+            .results-container {
+                gap: 15px;
+                margin-top: 0;
+            }
+
+            table {
+                width: var(--table-width);
+                page-break-inside: avoid;
+                font-size: 12px;
+                direction: ltr;
+            }
+
+            th, td {
+                padding: var(--cell-padding);
+                border: var(--table-border-width) solid var(--table-border-color);
+                vertical-align: top;
+            }
+
+            td:first-child { width: 40%; }
+            td:nth-child(2) { width: 30%; }
+            td:last-child { width: 30%; }
+
+            .test-name {
+                text-align: center;
+            }
+
+            .normal-range {
+                text-align: center;
+            }
+
+            .footer {
+                margin-top: 20px;
+                padding-top: 15px;
+                font-size: 12px;
+            }
+
+            .signature-area {
+                margin-top: 25px;
+                gap: 20px;
+            }
+
+            .signature-box {
+                width: 200px;
+                font-size: 12px;
+            }
+
+            .lab-footer {
+                display: none !important;
+            }
+
+            /* Print styles for stats and patients */
+            .stats-table, .patients-table {
+                font-size: 12px;
+            }
+
+            /* Hide dropdowns in print */
+            .visits-dropdown-content {
+                display: none !important;
+            }
         }
 
         @media (max-width: 600px) {
             .container {
                 padding: 15px;
             }
+
+            .results-container {
+                gap: 15px;
+            }
+
+            .patient-info {
+                grid-template-columns: 1fr;
+            }
+
+            .lab-footer-content {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .settings-panel {
+                width: 95%;
+                left: 2.5%;
+                top: 50px;
+            }
+
+            .modal-tabs {
+                flex-direction: column;
+            }
+
+            .modal-tab {
+                border-right: none;
+                border-bottom: 1px solid #ddd;
+            }
+
+            .multiple-choice-container {
+                gap: 3px;
+            }
+
+            .choice-option {
+                padding: 3px 6px;
+                font-size: 12px;
+            }
+
+            .visits-dropdown-content {
+                min-width: 280px;
+                right: -60px;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+                gap: 10px;
+            }
         }
     </style>
-
-    <style id="print-background-style"></style>
 </head>
-
 <body>
     <div class="settings-toggle no-print" onclick="toggleSettings()">
         <i class="fas fa-cog"></i>
@@ -860,21 +1528,6 @@
 
     <div class="settings-panel no-print" id="settingsPanel">
         <h2 style="text-align: center; margin-bottom: 15px;">إعدادات المختبر</h2>
-        
-        <div class="settings-group">
-            <h3>خلفية الطباعة (PDF)</h3>
-            <p style="font-size: 12px; color: #666; margin-bottom: 10px;">
-                قم بتحميل صورة (مثل ورقة مروسة) لتكون خلفية لملف PDF عند الطباعة. سيتم إخفاء رأس وتذييل البرنامج تلقائيًا.
-            </p>
-            <img id="printBgPreview" class="logo-preview" src="" alt="معاينة الخلفية" style="display: none; border-radius: 0; width: 100%; height: auto; object-fit: contain;">
-            <input type="file" id="printBgUpload" accept="image/*" style="display: none;" onchange="handlePrintBgUpload(event)">
-            <button class="logo-upload-btn" onclick="document.getElementById('printBgUpload').click()">
-                <i class="fas fa-upload"></i> تحميل صورة الخلفية
-            </button>
-            <button class="logo-upload-btn" onclick="resetPrintBg()" style="background: #f44336; margin-top: 8px;">
-                <i class="fas fa-trash"></i> إزالة الخلفية
-            </button>
-        </div>
         
         <div class="settings-group">
             <h3>بيانات الرأس</h3>
@@ -888,8 +1541,6 @@
             <input type="text" id="biologistNameInput" class="settings-input" placeholder="اسم البايلوجي">
             <input type="text" id="doctor1Name" class="settings-input" placeholder="اسم الدكتور الأول">
             <input type="text" id="doctor2Name" class="settings-input" placeholder="اسم الدكتور الثاني">
-            <input type="text" id="doctor3Name" class="settings-input" placeholder="اسم الدكتور الثالث">
-            <input type="text" id="doctor4Name" class="settings-input" placeholder="اسم الدكتور الرابع">
         </div>
         
         <div class="settings-group">
@@ -934,26 +1585,6 @@
                 <label>لون خلفية التذييل:</label>
                 <input type="color" id="footerBg" class="color-input" value="#007bff">
             </div>
-            <div class="color-picker">
-                <label>خلفية أسماء التحاليل:</label>
-                <input type="color" id="testNameBgColor" class="color-input" value="#e8f4e8">
-            </div>
-            <div class="color-picker">
-                <label>خلفية النورمل رانج:</label>
-                <input type="color" id="normalRangeBgColor" class="color-input" value="#ffffff">
-            </div>
-            <div class="color-picker">
-                <label>خلفية النتائج:</label>
-                <input type="color" id="resultBgColor" class="color-input" value="#f9f9f9">
-            </div>
-            <div class="color-picker">
-                <label>لون خط عنوان القسم:</label>
-                <input type="color" id="sectionTitleFontColor" class="color-input" value="#ffffff">
-            </div>
-            <div class="color-picker">
-                <label>لون خلفية عنوان القسم:</label>
-                <input type="color" id="sectionTitleBgColor" class="color-input" value="#28a745">
-            </div>
         </div>
         
         <div class="settings-group">
@@ -984,11 +1615,7 @@
             </div>
             <div class="font-size-picker">
                 <label>حجم خطوط معلومات المريض:</label>
-                <input type="number" id="patientInfoFontSize" class="font-size-input" value="12" min="10" max="30"> px
-            </div>
-            <div class="font-size-picker">
-                <label>حجم عنوان القسم:</label>
-                <input type="number" id="sectionTitleFontSize" class="font-size-input" value="20" min="10" max="30"> px
+                <input type="number" id="patientInfoFontSize" class="font-size-input" value="14" min="10" max="30"> px
             </div>
         </div>
 
@@ -1166,14 +1793,6 @@
                 <input type="checkbox" id="showDoctor2" checked>
                 <label for="showDoctor2">إظهار الدكتور الثاني</label>
             </div>
-            <div style="display: flex; gap: 10px; align-items: center;">
-                <input type="checkbox" id="showDoctor3" checked>
-                <label for="showDoctor3">إظهار الدكتور الثالث</label>
-            </div>
-            <div style="display: flex; gap: 10px; align-items: center;">
-                <input type="checkbox" id="showDoctor4" checked>
-                <label for="showDoctor4">إظهار الدكتور الرابع</label>
-            </div>
         </div>
         
         <div class="settings-group">
@@ -1222,12 +1841,10 @@
                     <i class="fas fa-microscope"></i>
                 </div>
                 <div class="header-text">
-                    <h1 id="labTitle">   مختبر الدكتورة نور جعفر التخصصي</h1>
+                    <h1 id="labTitle">برنامج اوسكار</h1>
                     <div class="doctors-container">
                         <div class="doctor-name" id="doctor1">  الاول اسم الطبيب او التقني او البايلوجي  </div>
                         <div class="doctor-name" id="doctor2">   الثاني اسم الطبيب او التقني او البايلوجي    </div>
-                        <div class="doctor-name" id="doctor3">   الثالث اسم الطبيب او التقني او البايلوجي    </div>
-                        <div class="doctor-name" id="doctor4">   الرابع اسم الطبيب او التقني او البايلوجي    </div>
                     </div>
                 </div>
             </div>
@@ -1412,14 +2029,6 @@
                     </select>
                 </div>
                 
-                <div id="sectionNameEdit" style="display: none; margin-bottom: 15px;">
-                    <label for="editSectionName">تعديل اسم القسم:</label>
-                    <input type="text" id="editSectionName" class="form-input" style="width: 100%; margin-top: 5px;">
-                    <button class="btn btn-save" onclick="saveSectionName()" style="margin-top: 10px; width: 100%;">
-                        <i class="fas fa-save"></i> حفظ اسم القسم
-                    </button>
-                </div>
-                
                 <div id="rangeTableContainer">
                     <p>يرجى اختيار قسم لعرض التحاليل</p>
                 </div>
@@ -1521,7 +2130,7 @@
     <div class="lab-footer">
         <div class="lab-footer-content">
             <div class="lab-footer-item">
-                <div class="lab-footer-title">  مختبر الدكتورة نور جعفر التخصصي </div>
+                <div class="lab-footer-title">برنامج اوسكار  </div>
                 <div id="biologistName">شكراً للشراء البرنامج</div>
             </div>
             <div class="lab-footer-item">
@@ -1706,13 +2315,13 @@
                     "CMV IgG": { type: "select", range: "Negative", choices: ["Positive", "Negative"] }, 
                     "CMV IgM": { type: "select", range: "Negative", choices: ["Positive", "Negative"] },
                     "EBV (VCA IgG)": { type: "select", range: "Negative", choices: ["Positive", "Negative"] }, 
-                    "EBV (VCA IgM)": { type: "select", range: "Negative", choices: ["Positive", "Negative"] },
+                    "EBV (VCA IgM)": { type: "select", range: "Negative", choices: ["Positive", "Negative"] }, 
                     "HBsAg": { type: "select", range: "Negative", choices: ["Positive", "Negative"] }, 
                     "HBsAb": { type: "select", range: "Negative", choices: ["Positive", "Negative"] },
                     "Anti-HCV (HCV-Ab)": { type: "select", range: "Negative", choices: ["Positive", "Negative"] }, 
                     "HIV AB": { type: "select", range: "Negative", choices: ["Positive", "Negative"] }, 
                     "HIV (ELISA)": { type: "select", range: "Negative", choices: ["Positive", "Negative"] },
-                    "VDRL / RPR / Syphilis": { type: "select", range: "Negative", choices: ["Positive", "Negative"] }, 
+                    "VDRL / RPR (Syphilis)": { type: "select", range: "Negative", choices: ["Positive", "Negative"] }, 
                     "ANA": { type: "select", range: "Negative", choices: ["Positive", "Negative"] }, 
                     "Anti-dsDNA": { type: "select", range: "Negative", choices: ["Positive", "Negative"] },
                     "IgG": { type: "text", range: "700-1600 mg/dl" }, 
@@ -1876,59 +2485,14 @@
             logoElement.innerHTML = `<i class="fas fa-microscope"></i>`;
         }
 
-        // --- NEW JAVASCRIPT FUNCTIONS FOR PRINT BACKGROUND ---
-
-        function handlePrintBgUpload(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const bgPreview = document.getElementById('printBgPreview');
-                    bgPreview.src = e.target.result;
-                    bgPreview.style.display = 'block';
-                };
-                reader.readAsDataURL(file);
-            }
-        }
-
-        function resetPrintBg() {
-            document.getElementById('printBgPreview').src = '';
-            document.getElementById('printBgPreview').style.display = 'none';
-            document.getElementById('printBgUpload').value = '';
-        }
-        
-        function applyPrintBackground() {
-            const styleElement = document.getElementById('print-background-style');
-            const savedPrintBg = localStorage.getItem('printBackground');
-
-            if (savedPrintBg) {
-                styleElement.innerHTML = `
-                    @media print {
-                        body {
-                            background-image: url('${savedPrintBg}');
-                            background-size: 100% 100%;
-                            background-repeat: no-repeat;
-                            background-position: center;
-                            -webkit-print-color-adjust: exact !important;
-                            print-color-adjust: exact !important;
-                        }
-                    }
-                `;
-            } else {
-                styleElement.innerHTML = ''; // Clear the styles if no background is set
-            }
-        }
-
         function loadCurrentSettings() {
             // إزالة تحميل اسم المختبر لأنه ثابت
             document.getElementById('labHeaderInput').value = localStorage.getItem('labHeader') || '';
             document.getElementById('labAddressInput').value = localStorage.getItem('labAddress') || '    للشراء البرنامج تواصل معنا';
             document.getElementById('labPhoneInput').value = localStorage.getItem('labPhone') || '07901821264';
-            document.getElementById('biologistNameInput').value = localStorage.getItem('biologistName') || 'شكراً لزيارتككم';
+            document.getElementById('biologistNameInput').value = localStorage.getItem('biologistName') || 'شكراً لزيارتكم';
             document.getElementById('doctor1Name').value = localStorage.getItem('doctor1Name') || 'الاول اسم الطبيب او التقني او البايلوجي ';
             document.getElementById('doctor2Name').value = localStorage.getItem('doctor2Name') || ' الثاني اسم الطبيب او التقني او البايلوجي';
-            document.getElementById('doctor3Name').value = localStorage.getItem('doctor3Name') || ' الثالث اسم الطبيب او التقني او البايلوجي';
-            document.getElementById('doctor4Name').value = localStorage.getItem('doctor4Name') || ' الرابع اسم الطبيب او التقني او البايلوجي';
 
             document.getElementById('headerColor').value = localStorage.getItem('headerColor') || '#007bff';
             document.getElementById('backgroundColor').value = localStorage.getItem('backgroundColor') || '#f0f8ff';
@@ -1937,11 +2501,6 @@
             document.getElementById('headerBg').value = localStorage.getItem('headerBg') || '#ffffff';
             document.getElementById('tableBorderColor').value = localStorage.getItem('tableBorderColor') || '#dee2e6';
             document.getElementById('footerBg').value = localStorage.getItem('footerBg') || '#007bff';
-            document.getElementById('testNameBgColor').value = localStorage.getItem('testNameBgColor') || '#e8f4e8';
-            document.getElementById('normalRangeBgColor').value = localStorage.getItem('normalRangeBgColor') || '#ffffff';
-            document.getElementById('resultBgColor').value = localStorage.getItem('resultBgColor') || '#f9f9f9';
-            document.getElementById('sectionTitleFontColor').value = localStorage.getItem('sectionTitleFontColor') || '#ffffff';
-            document.getElementById('sectionTitleBgColor').value = localStorage.getItem('sectionTitleBgColor') || '#28a745';
 
             const savedLogo = localStorage.getItem('labLogo');
             if (savedLogo) {
@@ -1955,8 +2514,7 @@
             document.getElementById('rangeFontSize').value = localStorage.getItem('rangeFontSize') || '16';
             document.getElementById('footerFontSize').value = localStorage.getItem('footerFontSize') || '14';
             document.getElementById('doctorFontSize').value = localStorage.getItem('doctorFontSize') || '14';
-            document.getElementById('patientInfoFontSize').value = localStorage.getItem('patientInfoFontSize') || '12';
-            document.getElementById('sectionTitleFontSize').value = localStorage.getItem('sectionTitleFontSize') || '20';
+            document.getElementById('patientInfoFontSize').value = localStorage.getItem('patientInfoFontSize') || '14';
             document.getElementById('tableBorderWidth').value = localStorage.getItem('tableBorderWidth') || '1';
             document.getElementById('doctorBoxBorderRadius').value = localStorage.getItem('doctorBoxBorderRadius') || '4';
 
@@ -1989,8 +2547,6 @@
 
             document.getElementById('showDoctor1').checked = localStorage.getItem('showDoctor1') !== 'false';
             document.getElementById('showDoctor2').checked = localStorage.getItem('showDoctor2') !== 'false';
-            document.getElementById('showDoctor3').checked = localStorage.getItem('showDoctor3') !== 'false';
-            document.getElementById('showDoctor4').checked = localStorage.getItem('showDoctor4') !== 'false';
             
             document.getElementById('tableWidth').value = localStorage.getItem('tableWidth') || '100';
             document.getElementById('cellPadding').value = localStorage.getItem('cellPadding') || '8';
@@ -1999,18 +2555,7 @@
             document.getElementById('printMarginBottom').value = localStorage.getItem('printMarginBottom') || '1.2';
             document.getElementById('printMarginLeft').value = localStorage.getItem('printMarginLeft') || '0.7';
             document.getElementById('printMarginRight').value = localStorage.getItem('printMarginRight') || '0.7';
-
-            // Add logic for loading the print background preview
-            const savedPrintBg = localStorage.getItem('printBackground');
-            if (savedPrintBg) {
-                document.getElementById('printBgPreview').src = savedPrintBg;
-                document.getElementById('printBgPreview').style.display = 'block';
-            } else {
-                document.getElementById('printBgPreview').style.display = 'none';
-            }
         }
-
-        // --- MODIFIED JAVASCRIPT FUNCTIONS ---
 
         function saveSettings() {
             localStorage.setItem('labHeader', document.getElementById('labHeaderInput').value);
@@ -2019,8 +2564,6 @@
             localStorage.setItem('biologistName', document.getElementById('biologistNameInput').value);
             localStorage.setItem('doctor1Name', document.getElementById('doctor1Name').value);
             localStorage.setItem('doctor2Name', document.getElementById('doctor2Name').value);
-            localStorage.setItem('doctor3Name', document.getElementById('doctor3Name').value);
-            localStorage.setItem('doctor4Name', document.getElementById('doctor4Name').value);
 
             localStorage.setItem('headerColor', document.getElementById('headerColor').value);
             localStorage.setItem('backgroundColor', document.getElementById('backgroundColor').value);
@@ -2029,11 +2572,6 @@
             localStorage.setItem('headerBg', document.getElementById('headerBg').value);
             localStorage.setItem('tableBorderColor', document.getElementById('tableBorderColor').value);
             localStorage.setItem('footerBg', document.getElementById('footerBg').value);
-            localStorage.setItem('testNameBgColor', document.getElementById('testNameBgColor').value);
-            localStorage.setItem('normalRangeBgColor', document.getElementById('normalRangeBgColor').value);
-            localStorage.setItem('resultBgColor', document.getElementById('resultBgColor').value);
-            localStorage.setItem('sectionTitleFontColor', document.getElementById('sectionTitleFontColor').value);
-            localStorage.setItem('sectionTitleBgColor', document.getElementById('sectionTitleBgColor').value);
 
             const logoPreview = document.getElementById('logoPreview');
             if (logoPreview.src && logoPreview.src !== '') {
@@ -2049,7 +2587,6 @@
             localStorage.setItem('footerFontSize', document.getElementById('footerFontSize').value);
             localStorage.setItem('doctorFontSize', document.getElementById('doctorFontSize').value);
             localStorage.setItem('patientInfoFontSize', document.getElementById('patientInfoFontSize').value);
-            localStorage.setItem('sectionTitleFontSize', document.getElementById('sectionTitleFontSize').value);
             localStorage.setItem('tableBorderWidth', document.getElementById('tableBorderWidth').value);
             localStorage.setItem('doctorBoxBorderRadius', document.getElementById('doctorBoxBorderRadius').value);
 
@@ -2082,8 +2619,6 @@
 
             localStorage.setItem('showDoctor1', document.getElementById('showDoctor1').checked);
             localStorage.setItem('showDoctor2', document.getElementById('showDoctor2').checked);
-            localStorage.setItem('showDoctor3', document.getElementById('showDoctor3').checked);
-            localStorage.setItem('showDoctor4', document.getElementById('showDoctor4').checked);
 
             localStorage.setItem('tableWidth', document.getElementById('tableWidth').value);
             localStorage.setItem('cellPadding', document.getElementById('cellPadding').value);
@@ -2092,14 +2627,6 @@
             localStorage.setItem('printMarginBottom', document.getElementById('printMarginBottom').value);
             localStorage.setItem('printMarginLeft', document.getElementById('printMarginLeft').value);
             localStorage.setItem('printMarginRight', document.getElementById('printMarginRight').value);
-
-            // Add logic for saving the print background
-            const printBgSrc = document.getElementById('printBgPreview').src;
-            if (printBgSrc && printBgSrc.startsWith('data:image')) {
-                localStorage.setItem('printBackground', printBgSrc);
-            } else {
-                localStorage.removeItem('printBackground');
-            }
 
             applySettings();
             toggleSettings();
@@ -2111,8 +2638,6 @@
                 localStorage.clear();
                 loadCurrentSettings();
                 applySettings();
-                // Specifically call to remove the background style from the page
-                applyPrintBackground(); 
                 location.reload();
                 alert('تم إعادة الضبط بنجاح!');
             }
@@ -2122,23 +2647,19 @@
             const labHeader = localStorage.getItem('labHeader') || '';
             const labAddress = localStorage.getItem('labAddress') || '  للشراء البرنامج تواصل معنا';
             const labPhone = localStorage.getItem('labPhone') || '07901821264';
-            const biologistName = localStorage.getItem('biologistName') || 'شكراً لزيارتككم';
+            const biologistName = localStorage.getItem('biologistName') || 'شكراً لزيارتكم';
             const doctor1Name = localStorage.getItem('doctor1Name') || 'الاول اسم الطبيب او التقني او البايلوجي';
             const doctor2Name = localStorage.getItem('doctor2Name') || ' الثاني اسم الطبيب او التقني او البايلوجي';
-            const doctor3Name = localStorage.getItem('doctor3Name') || ' الثالث اسم الطبيب او التقني او البايلوجي';
-            const doctor4Name = localStorage.getItem('doctor4Name') || ' الرابع اسم الطبيب او التقني او البايلوجي';
 
+            document.getElementById('watermark').textContent = 'برنامج اوسكار';
             // العنوان ثابت - لا يتم تغييره
-         
-
+            document.getElementById('labTitle').textContent = 'برنامج اوسكار';
             document.getElementById('customHeader').textContent = labHeader;
             document.getElementById('biologistName').textContent = biologistName;
             document.getElementById('labAddress').textContent = labAddress;
             document.getElementById('labPhone').textContent = labPhone;
             document.getElementById('doctor1').textContent = doctor1Name;
             document.getElementById('doctor2').textContent = doctor2Name;
-            document.getElementById('doctor3').textContent = doctor3Name;
-            document.getElementById('doctor4').textContent = doctor4Name;
 
             const savedLogo = localStorage.getItem('labLogo');
             const logoElement = document.getElementById('labLogo');
@@ -2155,11 +2676,6 @@
             document.documentElement.style.setProperty('--header-bg', localStorage.getItem('headerBg') || '#ffffff');
             document.documentElement.style.setProperty('--footer-bg', localStorage.getItem('footerBg') || '#007bff');
             document.documentElement.style.setProperty('--table-border-color', localStorage.getItem('tableBorderColor') || '#dee2e6');
-            document.documentElement.style.setProperty('--test-name-bg-color', localStorage.getItem('testNameBgColor') || '#e8f4e8');
-            document.documentElement.style.setProperty('--normal-range-bg-color', localStorage.getItem('normalRangeBgColor') || '#ffffff');
-            document.documentElement.style.setProperty('--result-bg-color', localStorage.getItem('resultBgColor') || '#f9f9f9');
-            document.documentElement.style.setProperty('--section-title-font-color', localStorage.getItem('sectionTitleFontColor') || '#ffffff');
-            document.documentElement.style.setProperty('--section-title-bg-color', localStorage.getItem('sectionTitleBgColor') || '#28a745');
             document.documentElement.style.setProperty('--table-border-width', (localStorage.getItem('tableBorderWidth') || '1') + 'px');
 
             document.documentElement.style.setProperty('--title-font-size', (localStorage.getItem('titleFontSize') || '28') + 'px');
@@ -2168,8 +2684,7 @@
             document.documentElement.style.setProperty('--range-font-size', (localStorage.getItem('rangeFontSize') || '16') + 'px');
             document.documentElement.style.setProperty('--footer-font-size', (localStorage.getItem('footerFontSize') || '14') + 'px');
             document.documentElement.style.setProperty('--doctor-font-size', (localStorage.getItem('doctorFontSize') || '14') + 'px');
-            document.documentElement.style.setProperty('--patient-info-font-size', (localStorage.getItem('patientInfoFontSize') || '12') + 'px');
-            document.documentElement.style.setProperty('--section-title-font-size', (localStorage.getItem('sectionTitleFontSize') || '20') + 'px');
+            document.documentElement.style.setProperty('--patient-info-font-size', (localStorage.getItem('patientInfoFontSize') || '14') + 'px');
 
             document.documentElement.style.setProperty('--title-font-color', localStorage.getItem('titleFontColor') || '#0056b3');
             document.documentElement.style.setProperty('--test-name-font-color', localStorage.getItem('testNameFontColor') || '#212529');
@@ -2210,22 +2725,15 @@
 
             const showDoctor1 = localStorage.getItem('showDoctor1') !== 'false';
             const showDoctor2 = localStorage.getItem('showDoctor2') !== 'false';
-            const showDoctor3 = localStorage.getItem('showDoctor3') !== 'false';
-            const showDoctor4 = localStorage.getItem('showDoctor4') !== 'false';
             document.getElementById('doctor1').classList.toggle('hidden', !showDoctor1);
             document.getElementById('doctor2').classList.toggle('hidden', !showDoctor2);
-            document.getElementById('doctor3').classList.toggle('hidden', !showDoctor3);
-            document.getElementById('doctor4').classList.toggle('hidden', !showDoctor4);
 
             const doctorsContainer = document.querySelector('.doctors-container');
-            if (!showDoctor1 && !showDoctor2 && !showDoctor3 && !showDoctor4) {
+            if (!showDoctor1 && !showDoctor2) {
                 doctorsContainer.style.display = 'none';
             } else {
-                doctorsContainer.style.display = 'grid';
+                doctorsContainer.style.display = 'flex';
             }
-
-            // Apply the print background style
-            applyPrintBackground(); 
         }
 
         function toggleSettings() {
@@ -2297,16 +2805,8 @@
         function loadLabStructure() {
             const customSections = JSON.parse(localStorage.getItem('customSections')) || {};
             const customTests = JSON.parse(localStorage.getItem('customTests') || '{}');
-            const customSectionTitles = JSON.parse(localStorage.getItem('customSectionTitles') || '{}');
 
             labStructure = JSON.parse(JSON.stringify(defaultLabStructure));
-
-            // تطبيق التعديلات على أسماء الأقسام الافتراضية
-            labStructure.forEach(section => {
-                if (customSectionTitles[section.id]) {
-                    section.title = customSectionTitles[section.id];
-                }
-            });
 
             // إضافة الأقسام المخصصة
             for (const sectionId in customSections) {
@@ -2333,13 +2833,6 @@
                 }
             }
 
-            // تطبيق التعديلات على أسماء الأقسام المخصصة إذا كان هناك
-            labStructure.forEach(section => {
-                if (customSectionTitles[section.id]) {
-                    section.title = customSectionTitles[section.id];
-                }
-            });
-
             renderLabStructure();
             updateSelectMenus();
         }
@@ -2348,24 +2841,24 @@
             const testName = Object.keys(test)[0];
             const testData = test[testName];
             
-            let inputHTML;
             if (testData.type === 'text') {
-                inputHTML = `<input type="text" class="result-input" data-test-name="${testName}" placeholder="أدخل النتيجة">`;
+                return `<input type="text" class="result-input" data-test-name="${testName}" placeholder="أدخل النتيجة">`;
             } else if (testData.type === 'select') {
-                inputHTML = `<select class="result-select" data-test-name="${testName}"><option value="">اختر...</option>`;
+                let optionsHTML = `<select class="result-select" data-test-name="${testName}"><option value="">اختر...</option>`;
                 if (testData.choices && testData.choices.length > 0) {
                     testData.choices.forEach(choice => {
-                        inputHTML += `<option value="${choice}">${choice}</option>`;
+                        optionsHTML += `<option value="${choice}">${choice}</option>`;
                     });
                 } else {
-                    inputHTML += '<option value="Positive">Positive</option><option value="Negative">Negative</option>';
+                    optionsHTML += '<option value="Positive">Positive</option><option value="Negative">Negative</option>';
                 }
-                inputHTML += '</select>';
+                optionsHTML += '</select>';
+                return optionsHTML;
             } else if (testData.type === 'multiple') {
-                inputHTML = `<div class="multiple-choice-container" data-test-name="${testName}">`;
+                let multipleHTML = `<div class="multiple-choice-container" data-test-name="${testName}">`;
                 if (testData.choices && testData.choices.length > 0) {
                     testData.choices.forEach((choice, index) => {
-                        inputHTML += `
+                        multipleHTML += `
                             <div class="choice-option" onclick="selectChoice(this)">
                                 <input type="radio" name="${testName}_choices" class="choice-radio" value="${choice}" id="${testName}_choice_${index}">
                                 <label for="${testName}_choice_${index}" class="choice-text">${choice}</label>
@@ -2373,7 +2866,7 @@
                         `;
                     });
                 } else {
-                    inputHTML += `
+                    multipleHTML += `
                         <div class="choice-option" onclick="selectChoice(this)">
                             <input type="radio" name="${testName}_choices" class="choice-radio" value="Positive" id="${testName}_choice_0">
                             <label for="${testName}_choice_0" class="choice-text">Positive</label>
@@ -2384,22 +2877,11 @@
                         </div>
                     `;
                 }
-                inputHTML += '</div>';
-            } else {
-                inputHTML = `<input type="text" class="result-input" data-test-name="${testName}" placeholder="أدخل النتيجة">`;
+                multipleHTML += '</div>';
+                return multipleHTML;
             }
             
-            // إضافة الخيار الصغير H N L
-            const hlnHTML = `
-                <select class="hln-select" data-test-name="${testName}">
-                    <option value=""></option>
-                    <option value="H">H</option>
-                    <option value="N">N</option>
-                    <option value="L">L</option>
-                </select>
-            `;
-            
-            return `<div class="result-container">${inputHTML}${hlnHTML}</div>`;
+            return `<input type="text" class="result-input" data-test-name="${testName}" placeholder="أدخل النتيجة">`;
         }
 
         function renderLabStructure() {
@@ -2454,12 +2936,6 @@
             document.querySelectorAll('.choice-option').forEach(option => {
                 option.removeEventListener('click', handleChoiceClick);
                 option.addEventListener('click', handleChoiceClick);
-            });
-            
-            // إضافة مستمعين للـ H L N
-            document.querySelectorAll('.hln-select').forEach(select => {
-                select.removeEventListener('change', updateFilledTests);
-                select.addEventListener('change', updateFilledTests);
             });
         }
 
@@ -2539,20 +3015,14 @@
             const sectionId = document.getElementById('sectionSelect').value;
             if (!sectionId) {
                 document.getElementById('rangeTableContainer').innerHTML = '<p>يرجى اختيار قسم لعرض التحاليل</p>';
-                document.getElementById('sectionNameEdit').style.display = 'none';
                 return;
             }
             
             const selectedSection = labStructure.find(sec => sec.id === sectionId);
             if (!selectedSection) {
                 document.getElementById('rangeTableContainer').innerHTML = '<p>القسم غير موجود</p>';
-                document.getElementById('sectionNameEdit').style.display = 'none';
                 return;
             }
-
-            // عرض حقل تعديل اسم القسم
-            document.getElementById('editSectionName').value = selectedSection.title;
-            document.getElementById('sectionNameEdit').style.display = 'block';
 
             let tableHTML = `
                 <table class="range-table">
@@ -2595,41 +3065,10 @@
             document.getElementById('rangeTableContainer').innerHTML = tableHTML;
         }
 
-        function saveSectionName() {
-            const sectionId = document.getElementById('sectionSelect').value;
-            const newName = document.getElementById('editSectionName').value.trim();
-            
-            if (!newName) {
-                alert('يرجى إدخال اسم جديد للقسم.');
-                return;
-            }
-            
-            const selectedSection = labStructure.find(sec => sec.id === sectionId);
-            if (selectedSection) {
-                selectedSection.title = newName;
-            }
-
-            // حفظ التعديل في localStorage
-            let customSectionTitles = JSON.parse(localStorage.getItem('customSectionTitles') || '{}');
-            customSectionTitles[sectionId] = newName;
-            localStorage.setItem('customSectionTitles', JSON.stringify(customSectionTitles));
-
-            // إذا كان قسم مخصص، تحديث في customSections أيضًا
-            let customSections = JSON.parse(localStorage.getItem('customSections') || '{}');
-            if (customSections[sectionId]) {
-                customSections[sectionId].name = newName;
-                localStorage.setItem('customSections', JSON.stringify(customSections));
-            }
-            
-            loadLabStructure();
-            alert('تم تعديل اسم القسم بنجاح!');
-            loadSectionRanges(); // إعادة تحميل الجدول
-        }
-
         function saveRanges() {
             const inputs = document.querySelectorAll('#rangeTableContainer .normal-range-input');
             const typeSelects = document.querySelectorAll('#rangeTableContainer select');
-            const customRanges = JSON.parse(localStorage.getItem('customTests') || '{}');
+            const customRanges = JSON.parse(localStorage.getItem('customTests')) || {};
 
             let index = 0;
             inputs.forEach((input, i) => {
@@ -2674,7 +3113,7 @@
                     delete section.tests[testName];
                     
                     // تحديث localStorage
-                    let customTests = JSON.parse(localStorage.getItem('customTests') || '{}');
+                    let customTests = JSON.parse(localStorage.getItem('customTests')) || {};
                     if (customTests[sectionId]) {
                         customTests[sectionId] = customTests[sectionId].filter(test => test.name !== testName);
                         if (customTests[sectionId].length === 0) {
@@ -2761,7 +3200,7 @@
                 return;
             }
             
-            let customSections = JSON.parse(localStorage.getItem('customSections') || '{}');
+            let customSections = JSON.parse(localStorage.getItem('customSections')) || {};
             customSections[sectionId] = {
                 name: sectionName,
                 icon: sectionIcon,
@@ -2852,7 +3291,7 @@
                 customTests[sectionId] = [];
             }
             
-            // التحقق من عدم تكرار في التحاليل المخصصة
+            // التحقق من عدم التكرار في التحاليل المخصصة
             const existingTest = customTests[sectionId].find(test => test.name === testName);
             if (existingTest) {
                 alert('هذا التحليل موجود بالفعل.');
@@ -2932,15 +3371,6 @@
                         patientData.tests[sectionId][testName] = selectedRadio.value;
                     }
                 });
-
-                // التعامل مع H L N
-                const hlnSelects = section.querySelectorAll('.hln-select');
-                hlnSelects.forEach(select => {
-                    const testName = select.dataset.testName;
-                    if (testName && select.value) {
-                        patientData.tests[sectionId][testName + '_hln'] = select.value;
-                    }
-                });
             });
 
             const request = store.add(patientData); // استخدام add بدلاً من put لإضافة مراجعة جديدة
@@ -2967,7 +3397,7 @@
             let totalTests = 0;
             for (const sectionId in patientData.tests) {
                 for (const testName in patientData.tests[sectionId]) {
-                    if (patientData.tests[sectionId][testName] && !testName.endsWith('_hln')) {
+                    if (patientData.tests[sectionId][testName]) {
                         const statEntry = {
                             date: saveDate,
                             testName: testName,
@@ -3006,10 +3436,10 @@
                 if (visits.length > 0) {
                     if (visits.length === 1) {
                         // إذا كانت مراجعة واحدة فقط، حمّلها مباشرة
-                        loadVisitData(visits[0].id);
+                        loadVisitData(visits[0]);
                     } else {
-                        // إذا كانت مراجعات متعددة، اعرض قائمة
-                        showVisitsList(visits, patientName);
+                        // إذا كانت مراجعات متعددة، اعرض قائمة للاختيار
+                        showVisitsList(visits);
                     }
                 } else {
                     alert('لم يتم العثور على بيانات لهذا المريض.');
@@ -3022,7 +3452,7 @@
             };
         }
 
-        function showVisitsList(visits, patientName) {
+        function showVisitsList(visits) {
             let listHTML = '<div style="text-align: center; margin: 20px 0;"><h3>اختر مراجعة للاستعادة:</h3><ul style="list-style: none; padding: 0;">';
             visits.forEach(visit => {
                 listHTML += `<li style="padding: 10px; border: 1px solid #ddd; margin: 5px 0; border-radius: 5px;">
@@ -3031,6 +3461,7 @@
                 </li>`;
             });
             listHTML += '</ul></div>';
+            // يمكن عرض هذا في modal منفصل أو هنا، للبساطة نستخدم alert أو نعدل searchModal
             const modalContent = document.querySelector('#searchModal .modal-content');
             modalContent.innerHTML = `<span class="close" onclick="closeSearchModal()">&times;</span>
                 <h2 style="text-align: center;">مراجعات المريض: ${patientName}</h2>
@@ -3073,46 +3504,35 @@
                     document.querySelectorAll('.choice-option').forEach(option => {
                         option.classList.remove('selected');
                     });
-                    document.querySelectorAll('.hln-select').forEach(select => {
-                        select.value = '';
-                    });
                     
                     // استعادة النتائج
                     for (const sectionId in patientData.tests) {
                         const tests = patientData.tests[sectionId];
                         for (const testName in tests) {
-                            if (testName.endsWith('_hln')) {
-                                const baseName = testName.replace('_hln', '');
-                                const select = document.querySelector(`#${sectionId} [data-test-name="${baseName}"].hln-select`);
-                                if (select) {
-                                    select.value = tests[testName];
-                                }
-                            } else {
-                                const testRows = document.querySelectorAll('#' + sectionId + ' .test-name');
-                                for (let row of testRows) {
-                                    if (row.textContent.trim() === testName) {
-                                        const input = row.closest('tr').querySelector('.result-input, .result-select');
-                                        if (input) {
-                                            input.value = tests[testName];
-                                        }
-                                        break;
+                            const testRows = document.querySelectorAll('#' + sectionId + ' .test-name');
+                            for (let row of testRows) {
+                                if (row.textContent.trim() === testName) {
+                                    const input = row.closest('tr').querySelector('.result-input, .result-select');
+                                    if (input) {
+                                        input.value = tests[testName];
                                     }
+                                    break;
                                 }
-                                
-                                // استعادة الخيارات المتعددة
-                                const multipleContainer = document.querySelector(`#${sectionId} [data-test-name="${testName}"]`);
-                                if (multipleContainer && multipleContainer.classList.contains('multiple-choice-container')) {
-                                    const radios = multipleContainer.querySelectorAll('input[type="radio"]');
-                                    radios.forEach(radio => {
-                                        if (radio.value === tests[testName]) {
-                                            radio.checked = true;
-                                            const parentOption = radio.closest('.choice-option');
-                                            if (parentOption) {
-                                                parentOption.classList.add('selected');
-                                            }
+                            }
+                            
+                            // استعادة الخيارات المتعددة
+                            const multipleContainer = document.querySelector(`#${sectionId} [data-test-name="${testName}"]`);
+                            if (multipleContainer && multipleContainer.classList.contains('multiple-choice-container')) {
+                                const radios = multipleContainer.querySelectorAll('input[type="radio"]');
+                                radios.forEach(radio => {
+                                    if (radio.value === tests[testName]) {
+                                        radio.checked = true;
+                                        const parentOption = radio.closest('.choice-option');
+                                        if (parentOption) {
+                                            parentOption.classList.add('selected');
                                         }
-                                    });
-                                }
+                                    }
+                                });
                             }
                         }
                     }
@@ -3652,14 +4072,7 @@
             });
         }
 
-        // إغلاق الـ dropdown عند النقر خارجها
-        document.addEventListener('click', function(event) {
-            if (!event.target.closest('.patient-visits-dropdown')) {
-                document.querySelectorAll('.visits-dropdown-content').forEach(dd => dd.classList.remove('show'));
-            }
-        });
-
-        // إغلاق النوافذ المنبثقة باستخدام ESC
+        // إضافة مستمعين للخروج من النوافذ المنبثقة باستخدام ESC
         document.addEventListener('keydown', function(event) {
             if (event.key === 'Escape') {
                 const modals = document.querySelectorAll('.modal');
@@ -3693,4 +4106,3 @@
     </script>
 </body>
 </html>
-```
