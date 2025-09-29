@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -62,6 +60,17 @@
             --footer-font-weight: 600;
             --doctor-font-weight: 600;
             --patient-info-font-weight: 600;
+
+            /* إضافات جديدة لتحكم في ألوان الخلفيات */
+            --test-name-bg-color: #e8f4e8; /* خلفية أسماء التحاليل */
+            --normal-range-bg-color: #ffffff; /* خلفية النورمل رانج */
+            --result-bg-color: #f9f9f9; /* خلفية النتائج */
+
+            /* إضافات جديدة لألوان عناوين الأقسام */
+            --section-title-font-color: #ffffff; /* لون خط عنوان القسم */
+            --section-title-bg-color: #28a745; /* لون خلفية عنوان القسم */
+
+            --section-title-font-size: 20px;
 
             /* إضافات جديدة لتحسين التصميم */
             --shadow-light: 0 2px 10px rgba(0, 0, 0, 0.1);
@@ -250,10 +259,10 @@
         }
 
         .section-title {
-            background: linear-gradient(135deg, var(--button-color) 0%, #2E7D32 100%);
-            color: white;
+            background-color: var(--section-title-bg-color);
+            color: var(--section-title-font-color);
             padding: 12px 20px;
-            font-size: 20px;
+            font-size: var(--section-title-font-size);
             font-weight: var(--subtitle-font-weight);
             text-align: center;
             display: flex;
@@ -291,23 +300,30 @@
         td:nth-child(2) { width: 30%; }
         td:last-child { width: 30%; }
 
-          .test-name {
+        .test-name {
             font-size: var(--test-name-font-size);
             font-weight: var(--test-font-weight);
-            background-color: #e8f4e8;
+            background-color: var(--test-name-bg-color);
             color: var(--test-name-font-color);
             font-family: var(--test-font);
         }
 
-          .normal-range {
+        .normal-range {
             font-size: var(--range-font-size);
             font-weight: var(--range-font-weight);
             color: var(--range-font-color);
             direction: ltr;
             font-family: var(--range-font);
+            background-color: var(--normal-range-bg-color);
         }
 
-         .result-input, .result-select {
+        .result-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .result-input, .result-select {
             width: 100%;
             height: var(--input-height);
             border: 1px dashed var(--button-color);
@@ -316,7 +332,7 @@
             text-align: center;
             font-family: var(--result-font);
             font-weight: var(--result-font-weight);
-            background-color: #f9f9f9;
+            background-color: var(--result-bg-color);
             font-size: var(--result-font-size);
             direction: rtl;
             color: var(--result-font-color);
@@ -327,6 +343,16 @@
             border: 1px solid #2E7D32;
             background-color: #f0fff0;
             box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
+        }
+
+        .hln-select {
+            width: 20%;
+            height: var(--input-height);
+            border: none;
+            background-color: transparent;
+            font-size: 12px;
+            color: #333;
+            text-align: center;
         }
 
         .multiple-choice-container {
@@ -1310,11 +1336,11 @@
 
         .header-space,
         .footer-space {
-            height: 0cm; /* ارتفاع الهيدر الأصلي (اضبطه حسب حاجتك، مثل 4.5cm للهيدر) */
+            height: 4.5cm; /* ارتفاع الهيدر الأصلي (اضبطه حسب حاجتك، مثل 4.5cm للهيدر) */
         }
 
         .footer-space {
-            height: 0cm; /* مسافة 3cm للفوتر لتجنب التداخل */
+            height: 3cm; /* مسافة 3cm للفوتر لتجنب التداخل */
         }
 
         @media print {
@@ -1385,9 +1411,25 @@
             }
 
             /* جعل الهيدر والفوتر ثابتين مع تكرار */
-            .header, .lab-footer {
-        display: none !important;
-    }
+            .header {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                z-index: 1000;
+                height: 4.5cm;
+                display: block !important;
+            }
+
+            .lab-footer {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                z-index: 1000;
+                height: 3cm;
+                display: block !important;
+            }
 
             .patient-info {
                 margin: 0;
@@ -1403,6 +1445,7 @@
                 border-bottom: 1px solid #ddd;
                 padding: 10px 15px;
                 font-size: 16px;
+                page-break-after: avoid; /* تجنب فاصل بعد العنوان */
             }
 
             .editable-field, .signature-input {
@@ -1489,7 +1532,7 @@
                 position: fixed;
                 bottom: 0;
                 width: 100%;
-                height: 4cm; /* مسافة 3cm للفوتر */
+                height: 3cm; /* مسافة 3cm للفوتر */
                 display: block !important; /* إظهار في الطباعة */
             }
 
@@ -1502,19 +1545,18 @@
             .visits-dropdown-content {
                 display: none !important;
             }
-             .header-space,
-        .footer-space {
-            height: 4.5cm; /* ارتفاع الهيدر الأصلي (اضبطه حسب حاجتك، مثل 4.5cm للهيدر) */
+            .hln-select {
+                width: 1cm;
+                display: inline-block;
+               appearance: none !important; /* إخفاء السهم المنسدل للـ select في الطباعة */
+
+            }
+
+            /* إخفاء العناصر المطلوبة في الطباعة */
+            
+            
         }
 
-        .footer-space {
-            height: 3cm; /* مسافة 3cm للفوتر لتجنب التداخل */
-        }
-        .header, .lab-footer {
-        display: none !important;
-    }
-        }
-            
         @media (max-width: 600px) {
             .container {
                 padding: 15px;
@@ -1645,6 +1687,26 @@
                 <label>لون خلفية التذييل:</label>
                 <input type="color" id="footerBg" class="color-input" value="#007bff">
             </div>
+            <div class="color-picker">
+                <label>خلفية أسماء التحاليل:</label>
+                <input type="color" id="testNameBgColor" class="color-input" value="#e8f4e8">
+            </div>
+            <div class="color-picker">
+                <label>خلفية النورمل رانج:</label>
+                <input type="color" id="normalRangeBgColor" class="color-input" value="#ffffff">
+            </div>
+            <div class="color-picker">
+                <label>خلفية النتائج:</label>
+                <input type="color" id="resultBgColor" class="color-input" value="#f9f9f9">
+            </div>
+            <div class="color-picker">
+                <label>لون خط عنوان القسم:</label>
+                <input type="color" id="sectionTitleFontColor" class="color-input" value="#ffffff">
+            </div>
+            <div class="color-picker">
+                <label>لون خلفية عنوان القسم:</label>
+                <input type="color" id="sectionTitleBgColor" class="color-input" value="#28a745">
+            </div>
         </div>
         
         <div class="settings-group">
@@ -1676,6 +1738,10 @@
             <div class="font-size-picker">
                 <label>حجم خطوط معلومات المريض:</label>
                 <input type="number" id="patientInfoFontSize" class="font-size-input" value="14" min="10" max="30"> px
+            </div>
+            <div class="font-size-picker">
+                <label>حجم عنوان القسم:</label>
+                <input type="number" id="sectionTitleFontSize" class="font-size-input" value="20" min="10" max="30"> px
             </div>
         </div>
 
@@ -2130,6 +2196,14 @@
                     </select>
                 </div>
                 
+                <div id="sectionNameEdit" style="display: none; margin-bottom: 15px;">
+                    <label for="editSectionName">تعديل اسم القسم:</label>
+                    <input type="text" id="editSectionName" class="form-input" style="width: 100%; margin-top: 5px;">
+                    <button class="btn btn-save" onclick="saveSectionName()" style="margin-top: 10px; width: 100%;">
+                        <i class="fas fa-save"></i> حفظ اسم القسم
+                    </button>
+                </div>
+                
                 <div id="rangeTableContainer">
                     <p>يرجى اختيار قسم لعرض التحاليل</p>
                 </div>
@@ -2328,7 +2402,7 @@
                     "TSH": { type: "text", range: "0.4 - 4.0 µIU/ml" },
                     "FT3": { type: "text", range: "2.0 - 4.4 pg/ml" },
                     "FT4": { type: "text", range: "0.9 - 1.7 ng/dl" },
-                    "FT3 Ab": { type: "text", range: "< 34 IU/ml" },
+                    "TPO Ab": { type: "text", range: "< 34 IU/ml" },
                     "Tg Ab": { type: "text", range: "< 20 IU/ml" }
                 }
             },
@@ -2604,6 +2678,11 @@
             document.getElementById('headerBg').value = localStorage.getItem('headerBg') || '#ffffff';
             document.getElementById('tableBorderColor').value = localStorage.getItem('tableBorderColor') || '#dee2e6';
             document.getElementById('footerBg').value = localStorage.getItem('footerBg') || '#007bff';
+            document.getElementById('testNameBgColor').value = localStorage.getItem('testNameBgColor') || '#e8f4e8';
+            document.getElementById('normalRangeBgColor').value = localStorage.getItem('normalRangeBgColor') || '#ffffff';
+            document.getElementById('resultBgColor').value = localStorage.getItem('resultBgColor') || '#f9f9f9';
+            document.getElementById('sectionTitleFontColor').value = localStorage.getItem('sectionTitleFontColor') || '#ffffff';
+            document.getElementById('sectionTitleBgColor').value = localStorage.getItem('sectionTitleBgColor') || '#28a745';
 
             const savedLogo = localStorage.getItem('labLogo');
             if (savedLogo) {
@@ -2624,6 +2703,7 @@
             document.getElementById('footerFontSize').value = localStorage.getItem('footerFontSize') || '14';
             document.getElementById('doctorFontSize').value = localStorage.getItem('doctorFontSize') || '14';
             document.getElementById('patientInfoFontSize').value = localStorage.getItem('patientInfoFontSize') || '14';
+            document.getElementById('sectionTitleFontSize').value = localStorage.getItem('sectionTitleFontSize') || '20';
             document.getElementById('tableBorderWidth').value = localStorage.getItem('tableBorderWidth') || '1';
             document.getElementById('doctorBoxBorderRadius').value = localStorage.getItem('doctorBoxBorderRadius') || '4';
 
@@ -2681,6 +2761,11 @@
             localStorage.setItem('headerBg', document.getElementById('headerBg').value);
             localStorage.setItem('tableBorderColor', document.getElementById('tableBorderColor').value);
             localStorage.setItem('footerBg', document.getElementById('footerBg').value);
+            localStorage.setItem('testNameBgColor', document.getElementById('testNameBgColor').value);
+            localStorage.setItem('normalRangeBgColor', document.getElementById('normalRangeBgColor').value);
+            localStorage.setItem('resultBgColor', document.getElementById('resultBgColor').value);
+            localStorage.setItem('sectionTitleFontColor', document.getElementById('sectionTitleFontColor').value);
+            localStorage.setItem('sectionTitleBgColor', document.getElementById('sectionTitleBgColor').value);
 
             const logoPreview = document.getElementById('logoPreview');
             if (logoPreview.src && logoPreview.src !== '') {
@@ -2703,6 +2788,7 @@
             localStorage.setItem('footerFontSize', document.getElementById('footerFontSize').value);
             localStorage.setItem('doctorFontSize', document.getElementById('doctorFontSize').value);
             localStorage.setItem('patientInfoFontSize', document.getElementById('patientInfoFontSize').value);
+            localStorage.setItem('sectionTitleFontSize', document.getElementById('sectionTitleFontSize').value);
             localStorage.setItem('tableBorderWidth', document.getElementById('tableBorderWidth').value);
             localStorage.setItem('doctorBoxBorderRadius', document.getElementById('doctorBoxBorderRadius').value);
 
@@ -2792,6 +2878,11 @@
             document.documentElement.style.setProperty('--header-bg', localStorage.getItem('headerBg') || '#ffffff');
             document.documentElement.style.setProperty('--footer-bg', localStorage.getItem('footerBg') || '#007bff');
             document.documentElement.style.setProperty('--table-border-color', localStorage.getItem('tableBorderColor') || '#dee2e6');
+            document.documentElement.style.setProperty('--test-name-bg-color', localStorage.getItem('testNameBgColor') || '#e8f4e8');
+            document.documentElement.style.setProperty('--normal-range-bg-color', localStorage.getItem('normalRangeBgColor') || '#ffffff');
+            document.documentElement.style.setProperty('--result-bg-color', localStorage.getItem('resultBgColor') || '#f9f9f9');
+            document.documentElement.style.setProperty('--section-title-font-color', localStorage.getItem('sectionTitleFontColor') || '#ffffff');
+            document.documentElement.style.setProperty('--section-title-bg-color', localStorage.getItem('sectionTitleBgColor') || '#28a745');
             document.documentElement.style.setProperty('--table-border-width', (localStorage.getItem('tableBorderWidth') || '1') + 'px');
 
             document.documentElement.style.setProperty('--title-font-size', (localStorage.getItem('titleFontSize') || '28') + 'px');
@@ -2801,6 +2892,7 @@
             document.documentElement.style.setProperty('--footer-font-size', (localStorage.getItem('footerFontSize') || '14') + 'px');
             document.documentElement.style.setProperty('--doctor-font-size', (localStorage.getItem('doctorFontSize') || '14') + 'px');
             document.documentElement.style.setProperty('--patient-info-font-size', (localStorage.getItem('patientInfoFontSize') || '14') + 'px');
+            document.documentElement.style.setProperty('--section-title-font-size', (localStorage.getItem('sectionTitleFontSize') || '20') + 'px');
 
             document.documentElement.style.setProperty('--title-font-color', localStorage.getItem('titleFontColor') || '#0056b3');
             document.documentElement.style.setProperty('--test-name-font-color', localStorage.getItem('testNameFontColor') || '#212529');
@@ -2837,7 +2929,7 @@
             document.documentElement.style.setProperty('--print-margin-top', (localStorage.getItem('printMarginTop') || '0.7') + 'cm');
             document.documentElement.style.setProperty('--print-margin-bottom', (localStorage.getItem('printMarginBottom') || '1.2') + 'cm');
             document.documentElement.style.setProperty('--print-margin-left', (localStorage.getItem('printMarginLeft') || '0.7') + 'cm');
-            document.documentElement.style.setProperty('--print-margin-right', (localStorage.getItem('printMarginRight') || '0.7') + 'cm');
+            document.documentElement.style.setProperty('--print-margin-right', localStorage.getItem('printMarginRight') || '0.7' + 'cm');
 
             const showDoctor1 = localStorage.getItem('showDoctor1') !== 'false';
             const showDoctor2 = localStorage.getItem('showDoctor2') !== 'false';
@@ -2921,8 +3013,16 @@
         function loadLabStructure() {
             const customSections = JSON.parse(localStorage.getItem('customSections')) || {};
             const customTests = JSON.parse(localStorage.getItem('customTests') || '{}');
+            const customSectionTitles = JSON.parse(localStorage.getItem('customSectionTitles') || '{}');
 
             labStructure = JSON.parse(JSON.stringify(defaultLabStructure));
+
+            // تطبيق التعديلات على أسماء الأقسام الافتراضية
+            labStructure.forEach(section => {
+                if (customSectionTitles[section.id]) {
+                    section.title = customSectionTitles[section.id];
+                }
+            });
 
             // إضافة الأقسام المخصصة
             for (const sectionId in customSections) {
@@ -2949,6 +3049,13 @@
                 }
             }
 
+            // تطبيق التعديلات على أسماء الأقسام المخصصة إذا كان هناك
+            labStructure.forEach(section => {
+                if (customSectionTitles[section.id]) {
+                    section.title = customSectionTitles[section.id];
+                }
+            });
+
             renderLabStructure();
             updateSelectMenus();
         }
@@ -2957,24 +3064,24 @@
             const testName = Object.keys(test)[0];
             const testData = test[testName];
             
+            let inputHTML;
             if (testData.type === 'text') {
-                return `<input type="text" class="result-input" data-test-name="${testName}" placeholder="أدخل النتيجة">`;
+                inputHTML = `<input type="text" class="result-input" data-test-name="${testName}" placeholder="أدخل النتيجة">`;
             } else if (testData.type === 'select') {
-                let optionsHTML = `<select class="result-select" data-test-name="${testName}"><option value="">اختر...</option>`;
+                inputHTML = `<select class="result-select" data-test-name="${testName}"><option value="">اختر...</option>`;
                 if (testData.choices && testData.choices.length > 0) {
                     testData.choices.forEach(choice => {
-                        optionsHTML += `<option value="${choice}">${choice}</option>`;
+                        inputHTML += `<option value="${choice}">${choice}</option>`;
                     });
                 } else {
-                    optionsHTML += '<option value="Positive">Positive</option><option value="Negative">Negative</option>';
+                    inputHTML += '<option value="Positive">Positive</option><option value="Negative">Negative</option>';
                 }
-                optionsHTML += '</select>';
-                return optionsHTML;
+                inputHTML += '</select>';
             } else if (testData.type === 'multiple') {
-                let multipleHTML = `<div class="multiple-choice-container" data-test-name="${testName}">`;
+                inputHTML = `<div class="multiple-choice-container" data-test-name="${testName}">`;
                 if (testData.choices && testData.choices.length > 0) {
                     testData.choices.forEach((choice, index) => {
-                        multipleHTML += `
+                        inputHTML += `
                             <div class="choice-option" onclick="selectChoice(this)">
                                 <input type="radio" name="${testName}_choices" class="choice-radio" value="${choice}" id="${testName}_choice_${index}">
                                 <label for="${testName}_choice_${index}" class="choice-text">${choice}</label>
@@ -2982,7 +3089,7 @@
                         `;
                     });
                 } else {
-                    multipleHTML += `
+                    inputHTML += `
                         <div class="choice-option" onclick="selectChoice(this)">
                             <input type="radio" name="${testName}_choices" class="choice-radio" value="Positive" id="${testName}_choice_0">
                             <label for="${testName}_choice_0" class="choice-text">Positive</label>
@@ -2993,11 +3100,22 @@
                         </div>
                     `;
                 }
-                multipleHTML += '</div>';
-                return multipleHTML;
+                inputHTML += '</div>';
+            } else {
+                inputHTML = `<input type="text" class="result-input" data-test-name="${testName}" placeholder="أدخل النتيجة">`;
             }
             
-            return `<input type="text" class="result-input" data-test-name="${testName}" placeholder="أدخل النتيجة">`;
+            // إضافة الخيار الصغير H N L
+            const hlnHTML = `
+                <select class="hln-select" data-test-name="${testName}">
+                    <option value=""></option>
+                    <option value="H">H</option>
+                    <option value="N">N</option>
+                    <option value="L">L</option>
+                </select>
+            `;
+            
+            return `<div class="result-container">${inputHTML}${hlnHTML}</div>`;
         }
 
         function renderLabStructure() {
@@ -3052,6 +3170,12 @@
             document.querySelectorAll('.choice-option').forEach(option => {
                 option.removeEventListener('click', handleChoiceClick);
                 option.addEventListener('click', handleChoiceClick);
+            });
+            
+            // إضافة مستمعين للـ H L N
+            document.querySelectorAll('.hln-select').forEach(select => {
+                select.removeEventListener('change', updateFilledTests);
+                select.addEventListener('change', updateFilledTests);
             });
         }
 
@@ -3131,14 +3255,20 @@
             const sectionId = document.getElementById('sectionSelect').value;
             if (!sectionId) {
                 document.getElementById('rangeTableContainer').innerHTML = '<p>يرجى اختيار قسم لعرض التحاليل</p>';
+                document.getElementById('sectionNameEdit').style.display = 'none';
                 return;
             }
             
             const selectedSection = labStructure.find(sec => sec.id === sectionId);
             if (!selectedSection) {
                 document.getElementById('rangeTableContainer').innerHTML = '<p>القسم غير موجود</p>';
+                document.getElementById('sectionNameEdit').style.display = 'none';
                 return;
             }
+
+            // عرض حقل تعديل اسم القسم
+            document.getElementById('editSectionName').value = selectedSection.title;
+            document.getElementById('sectionNameEdit').style.display = 'block';
 
             let tableHTML = `
                 <table class="range-table">
@@ -3181,10 +3311,41 @@
             document.getElementById('rangeTableContainer').innerHTML = tableHTML;
         }
 
+        function saveSectionName() {
+            const sectionId = document.getElementById('sectionSelect').value;
+            const newName = document.getElementById('editSectionName').value.trim();
+            
+            if (!newName) {
+                alert('يرجى إدخال اسم جديد للقسم.');
+                return;
+            }
+            
+            const selectedSection = labStructure.find(sec => sec.id === sectionId);
+            if (selectedSection) {
+                selectedSection.title = newName;
+            }
+
+            // حفظ التعديل في localStorage
+            let customSectionTitles = JSON.parse(localStorage.getItem('customSectionTitles') || '{}');
+            customSectionTitles[sectionId] = newName;
+            localStorage.setItem('customSectionTitles', JSON.stringify(customSectionTitles));
+
+            // إذا كان قسم مخصص، تحديث في customSections أيضًا
+            let customSections = JSON.parse(localStorage.getItem('customSections') || '{}');
+            if (customSections[sectionId]) {
+                customSections[sectionId].name = newName;
+                localStorage.setItem('customSections', JSON.stringify(customSections));
+            }
+            
+            loadLabStructure();
+            alert('تم تعديل اسم القسم بنجاح!');
+            loadSectionRanges(); // إعادة تحميل الجدول
+        }
+
         function saveRanges() {
             const inputs = document.querySelectorAll('#rangeTableContainer .normal-range-input');
             const typeSelects = document.querySelectorAll('#rangeTableContainer select');
-            const customRanges = JSON.parse(localStorage.getItem('customTests')) || {};
+            const customRanges = JSON.parse(localStorage.getItem('customTests') || '{}');
 
             let index = 0;
             inputs.forEach((input, i) => {
@@ -3229,7 +3390,7 @@
                     delete section.tests[testName];
                     
                     // تحديث localStorage
-                    let customTests = JSON.parse(localStorage.getItem('customTests')) || {};
+                    let customTests = JSON.parse(localStorage.getItem('customTests') || '{}');
                     if (customTests[sectionId]) {
                         customTests[sectionId] = customTests[sectionId].filter(test => test.name !== testName);
                         if (customTests[sectionId].length === 0) {
@@ -3316,7 +3477,7 @@
                 return;
             }
             
-            let customSections = JSON.parse(localStorage.getItem('customSections')) || {};
+            let customSections = JSON.parse(localStorage.getItem('customSections') || '{}');
             customSections[sectionId] = {
                 name: sectionName,
                 icon: sectionIcon,
@@ -3487,6 +3648,15 @@
                         patientData.tests[sectionId][testName] = selectedRadio.value;
                     }
                 });
+
+                // التعامل مع H L N
+                const hlnSelects = section.querySelectorAll('.hln-select');
+                hlnSelects.forEach(select => {
+                    const testName = select.dataset.testName;
+                    if (testName && select.value) {
+                        patientData.tests[sectionId][testName + '_hln'] = select.value;
+                    }
+                });
             });
 
             const request = store.add(patientData); // استخدام add بدلاً من put لإضافة مراجعة جديدة
@@ -3513,7 +3683,7 @@
             let totalTests = 0;
             for (const sectionId in patientData.tests) {
                 for (const testName in patientData.tests[sectionId]) {
-                    if (patientData.tests[sectionId][testName]) {
+                    if (patientData.tests[sectionId][testName] && !testName.endsWith('_hln')) {
                         const statEntry = {
                             date: saveDate,
                             testName: testName,
@@ -3554,8 +3724,8 @@
                         // إذا كانت مراجعة واحدة فقط، حمّلها مباشرة
                         loadVisitData(visits[0].id);
                     } else {
-                        // إذا كانت مراجعات متعددة، اعرض قائمة للاختيار
-                        showVisitsList(visits);
+                        // إذا كانت مراجعات متعددة، اعرض قائمة
+                        showVisitsList(visits, patientName);
                     }
                 } else {
                     alert('لم يتم العثور على بيانات لهذا المريض.');
@@ -3568,7 +3738,7 @@
             };
         }
 
-        function showVisitsList(visits) {
+        function showVisitsList(visits, patientName) {
             let listHTML = '<div style="text-align: center; margin: 20px 0;"><h3>اختر مراجعة للاستعادة:</h3><ul style="list-style: none; padding: 0;">';
             visits.forEach(visit => {
                 listHTML += `<li style="padding: 10px; border: 1px solid #ddd; margin: 5px 0; border-radius: 5px;">
@@ -3577,10 +3747,9 @@
                 </li>`;
             });
             listHTML += '</ul></div>';
-            // يمكن عرض هذا في modal منفصل أو هنا، للبساطة نستخدم alert أو نعدل searchModal
             const modalContent = document.querySelector('#searchModal .modal-content');
             modalContent.innerHTML = `<span class="close" onclick="closeSearchModal()">&times;</span>
-                <h2 style="text-align: center;">مراجعات المريض: ${visits[0].patientName}</h2>
+                <h2 style="text-align: center;">مراجعات المريض: ${patientName}</h2>
                 ${listHTML}
                 <button class="btn btn-clear" onclick="closeSearchModal()" style="width: 100%; margin-top: 20px;">إغلاق</button>`;
         }
@@ -3620,35 +3789,46 @@
                     document.querySelectorAll('.choice-option').forEach(option => {
                         option.classList.remove('selected');
                     });
+                    document.querySelectorAll('.hln-select').forEach(select => {
+                        select.value = '';
+                    });
                     
                     // استعادة النتائج
                     for (const sectionId in patientData.tests) {
                         const tests = patientData.tests[sectionId];
                         for (const testName in tests) {
-                            const testRows = document.querySelectorAll('#' + sectionId + ' .test-name');
-                            for (let row of testRows) {
-                                if (row.textContent.trim() === testName) {
-                                    const input = row.closest('tr').querySelector('.result-input, .result-select');
-                                    if (input) {
-                                        input.value = tests[testName];
-                                    }
-                                    break;
+                            if (testName.endsWith('_hln')) {
+                                const baseName = testName.replace('_hln', '');
+                                const select = document.querySelector(`#${sectionId} [data-test-name="${baseName}"].hln-select`);
+                                if (select) {
+                                    select.value = tests[testName];
                                 }
-                            }
-                            
-                            // استعادة الخيارات المتعددة
-                            const multipleContainer = document.querySelector(`#${sectionId} [data-test-name="${testName}"]`);
-                            if (multipleContainer && multipleContainer.classList.contains('multiple-choice-container')) {
-                                const radios = multipleContainer.querySelectorAll('input[type="radio"]');
-                                radios.forEach(radio => {
-                                    if (radio.value === tests[testName]) {
-                                        radio.checked = true;
-                                        const parentOption = radio.closest('.choice-option');
-                                        if (parentOption) {
-                                            parentOption.classList.add('selected');
+                            } else {
+                                const testRows = document.querySelectorAll('#' + sectionId + ' .test-name');
+                                for (let row of testRows) {
+                                    if (row.textContent.trim() === testName) {
+                                        const input = row.closest('tr').querySelector('.result-input, .result-select');
+                                        if (input) {
+                                            input.value = tests[testName];
                                         }
+                                        break;
                                     }
-                                });
+                                }
+                                
+                                // استعادة الخيارات المتعددة
+                                const multipleContainer = document.querySelector(`#${sectionId} [data-test-name="${testName}"]`);
+                                if (multipleContainer && multipleContainer.classList.contains('multiple-choice-container')) {
+                                    const radios = multipleContainer.querySelectorAll('input[type="radio"]');
+                                    radios.forEach(radio => {
+                                        if (radio.value === tests[testName]) {
+                                            radio.checked = true;
+                                            const parentOption = radio.closest('.choice-option');
+                                            if (parentOption) {
+                                                parentOption.classList.add('selected');
+                                            }
+                                        }
+                                    });
+                                }
                             }
                         }
                     }
@@ -4236,5 +4416,4 @@
         });
     </script>
 </body>
-</html>      فوتر الخلفية في ورقة الاخيرة من الطباعة لا يضهر اريد حل هذه المشكلة وايضاً اضف امكانية تغير حجم الجدول وامكانية تغير اسم القسم و حجم خطه ولونه ولون خلفيته وامكانية تغير لون خلفية اسماء التحاليل ونورمل رانج ونتيجه التحليل واضافة H,N,L بصف حقل النتيجه 
-
+</html>
