@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -21,7 +22,7 @@
             --range-font-size: 16px;
             --footer-font-size: 14px;
             --doctor-font-size: 14px;
-            --patient-info-font-size: 14px;
+            --patient-info-font-size: 12px; /* تم تصغير حجم خط معلومات المريض افتراضياً */
             --title-font-color: #0056b3;
             --test-name-font-color: #212529;
             --result-font-color: #212529;
@@ -60,6 +61,17 @@
             --footer-font-weight: 600;
             --doctor-font-weight: 600;
             --patient-info-font-weight: 600;
+
+            /* إضافات جديدة لتحكم في ألوان الخلفيات */
+            --test-name-bg-color: #e8f4e8; /* خلفية أسماء التحاليل */
+            --normal-range-bg-color: #ffffff; /* خلفية النورمل رانج */
+            --result-bg-color: #f9f9f9; /* خلفية النتائج */
+
+            /* إضافات جديدة لألوان عناوين الأقسام */
+            --section-title-font-color: #ffffff; /* لون خط عنوان القسم */
+            --section-title-bg-color: #28a745; /* لون خلفية عنوان القسم */
+
+            --section-title-font-size: 20px;
 
             /* إضافات جديدة لتحسين التصميم */
             --shadow-light: 0 2px 10px rgba(0, 0, 0, 0.1);
@@ -150,7 +162,8 @@
         }
 
         .doctors-container {
-            display: flex;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); /* اثنين في كل سطر */
             justify-content: center;
             width: 100%;
             gap: 15px;
@@ -181,9 +194,9 @@
             font-weight: var(--patient-info-font-weight);
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
-            padding: 20px;
+            gap: 0px;
+            margin-bottom: 8px;
+            padding: 6px;
             border: 1px solid rgba(0,0,0,0.1);
             border-radius: var(--border-radius-small);
             background-color: var(--patient-info-bg);
@@ -193,7 +206,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 8px 0;
+            padding: 4px 0; /* تم تصغير البادينج لتصغير معلومات المريض */
         }
 
         .info-label {
@@ -206,9 +219,9 @@
             font-weight: var(--patient-info-font-weight);
             font-size: var(--patient-info-font-size);
             border: 1px dashed var(--button-color);
-            padding: 6px 12px;
+            padding: 4px 8px; /* تم تصغير البادينج لتصغير معلومات المريض */
             border-radius: var(--border-radius-small);
-            min-width: 150px;
+            min-width: 120px; /* تم تصغير العرض الأدنى */
             text-align: right;
             background-color: white;
             font-family: var(--main-font);
@@ -246,10 +259,10 @@
         }
 
         .section-title {
-            background: linear-gradient(135deg, var(--button-color) 0%, #2E7D32 100%);
-            color: white;
+            background-color: var(--section-title-bg-color);
+            color: var(--section-title-font-color);
             padding: 12px 20px;
-            font-size: 20px;
+            font-size: var(--section-title-font-size);
             font-weight: var(--subtitle-font-weight);
             text-align: center;
             display: flex;
@@ -287,23 +300,30 @@
         td:nth-child(2) { width: 30%; }
         td:last-child { width: 30%; }
 
-          .test-name {
+        .test-name {
             font-size: var(--test-name-font-size);
             font-weight: var(--test-font-weight);
-            background-color: #e8f4e8;
+            background-color: var(--test-name-bg-color); /* خلفية أسماء التحاليل */
             color: var(--test-name-font-color);
             font-family: var(--test-font);
         }
 
-          .normal-range {
+        .normal-range {
             font-size: var(--range-font-size);
             font-weight: var(--range-font-weight);
             color: var(--range-font-color);
-            direction: rtl;
+            direction: ltr;
             font-family: var(--range-font);
+            background-color: var(--normal-range-bg-color); /* خلفية النورمل رانج */
         }
 
-         .result-input, .result-select {
+        .result-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .result-input, .result-select {
             width: 100%;
             height: var(--input-height);
             border: 1px dashed var(--button-color);
@@ -312,7 +332,7 @@
             text-align: center;
             font-family: var(--result-font);
             font-weight: var(--result-font-weight);
-            background-color: #f9f9f9;
+            background-color: var(--result-bg-color); /* خلفية النتائج */
             font-size: var(--result-font-size);
             direction: rtl;
             color: var(--result-font-color);
@@ -323,6 +343,16 @@
             border: 1px solid #2E7D32;
             background-color: #f0fff0;
             box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
+        }
+
+        .hln-select {
+            width: 20%;
+            height: var(--input-height);
+            border: none;
+            background-color: transparent;
+            font-size: 12px;
+            color: #333;
+            text-align: center;
         }
 
         .multiple-choice-container {
@@ -1300,12 +1330,12 @@
         @media print {
             @page {
                 size: A4;
-                margin: 0;
+                margin: var(--print-margin-top) var(--print-margin-right) var(--print-margin-bottom) var(--print-margin-left);
             }
 
             body, html {
                 width: 100%;
-                height: 100vh;
+                height: auto;
                 margin: 0;
                 padding: 0;
                 background: white;
@@ -1313,10 +1343,6 @@
                 display: flex;
                 flex-direction: column;
                 min-height: 100vh;
-                background-image: url('background.jpg');
-                background-size: 21cm 29.7cm;
-                background-position: center;
-                background-repeat: repeat;
             }
 
             body * {
@@ -1327,12 +1353,10 @@
                 width: 100%;
                 max-width: 100%;
                 margin: 0;
-                padding: 4.5cm 1cm 4cm 1cm; /* زيادة الهامش العلوي والسفلي لتجنب التداخل */
-                box-shadow:none;
+                padding: 15px;
+                box-shadow: none;
                 border-radius: 0;
                 flex-grow: 1;
-                background-color: transparent !important;
-                position: relative;
             }
 
             .no-print, .action-buttons, .test-selection, .settings-toggle, .filled-tests {
@@ -1341,21 +1365,23 @@
 
             .section {
                 display: block;
-                page-break-inside: avoid;
-                border: none;
-                margin: 0;
+                page-break-inside: auto; /* تعديل: السماح بتقسيم القسم عبر الصفحات */
+                border: var(--table-border-width) solid #ddd;
+                margin-bottom: 15px;
                 box-shadow: none;
-                background-color: transparent !important;
             }
 
-            .header, .lab-footer {
-                display: none !important;
+            .header {
+                border-bottom: 2px solid #000;
+                margin-bottom: 15px;
+                padding-bottom: 15px;
             }
 
             .patient-info {
-                margin: 0;
-                padding: 0cm;
-                background-color: rgb(97, 236, 246)
+                border: 1px solid #000000;
+                margin-bottom: 0;
+                padding: 0px;
+                font-size: var(--patient-info-font-size); /* الحفاظ على الحجم في الطباعة */
             }
 
             .logo {
@@ -1365,11 +1391,12 @@
             }
 
             .section-title {
-                background: #f2f2f2;
-                color: #000;
+                background-color: var(--section-title-bg-color);
+                color: var(--section-title-font-color);
                 border-bottom: 1px solid #ddd;
                 padding: 10px 15px;
                 font-size: 16px;
+                page-break-after: avoid; /* تجنب فاصل بعد العنوان */
             }
 
             .editable-field, .signature-input {
@@ -1382,10 +1409,13 @@
             .result-input, .result-select {
                 height: var(--input-height);
                 border: none;
-                background-color: transparent;
+                background-color: var(--result-bg-color); /* الحفاظ على خلفية النتائج في الطباعة */
                 padding: 0;
                 text-align: center !important;
                 width: 100%;
+                appearance: none !important; /* إخفاء السهم المنسدل للـ select في الطباعة */
+                -webkit-appearance: none !important;
+                -moz-appearance: none !important;
             }
 
             .multiple-choice-container {
@@ -1413,7 +1443,7 @@
 
             table {
                 width: var(--table-width);
-                page-break-inside: avoid;
+                page-break-inside: auto; /* تعديل: السماح بتقسيم الجدول عبر الصفحات */
                 font-size: 12px;
                 direction: ltr;
             }
@@ -1422,6 +1452,13 @@
                 padding: var(--cell-padding);
                 border: var(--table-border-width) solid var(--table-border-color);
                 vertical-align: top;
+                page-break-inside: avoid; /* تجنب تقسيم الخلايا */
+                page-break-after: auto; /* السماح بفاصل بعد الصفوف */
+            }
+
+            tbody tr {
+                page-break-inside: avoid; /* تجنب تقسيم الصفوف */
+                page-break-after: auto; /* السماح بفاصل بعد الصفوف */
             }
 
             td:first-child { width: 40%; }
@@ -1430,10 +1467,12 @@
 
             .test-name {
                 text-align: center;
+                background-color: var(--test-name-bg-color); /* الحفاظ على خلفية أسماء التحاليل في الطباعة */
             }
 
             .normal-range {
                 text-align: center;
+                background-color: var(--normal-range-bg-color); /* الحفاظ على خلفية النورمل رانج في الطباعة */
             }
 
             .footer {
@@ -1453,7 +1492,32 @@
             }
 
             .lab-footer {
-                display: none !important;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                display: block;
+                border-top: 2px solid #000;
+                padding: 15px;
+                font-size: 12px;
+                color: #000;
+                background-color: var(--footer-bg);
+                margin: 0;
+                width: 100%;
+                box-sizing: border-box;
+            }
+
+            .lab-footer-content {
+                max-width: 100%;
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .lab-footer-item {
+                text-align: center;
+            }
+
+            .lab-footer-title {
+                color: #000;
             }
 
             /* Print styles for stats and patients */
@@ -1465,6 +1529,16 @@
             .visits-dropdown-content {
                 display: none !important;
             }
+            .hln-select {
+                width: 1cm;
+                display: inline-block;
+               appearance: none !important; /* إخفاء السهم المنسدل للـ select في الطباعة */
+
+            }
+
+            /* إخفاء العناصر المطلوبة في الطباعة */
+            
+            
         }
 
         @media (max-width: 600px) {
@@ -1518,6 +1592,10 @@
                 flex-direction: column;
                 gap: 10px;
             }
+
+            .doctors-container {
+                grid-template-columns: 1fr; /* في الشاشات الصغيرة، واحد في كل سطر */
+            }
         }
     </style>
 </head>
@@ -1541,6 +1619,8 @@
             <input type="text" id="biologistNameInput" class="settings-input" placeholder="اسم البايلوجي">
             <input type="text" id="doctor1Name" class="settings-input" placeholder="اسم الدكتور الأول">
             <input type="text" id="doctor2Name" class="settings-input" placeholder="اسم الدكتور الثاني">
+            <input type="text" id="doctor3Name" class="settings-input" placeholder="اسم الدكتور الثالث">
+            <input type="text" id="doctor4Name" class="settings-input" placeholder="اسم الدكتور الرابع">
         </div>
         
         <div class="settings-group">
@@ -1585,6 +1665,26 @@
                 <label>لون خلفية التذييل:</label>
                 <input type="color" id="footerBg" class="color-input" value="#007bff">
             </div>
+            <div class="color-picker">
+                <label>خلفية أسماء التحاليل:</label>
+                <input type="color" id="testNameBgColor" class="color-input" value="#e8f4e8">
+            </div>
+            <div class="color-picker">
+                <label>خلفية النورمل رانج:</label>
+                <input type="color" id="normalRangeBgColor" class="color-input" value="#ffffff">
+            </div>
+            <div class="color-picker">
+                <label>خلفية النتائج:</label>
+                <input type="color" id="resultBgColor" class="color-input" value="#f9f9f9">
+            </div>
+            <div class="color-picker">
+                <label>لون خط عنوان القسم:</label>
+                <input type="color" id="sectionTitleFontColor" class="color-input" value="#ffffff">
+            </div>
+            <div class="color-picker">
+                <label>لون خلفية عنوان القسم:</label>
+                <input type="color" id="sectionTitleBgColor" class="color-input" value="#28a745">
+            </div>
         </div>
         
         <div class="settings-group">
@@ -1615,7 +1715,11 @@
             </div>
             <div class="font-size-picker">
                 <label>حجم خطوط معلومات المريض:</label>
-                <input type="number" id="patientInfoFontSize" class="font-size-input" value="14" min="10" max="30"> px
+                <input type="number" id="patientInfoFontSize" class="font-size-input" value="12" min="10" max="30"> px
+            </div>
+            <div class="font-size-picker">
+                <label>حجم عنوان القسم:</label>
+                <input type="number" id="sectionTitleFontSize" class="font-size-input" value="20" min="10" max="30"> px
             </div>
         </div>
 
@@ -1793,6 +1897,14 @@
                 <input type="checkbox" id="showDoctor2" checked>
                 <label for="showDoctor2">إظهار الدكتور الثاني</label>
             </div>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <input type="checkbox" id="showDoctor3" checked>
+                <label for="showDoctor3">إظهار الدكتور الثالث</label>
+            </div>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <input type="checkbox" id="showDoctor4" checked>
+                <label for="showDoctor4">إظهار الدكتور الرابع</label>
+            </div>
         </div>
         
         <div class="settings-group">
@@ -1841,10 +1953,12 @@
                     <i class="fas fa-microscope"></i>
                 </div>
                 <div class="header-text">
-                    <h1 id="labTitle">برنامج اوسكار</h1>
+                    <h1 id="labTitle">   مختبر الدكتورة نور جعفر التخصصي</h1>
                     <div class="doctors-container">
                         <div class="doctor-name" id="doctor1">  الاول اسم الطبيب او التقني او البايلوجي  </div>
                         <div class="doctor-name" id="doctor2">   الثاني اسم الطبيب او التقني او البايلوجي    </div>
+                        <div class="doctor-name" id="doctor3">   الثالث اسم الطبيب او التقني او البايلوجي    </div>
+                        <div class="doctor-name" id="doctor4">   الرابع اسم الطبيب او التقني او البايلوجي    </div>
                     </div>
                 </div>
             </div>
@@ -2029,6 +2143,14 @@
                     </select>
                 </div>
                 
+                <div id="sectionNameEdit" style="display: none; margin-bottom: 15px;">
+                    <label for="editSectionName">تعديل اسم القسم:</label>
+                    <input type="text" id="editSectionName" class="form-input" style="width: 100%; margin-top: 5px;">
+                    <button class="btn btn-save" onclick="saveSectionName()" style="margin-top: 10px; width: 100%;">
+                        <i class="fas fa-save"></i> حفظ اسم القسم
+                    </button>
+                </div>
+                
                 <div id="rangeTableContainer">
                     <p>يرجى اختيار قسم لعرض التحاليل</p>
                 </div>
@@ -2130,12 +2252,12 @@
     <div class="lab-footer">
         <div class="lab-footer-content">
             <div class="lab-footer-item">
-                <div class="lab-footer-title">برنامج اوسكار  </div>
+                <div class="lab-footer-title">  مختبر الدكتورة نور جعفر التخصصي </div>
                 <div id="biologistName">شكراً للشراء البرنامج</div>
             </div>
             <div class="lab-footer-item">
                 <div class="lab-footer-title">العنوان</div>
-                <div id="labAddress">        تواصل معنا للشراء البرنامج 07806810202</div>
+                <div id="labAddress">        تواصل معنا للشراء 07806810202</div>
             </div>
             <div class="lab-footer-item">
                 <div class="lab-footer-title">رقم الهاتف</div>
@@ -2391,7 +2513,7 @@
                 icon: 'fas fa-poo', 
                 tests: {
                     "Color": { type: "select", range: "Brown", choices: ["Brown", "Green", "Black", "Clay-colored", "Yellowish"] }, 
-                    "Consistency": { type: "select", range: "Formed", choices: ["Formed", "Soft", "Loose", "Watery"] }, 
+                    "Consistency": { type: "select", range: "Formed", choices: ["Formed", "Soft", "Loose", "Loose", "Watery"] }, 
                     "Mucus": { type: "select", range: "Nil", choices: ["Nil", "Trace", "Present"] }, 
                     "Blood": { type: "select", range: "Nil", choices: ["Nil", "Trace", "Present"] }, 
                     "Ova/Parasite": { type: "text", range: "Nil" }, 
@@ -2423,7 +2545,7 @@
                 title: 'Viral Studies', 
                 icon: 'fas fa-virus', 
                 tests: {
-                    "Hepatitis A virus (HAV) IgM": { type: "select", range: "Negative", choices: ["Positive", "Negative"] }, 
+                    "Hepatitis A virus (HAV) IgM IgM": { type: "select", range: "Negative", choices: ["Positive", "Negative"] }, 
                     "Hepatitis A virus (HAV) IgG": { type: "select", range: "Negative", choices: ["Positive", "Negative"] }, 
                     "Hepatitis B virus (HBV) DNA": { type: "select", range: "Undetectable", choices: ["Undetectable", "Detectable"] },
                     "Hepatitis C virus (HCV) RNA": { type: "select", range: "Undetectable", choices: ["Undetectable", "Detectable"] }, 
@@ -2490,9 +2612,11 @@
             document.getElementById('labHeaderInput').value = localStorage.getItem('labHeader') || '';
             document.getElementById('labAddressInput').value = localStorage.getItem('labAddress') || '    للشراء البرنامج تواصل معنا';
             document.getElementById('labPhoneInput').value = localStorage.getItem('labPhone') || '07901821264';
-            document.getElementById('biologistNameInput').value = localStorage.getItem('biologistName') || 'شكراً لزيارتكم';
+            document.getElementById('biologistNameInput').value = localStorage.getItem('biologistName') || 'شكراً لزيارتككم';
             document.getElementById('doctor1Name').value = localStorage.getItem('doctor1Name') || 'الاول اسم الطبيب او التقني او البايلوجي ';
             document.getElementById('doctor2Name').value = localStorage.getItem('doctor2Name') || ' الثاني اسم الطبيب او التقني او البايلوجي';
+            document.getElementById('doctor3Name').value = localStorage.getItem('doctor3Name') || ' الثالث اسم الطبيب او التقني او البايلوجي';
+            document.getElementById('doctor4Name').value = localStorage.getItem('doctor4Name') || ' الرابع اسم الطبيب او التقني او البايلوجي';
 
             document.getElementById('headerColor').value = localStorage.getItem('headerColor') || '#007bff';
             document.getElementById('backgroundColor').value = localStorage.getItem('backgroundColor') || '#f0f8ff';
@@ -2501,6 +2625,11 @@
             document.getElementById('headerBg').value = localStorage.getItem('headerBg') || '#ffffff';
             document.getElementById('tableBorderColor').value = localStorage.getItem('tableBorderColor') || '#dee2e6';
             document.getElementById('footerBg').value = localStorage.getItem('footerBg') || '#007bff';
+            document.getElementById('testNameBgColor').value = localStorage.getItem('testNameBgColor') || '#e8f4e8';
+            document.getElementById('normalRangeBgColor').value = localStorage.getItem('normalRangeBgColor') || '#ffffff';
+            document.getElementById('resultBgColor').value = localStorage.getItem('resultBgColor') || '#f9f9f9';
+            document.getElementById('sectionTitleFontColor').value = localStorage.getItem('sectionTitleFontColor') || '#ffffff';
+            document.getElementById('sectionTitleBgColor').value = localStorage.getItem('sectionTitleBgColor') || '#28a745';
 
             const savedLogo = localStorage.getItem('labLogo');
             if (savedLogo) {
@@ -2514,7 +2643,8 @@
             document.getElementById('rangeFontSize').value = localStorage.getItem('rangeFontSize') || '16';
             document.getElementById('footerFontSize').value = localStorage.getItem('footerFontSize') || '14';
             document.getElementById('doctorFontSize').value = localStorage.getItem('doctorFontSize') || '14';
-            document.getElementById('patientInfoFontSize').value = localStorage.getItem('patientInfoFontSize') || '14';
+            document.getElementById('patientInfoFontSize').value = localStorage.getItem('patientInfoFontSize') || '12';
+            document.getElementById('sectionTitleFontSize').value = localStorage.getItem('sectionTitleFontSize') || '20';
             document.getElementById('tableBorderWidth').value = localStorage.getItem('tableBorderWidth') || '1';
             document.getElementById('doctorBoxBorderRadius').value = localStorage.getItem('doctorBoxBorderRadius') || '4';
 
@@ -2547,6 +2677,8 @@
 
             document.getElementById('showDoctor1').checked = localStorage.getItem('showDoctor1') !== 'false';
             document.getElementById('showDoctor2').checked = localStorage.getItem('showDoctor2') !== 'false';
+            document.getElementById('showDoctor3').checked = localStorage.getItem('showDoctor3') !== 'false';
+            document.getElementById('showDoctor4').checked = localStorage.getItem('showDoctor4') !== 'false';
             
             document.getElementById('tableWidth').value = localStorage.getItem('tableWidth') || '100';
             document.getElementById('cellPadding').value = localStorage.getItem('cellPadding') || '8';
@@ -2564,6 +2696,8 @@
             localStorage.setItem('biologistName', document.getElementById('biologistNameInput').value);
             localStorage.setItem('doctor1Name', document.getElementById('doctor1Name').value);
             localStorage.setItem('doctor2Name', document.getElementById('doctor2Name').value);
+            localStorage.setItem('doctor3Name', document.getElementById('doctor3Name').value);
+            localStorage.setItem('doctor4Name', document.getElementById('doctor4Name').value);
 
             localStorage.setItem('headerColor', document.getElementById('headerColor').value);
             localStorage.setItem('backgroundColor', document.getElementById('backgroundColor').value);
@@ -2572,6 +2706,11 @@
             localStorage.setItem('headerBg', document.getElementById('headerBg').value);
             localStorage.setItem('tableBorderColor', document.getElementById('tableBorderColor').value);
             localStorage.setItem('footerBg', document.getElementById('footerBg').value);
+            localStorage.setItem('testNameBgColor', document.getElementById('testNameBgColor').value);
+            localStorage.setItem('normalRangeBgColor', document.getElementById('normalRangeBgColor').value);
+            localStorage.setItem('resultBgColor', document.getElementById('resultBgColor').value);
+            localStorage.setItem('sectionTitleFontColor', document.getElementById('sectionTitleFontColor').value);
+            localStorage.setItem('sectionTitleBgColor', document.getElementById('sectionTitleBgColor').value);
 
             const logoPreview = document.getElementById('logoPreview');
             if (logoPreview.src && logoPreview.src !== '') {
@@ -2587,6 +2726,7 @@
             localStorage.setItem('footerFontSize', document.getElementById('footerFontSize').value);
             localStorage.setItem('doctorFontSize', document.getElementById('doctorFontSize').value);
             localStorage.setItem('patientInfoFontSize', document.getElementById('patientInfoFontSize').value);
+            localStorage.setItem('sectionTitleFontSize', document.getElementById('sectionTitleFontSize').value);
             localStorage.setItem('tableBorderWidth', document.getElementById('tableBorderWidth').value);
             localStorage.setItem('doctorBoxBorderRadius', document.getElementById('doctorBoxBorderRadius').value);
 
@@ -2619,6 +2759,8 @@
 
             localStorage.setItem('showDoctor1', document.getElementById('showDoctor1').checked);
             localStorage.setItem('showDoctor2', document.getElementById('showDoctor2').checked);
+            localStorage.setItem('showDoctor3', document.getElementById('showDoctor3').checked);
+            localStorage.setItem('showDoctor4', document.getElementById('showDoctor4').checked);
 
             localStorage.setItem('tableWidth', document.getElementById('tableWidth').value);
             localStorage.setItem('cellPadding', document.getElementById('cellPadding').value);
@@ -2647,19 +2789,23 @@
             const labHeader = localStorage.getItem('labHeader') || '';
             const labAddress = localStorage.getItem('labAddress') || '  للشراء البرنامج تواصل معنا';
             const labPhone = localStorage.getItem('labPhone') || '07901821264';
-            const biologistName = localStorage.getItem('biologistName') || 'شكراً لزيارتكم';
+            const biologistName = localStorage.getItem('biologistName') || 'شكراً لزيارتككم';
             const doctor1Name = localStorage.getItem('doctor1Name') || 'الاول اسم الطبيب او التقني او البايلوجي';
             const doctor2Name = localStorage.getItem('doctor2Name') || ' الثاني اسم الطبيب او التقني او البايلوجي';
+            const doctor3Name = localStorage.getItem('doctor3Name') || ' الثالث اسم الطبيب او التقني او البايلوجي';
+            const doctor4Name = localStorage.getItem('doctor4Name') || ' الرابع اسم الطبيب او التقني او البايلوجي';
 
-            document.getElementById('watermark').textContent = 'برنامج اوسكار';
             // العنوان ثابت - لا يتم تغييره
-            document.getElementById('labTitle').textContent = 'برنامج اوسكار';
+         
+
             document.getElementById('customHeader').textContent = labHeader;
             document.getElementById('biologistName').textContent = biologistName;
             document.getElementById('labAddress').textContent = labAddress;
             document.getElementById('labPhone').textContent = labPhone;
             document.getElementById('doctor1').textContent = doctor1Name;
             document.getElementById('doctor2').textContent = doctor2Name;
+            document.getElementById('doctor3').textContent = doctor3Name;
+            document.getElementById('doctor4').textContent = doctor4Name;
 
             const savedLogo = localStorage.getItem('labLogo');
             const logoElement = document.getElementById('labLogo');
@@ -2676,6 +2822,11 @@
             document.documentElement.style.setProperty('--header-bg', localStorage.getItem('headerBg') || '#ffffff');
             document.documentElement.style.setProperty('--footer-bg', localStorage.getItem('footerBg') || '#007bff');
             document.documentElement.style.setProperty('--table-border-color', localStorage.getItem('tableBorderColor') || '#dee2e6');
+            document.documentElement.style.setProperty('--test-name-bg-color', localStorage.getItem('testNameBgColor') || '#e8f4e8');
+            document.documentElement.style.setProperty('--normal-range-bg-color', localStorage.getItem('normalRangeBgColor') || '#ffffff');
+            document.documentElement.style.setProperty('--result-bg-color', localStorage.getItem('resultBgColor') || '#f9f9f9');
+            document.documentElement.style.setProperty('--section-title-font-color', localStorage.getItem('sectionTitleFontColor') || '#ffffff');
+            document.documentElement.style.setProperty('--section-title-bg-color', localStorage.getItem('sectionTitleBgColor') || '#28a745');
             document.documentElement.style.setProperty('--table-border-width', (localStorage.getItem('tableBorderWidth') || '1') + 'px');
 
             document.documentElement.style.setProperty('--title-font-size', (localStorage.getItem('titleFontSize') || '28') + 'px');
@@ -2684,7 +2835,8 @@
             document.documentElement.style.setProperty('--range-font-size', (localStorage.getItem('rangeFontSize') || '16') + 'px');
             document.documentElement.style.setProperty('--footer-font-size', (localStorage.getItem('footerFontSize') || '14') + 'px');
             document.documentElement.style.setProperty('--doctor-font-size', (localStorage.getItem('doctorFontSize') || '14') + 'px');
-            document.documentElement.style.setProperty('--patient-info-font-size', (localStorage.getItem('patientInfoFontSize') || '14') + 'px');
+            document.documentElement.style.setProperty('--patient-info-font-size', (localStorage.getItem('patientInfoFontSize') || '12') + 'px');
+            document.documentElement.style.setProperty('--section-title-font-size', (localStorage.getItem('sectionTitleFontSize') || '20') + 'px');
 
             document.documentElement.style.setProperty('--title-font-color', localStorage.getItem('titleFontColor') || '#0056b3');
             document.documentElement.style.setProperty('--test-name-font-color', localStorage.getItem('testNameFontColor') || '#212529');
@@ -2725,14 +2877,18 @@
 
             const showDoctor1 = localStorage.getItem('showDoctor1') !== 'false';
             const showDoctor2 = localStorage.getItem('showDoctor2') !== 'false';
+            const showDoctor3 = localStorage.getItem('showDoctor3') !== 'false';
+            const showDoctor4 = localStorage.getItem('showDoctor4') !== 'false';
             document.getElementById('doctor1').classList.toggle('hidden', !showDoctor1);
             document.getElementById('doctor2').classList.toggle('hidden', !showDoctor2);
+            document.getElementById('doctor3').classList.toggle('hidden', !showDoctor3);
+            document.getElementById('doctor4').classList.toggle('hidden', !showDoctor4);
 
             const doctorsContainer = document.querySelector('.doctors-container');
-            if (!showDoctor1 && !showDoctor2) {
+            if (!showDoctor1 && !showDoctor2 && !showDoctor3 && !showDoctor4) {
                 doctorsContainer.style.display = 'none';
             } else {
-                doctorsContainer.style.display = 'flex';
+                doctorsContainer.style.display = 'grid';
             }
         }
 
@@ -2805,8 +2961,16 @@
         function loadLabStructure() {
             const customSections = JSON.parse(localStorage.getItem('customSections')) || {};
             const customTests = JSON.parse(localStorage.getItem('customTests') || '{}');
+            const customSectionTitles = JSON.parse(localStorage.getItem('customSectionTitles') || '{}');
 
             labStructure = JSON.parse(JSON.stringify(defaultLabStructure));
+
+            // تطبيق التعديلات على أسماء الأقسام الافتراضية
+            labStructure.forEach(section => {
+                if (customSectionTitles[section.id]) {
+                    section.title = customSectionTitles[section.id];
+                }
+            });
 
             // إضافة الأقسام المخصصة
             for (const sectionId in customSections) {
@@ -2833,6 +2997,13 @@
                 }
             }
 
+            // تطبيق التعديلات على أسماء الأقسام المخصصة إذا كان هناك
+            labStructure.forEach(section => {
+                if (customSectionTitles[section.id]) {
+                    section.title = customSectionTitles[section.id];
+                }
+            });
+
             renderLabStructure();
             updateSelectMenus();
         }
@@ -2841,24 +3012,24 @@
             const testName = Object.keys(test)[0];
             const testData = test[testName];
             
+            let inputHTML;
             if (testData.type === 'text') {
-                return `<input type="text" class="result-input" data-test-name="${testName}" placeholder="أدخل النتيجة">`;
+                inputHTML = `<input type="text" class="result-input" data-test-name="${testName}" placeholder="أدخل النتيجة">`;
             } else if (testData.type === 'select') {
-                let optionsHTML = `<select class="result-select" data-test-name="${testName}"><option value="">اختر...</option>`;
+                inputHTML = `<select class="result-select" data-test-name="${testName}"><option value="">اختر...</option>`;
                 if (testData.choices && testData.choices.length > 0) {
                     testData.choices.forEach(choice => {
-                        optionsHTML += `<option value="${choice}">${choice}</option>`;
+                        inputHTML += `<option value="${choice}">${choice}</option>`;
                     });
                 } else {
-                    optionsHTML += '<option value="Positive">Positive</option><option value="Negative">Negative</option>';
+                    inputHTML += '<option value="Positive">Positive</option><option value="Negative">Negative</option>';
                 }
-                optionsHTML += '</select>';
-                return optionsHTML;
+                inputHTML += '</select>';
             } else if (testData.type === 'multiple') {
-                let multipleHTML = `<div class="multiple-choice-container" data-test-name="${testName}">`;
+                inputHTML = `<div class="multiple-choice-container" data-test-name="${testName}">`;
                 if (testData.choices && testData.choices.length > 0) {
                     testData.choices.forEach((choice, index) => {
-                        multipleHTML += `
+                        inputHTML += `
                             <div class="choice-option" onclick="selectChoice(this)">
                                 <input type="radio" name="${testName}_choices" class="choice-radio" value="${choice}" id="${testName}_choice_${index}">
                                 <label for="${testName}_choice_${index}" class="choice-text">${choice}</label>
@@ -2866,7 +3037,7 @@
                         `;
                     });
                 } else {
-                    multipleHTML += `
+                    inputHTML += `
                         <div class="choice-option" onclick="selectChoice(this)">
                             <input type="radio" name="${testName}_choices" class="choice-radio" value="Positive" id="${testName}_choice_0">
                             <label for="${testName}_choice_0" class="choice-text">Positive</label>
@@ -2877,11 +3048,22 @@
                         </div>
                     `;
                 }
-                multipleHTML += '</div>';
-                return multipleHTML;
+                inputHTML += '</div>';
+            } else {
+                inputHTML = `<input type="text" class="result-input" data-test-name="${testName}" placeholder="أدخل النتيجة">`;
             }
             
-            return `<input type="text" class="result-input" data-test-name="${testName}" placeholder="أدخل النتيجة">`;
+            // إضافة الخيار الصغير H N L
+            const hlnHTML = `
+                <select class="hln-select" data-test-name="${testName}">
+                    <option value=""></option>
+                    <option value="H">H</option>
+                    <option value="N">N</option>
+                    <option value="L">L</option>
+                </select>
+            `;
+            
+            return `<div class="result-container">${inputHTML}${hlnHTML}</div>`;
         }
 
         function renderLabStructure() {
@@ -2936,6 +3118,12 @@
             document.querySelectorAll('.choice-option').forEach(option => {
                 option.removeEventListener('click', handleChoiceClick);
                 option.addEventListener('click', handleChoiceClick);
+            });
+            
+            // إضافة مستمعين للـ H L N
+            document.querySelectorAll('.hln-select').forEach(select => {
+                select.removeEventListener('change', updateFilledTests);
+                select.addEventListener('change', updateFilledTests);
             });
         }
 
@@ -3015,14 +3203,20 @@
             const sectionId = document.getElementById('sectionSelect').value;
             if (!sectionId) {
                 document.getElementById('rangeTableContainer').innerHTML = '<p>يرجى اختيار قسم لعرض التحاليل</p>';
+                document.getElementById('sectionNameEdit').style.display = 'none';
                 return;
             }
             
             const selectedSection = labStructure.find(sec => sec.id === sectionId);
             if (!selectedSection) {
                 document.getElementById('rangeTableContainer').innerHTML = '<p>القسم غير موجود</p>';
+                document.getElementById('sectionNameEdit').style.display = 'none';
                 return;
             }
+
+            // عرض حقل تعديل اسم القسم
+            document.getElementById('editSectionName').value = selectedSection.title;
+            document.getElementById('sectionNameEdit').style.display = 'block';
 
             let tableHTML = `
                 <table class="range-table">
@@ -3065,10 +3259,41 @@
             document.getElementById('rangeTableContainer').innerHTML = tableHTML;
         }
 
+        function saveSectionName() {
+            const sectionId = document.getElementById('sectionSelect').value;
+            const newName = document.getElementById('editSectionName').value.trim();
+            
+            if (!newName) {
+                alert('يرجى إدخال اسم جديد للقسم.');
+                return;
+            }
+            
+            const selectedSection = labStructure.find(sec => sec.id === sectionId);
+            if (selectedSection) {
+                selectedSection.title = newName;
+            }
+
+            // حفظ التعديل في localStorage
+            let customSectionTitles = JSON.parse(localStorage.getItem('customSectionTitles') || '{}');
+            customSectionTitles[sectionId] = newName;
+            localStorage.setItem('customSectionTitles', JSON.stringify(customSectionTitles));
+
+            // إذا كان قسم مخصص، تحديث في customSections أيضًا
+            let customSections = JSON.parse(localStorage.getItem('customSections') || '{}');
+            if (customSections[sectionId]) {
+                customSections[sectionId].name = newName;
+                localStorage.setItem('customSections', JSON.stringify(customSections));
+            }
+            
+            loadLabStructure();
+            alert('تم تعديل اسم القسم بنجاح!');
+            loadSectionRanges(); // إعادة تحميل الجدول
+        }
+
         function saveRanges() {
             const inputs = document.querySelectorAll('#rangeTableContainer .normal-range-input');
             const typeSelects = document.querySelectorAll('#rangeTableContainer select');
-            const customRanges = JSON.parse(localStorage.getItem('customTests')) || {};
+            const customRanges = JSON.parse(localStorage.getItem('customTests') || '{}');
 
             let index = 0;
             inputs.forEach((input, i) => {
@@ -3113,7 +3338,7 @@
                     delete section.tests[testName];
                     
                     // تحديث localStorage
-                    let customTests = JSON.parse(localStorage.getItem('customTests')) || {};
+                    let customTests = JSON.parse(localStorage.getItem('customTests') || '{}');
                     if (customTests[sectionId]) {
                         customTests[sectionId] = customTests[sectionId].filter(test => test.name !== testName);
                         if (customTests[sectionId].length === 0) {
@@ -3200,7 +3425,7 @@
                 return;
             }
             
-            let customSections = JSON.parse(localStorage.getItem('customSections')) || {};
+            let customSections = JSON.parse(localStorage.getItem('customSections') || '{}');
             customSections[sectionId] = {
                 name: sectionName,
                 icon: sectionIcon,
@@ -3291,7 +3516,7 @@
                 customTests[sectionId] = [];
             }
             
-            // التحقق من عدم التكرار في التحاليل المخصصة
+            // التحقق من عدم عدم التكرار في التحاليل المخصصة
             const existingTest = customTests[sectionId].find(test => test.name === testName);
             if (existingTest) {
                 alert('هذا التحليل موجود بالفعل.');
@@ -3371,6 +3596,15 @@
                         patientData.tests[sectionId][testName] = selectedRadio.value;
                     }
                 });
+
+                // التعامل مع H L N
+                const hlnSelects = section.querySelectorAll('.hln-select');
+                hlnSelects.forEach(select => {
+                    const testName = select.dataset.testName;
+                    if (testName && select.value) {
+                        patientData.tests[sectionId][testName + '_hln'] = select.value;
+                    }
+                });
             });
 
             const request = store.add(patientData); // استخدام add بدلاً من put لإضافة مراجعة جديدة
@@ -3397,7 +3631,7 @@
             let totalTests = 0;
             for (const sectionId in patientData.tests) {
                 for (const testName in patientData.tests[sectionId]) {
-                    if (patientData.tests[sectionId][testName]) {
+                    if (patientData.tests[sectionId][testName] && !testName.endsWith('_hln')) {
                         const statEntry = {
                             date: saveDate,
                             testName: testName,
@@ -3436,10 +3670,10 @@
                 if (visits.length > 0) {
                     if (visits.length === 1) {
                         // إذا كانت مراجعة واحدة فقط، حمّلها مباشرة
-                        loadVisitData(visits[0]);
+                        loadVisitData(visits[0].id);
                     } else {
-                        // إذا كانت مراجعات متعددة، اعرض قائمة للاختيار
-                        showVisitsList(visits);
+                        // إذا كانت مراجعات متعددة، اعرض قائمة
+                        showVisitsList(visits, patientName);
                     }
                 } else {
                     alert('لم يتم العثور على بيانات لهذا المريض.');
@@ -3452,7 +3686,7 @@
             };
         }
 
-        function showVisitsList(visits) {
+        function showVisitsList(visits, patientName) {
             let listHTML = '<div style="text-align: center; margin: 20px 0;"><h3>اختر مراجعة للاستعادة:</h3><ul style="list-style: none; padding: 0;">';
             visits.forEach(visit => {
                 listHTML += `<li style="padding: 10px; border: 1px solid #ddd; margin: 5px 0; border-radius: 5px;">
@@ -3461,7 +3695,6 @@
                 </li>`;
             });
             listHTML += '</ul></div>';
-            // يمكن عرض هذا في modal منفصل أو هنا، للبساطة نستخدم alert أو نعدل searchModal
             const modalContent = document.querySelector('#searchModal .modal-content');
             modalContent.innerHTML = `<span class="close" onclick="closeSearchModal()">&times;</span>
                 <h2 style="text-align: center;">مراجعات المريض: ${patientName}</h2>
@@ -3504,35 +3737,46 @@
                     document.querySelectorAll('.choice-option').forEach(option => {
                         option.classList.remove('selected');
                     });
+                    document.querySelectorAll('.hln-select').forEach(select => {
+                        select.value = '';
+                    });
                     
                     // استعادة النتائج
                     for (const sectionId in patientData.tests) {
                         const tests = patientData.tests[sectionId];
                         for (const testName in tests) {
-                            const testRows = document.querySelectorAll('#' + sectionId + ' .test-name');
-                            for (let row of testRows) {
-                                if (row.textContent.trim() === testName) {
-                                    const input = row.closest('tr').querySelector('.result-input, .result-select');
-                                    if (input) {
-                                        input.value = tests[testName];
-                                    }
-                                    break;
+                            if (testName.endsWith('_hln')) {
+                                const baseName = testName.replace('_hln', '');
+                                const select = document.querySelector(`#${sectionId} [data-test-name="${baseName}"].hln-select`);
+                                if (select) {
+                                    select.value = tests[testName];
                                 }
-                            }
-                            
-                            // استعادة الخيارات المتعددة
-                            const multipleContainer = document.querySelector(`#${sectionId} [data-test-name="${testName}"]`);
-                            if (multipleContainer && multipleContainer.classList.contains('multiple-choice-container')) {
-                                const radios = multipleContainer.querySelectorAll('input[type="radio"]');
-                                radios.forEach(radio => {
-                                    if (radio.value === tests[testName]) {
-                                        radio.checked = true;
-                                        const parentOption = radio.closest('.choice-option');
-                                        if (parentOption) {
-                                            parentOption.classList.add('selected');
+                            } else {
+                                const testRows = document.querySelectorAll('#' + sectionId + ' .test-name');
+                                for (let row of testRows) {
+                                    if (row.textContent.trim() === testName) {
+                                        const input = row.closest('tr').querySelector('.result-input, .result-select');
+                                        if (input) {
+                                            input.value = tests[testName];
                                         }
+                                        break;
                                     }
-                                });
+                                }
+                                
+                                // استعادة الخيارات المتعددة
+                                const multipleContainer = document.querySelector(`#${sectionId} [data-test-name="${testName}"]`);
+                                if (multipleContainer && multipleContainer.classList.contains('multiple-choice-container')) {
+                                    const radios = multipleContainer.querySelectorAll('input[type="radio"]');
+                                    radios.forEach(radio => {
+                                        if (radio.value === tests[testName]) {
+                                            radio.checked = true;
+                                            const parentOption = radio.closest('.choice-option');
+                                            if (parentOption) {
+                                                parentOption.classList.add('selected');
+                                            }
+                                        }
+                                    });
+                                }
                             }
                         }
                     }
@@ -4072,7 +4316,14 @@
             });
         }
 
-        // إضافة مستمعين للخروج من النوافذ المنبثقة باستخدام ESC
+        // إغلاق الـ dropdown عند النقر خارجها
+        document.addEventListener('click', function(event) {
+            if (!event.target.closest('.patient-visits-dropdown')) {
+                document.querySelectorAll('.visits-dropdown-content').forEach(dd => dd.classList.remove('show'));
+            }
+        });
+
+        // إغلاق النوافذ المنبثقة باستخدام ESC
         document.addEventListener('keydown', function(event) {
             if (event.key === 'Escape') {
                 const modals = document.querySelectorAll('.modal');
@@ -4106,3 +4357,4 @@
     </script>
 </body>
 </html>
+```
