@@ -1434,7 +1434,6 @@
             .patient-info {
                 margin: 0;
                 padding: 0cm;
-                background-color: rgb(97, 236, 246);
             }
 
             
@@ -2928,7 +2927,7 @@
             document.documentElement.style.setProperty('--input-height', (localStorage.getItem('inputHeight') || '30') + 'px');
             document.documentElement.style.setProperty('--print-margin-top', (localStorage.getItem('printMarginTop') || '0.7') + 'cm');
             document.documentElement.style.setProperty('--print-margin-bottom', (localStorage.getItem('printMarginBottom') || '1.2') + 'cm');
-            document.documentElement.style.setProperty('--print-margin-left', (localStorage.getItem('printMarginLeft') || '0.7') + 'cm');
+            document.documentElement.style.setProperty('--print-margin-left', localStorage.getItem('printMarginLeft') || '0.7' + 'cm');
             document.documentElement.style.setProperty('--print-margin-right', localStorage.getItem('printMarginRight') || '0.7' + 'cm');
 
             const showDoctor1 = localStorage.getItem('showDoctor1') !== 'false';
