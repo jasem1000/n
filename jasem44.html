@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -21,7 +23,7 @@
             --range-font-size: 16px;
             --footer-font-size: 14px;
             --doctor-font-size: 14px;
-            --patient-info-font-size: 14px;
+            --patient-info-font-size: 12px; /* تم تصغير حجم خط معلومات المريض افتراضياً */
             --title-font-color: #0056b3;
             --test-name-font-color: #212529;
             --result-font-color: #212529;
@@ -161,7 +163,8 @@
         }
 
         .doctors-container {
-            display: flex;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); /* اثنين في كل سطر */
             justify-content: center;
             width: 100%;
             gap: 15px;
@@ -192,21 +195,19 @@
             font-weight: var(--patient-info-font-weight);
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
-            padding: 20px;
+            gap: 0px;
+            margin-bottom: 8px;
+            padding: 6px;
             border: 1px solid rgba(0,0,0,0.1);
             border-radius: var(--border-radius-small);
             background-color: var(--patient-info-bg);
-            direction: rtl; /* تغيير الاتجاه إلى من اليسار إلى اليمين للترتيب من اليمين إلى اليسار (بناءً على الطلب المعاد تفسيره) */
-            
         }
 
         .info-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 8px 0;
+            padding: 4px 0; /* تم تصغير البادينج لتصغير معلومات المريض */
         }
 
         .info-label {
@@ -219,9 +220,9 @@
             font-weight: var(--patient-info-font-weight);
             font-size: var(--patient-info-font-size);
             border: 1px dashed var(--button-color);
-            padding: 6px 12px;
+            padding: 4px 8px; /* تم تصغير البادينج لتصغير معلومات المريض */
             border-radius: var(--border-radius-small);
-            min-width: 150px;
+            min-width: 120px; /* تم تصغير العرض الأدنى */
             text-align: right;
             background-color: white;
             font-family: var(--main-font);
@@ -303,7 +304,7 @@
         .test-name {
             font-size: var(--test-name-font-size);
             font-weight: var(--test-font-weight);
-            background-color: var(--test-name-bg-color);
+            background-color: var(--test-name-bg-color); /* خلفية أسماء التحاليل */
             color: var(--test-name-font-color);
             font-family: var(--test-font);
         }
@@ -314,7 +315,7 @@
             color: var(--range-font-color);
             direction: ltr;
             font-family: var(--range-font);
-            background-color: var(--normal-range-bg-color);
+            background-color: var(--normal-range-bg-color); /* خلفية النورمل رانج */
         }
 
         .result-container {
@@ -332,7 +333,7 @@
             text-align: center;
             font-family: var(--result-font);
             font-weight: var(--result-font-weight);
-            background-color: var(--result-bg-color);
+            background-color: var(--result-bg-color); /* خلفية النتائج */
             font-size: var(--result-font-size);
             direction: rtl;
             color: var(--result-font-color);
@@ -1327,42 +1328,22 @@
             font-weight: var(--main-font-weight);
         }
 
-        /* خصائص عامة جديدة (أضف في نهاية الـ CSS قبل @media) */
-        .print-table {
-            width: 100%;
-            border-collapse: collapse;
-            table-layout: fixed; /* لتحسين التوزيع */
-        }
-
-        .header-space,
-        .footer-space {
-            height: 4.5cm; /* ارتفاع الهيدر الأصلي (اضبطه حسب حاجتك، مثل 4.5cm للهيدر) */
-        }
-
-        .footer-space {
-            height: 3cm; /* مسافة 3cm للفوتر لتجنب التداخل */
-        }
-
         @media print {
             @page {
                 size: A4;
-                margin: 0;
+                margin: var(--print-margin-top) var(--print-margin-right) var(--print-margin-bottom) var(--print-margin-left);
             }
 
-            html, body {
+            body, html {
                 width: 100%;
-                height: auto; /* غير إلى auto للسماح بصفحات متعددة */
+                height: auto;
                 margin: 0;
                 padding: 0;
                 background: white;
                 font-size: 10pt;
-                background-size: 21cm 29.7cm; /* حجم A4 */
-                background-position: center top;
-                background-repeat: repeat-y; /* تكرار الخلفية في كل صفحة جديدة */
-                background-attachment: local; /* لتكرار صحيح في الصفحات المتعددة */
-                -webkit-print-color-adjust: exact; /* دعم طباعة الخلفيات في Chrome */
-                print-color-adjust: exact; /* دعم في المتصفحات الأخرى */
-                page-break-inside: auto; /* السماح بكسر الصفحات */
+                display: flex;
+                flex-direction: column;
+                min-height: 100vh;
             }
 
             body * {
@@ -1373,13 +1354,10 @@
                 width: 100%;
                 max-width: 100%;
                 margin: 0;
-                padding: 0; /* إزالة padding الداخلي للسماح بالكسر الطبيعي */
+                padding: 15px;
                 box-shadow: none;
                 border-radius: 0;
                 flex-grow: 1;
-                background-color: transparent !important;
-                position: relative;
-                page-break-after: auto; /* كسر تلقائي بعد المحتوى */
             }
 
             .no-print, .action-buttons, .test-selection, .settings-toggle, .filled-tests {
@@ -1388,63 +1366,37 @@
 
             .section {
                 display: block;
-                page-break-inside: auto; /* كسر داخل القسم إذا كان طويلاً */
-                page-break-after: auto; /* كسر بعد القسم */
-                page-break-before: avoid; /* تجنب بدء قسم في صفحة جديدة إلا إذا لزم */
+                page-break-inside: avoid;
                 border: var(--table-border-width) solid #ddd;
                 margin-bottom: 15px;
                 box-shadow: none;
             }
 
-            .section-title {
-                page-break-after: avoid;
-            }
-
-            table {
-                width: var(--table-width);
-                page-break-inside: auto; /* كسر الجدول عبر صفحات */
-            }
-
-            tr {
-                page-break-inside: avoid; /* تجنب كسر داخل سطر */
-                page-break-after: auto; /* كسر بعد سطر */
-            }
-
-            /* جعل الهيدر والفوتر ثابتين مع تكرار */
             .header {
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                z-index: 1000;
-                height: 4.5cm;
-                display: block !important;
-            }
-
-            .lab-footer {
-                position: fixed;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                z-index: 1000;
-                height: 3cm;
-                display: block !important;
+                border-bottom: 2px solid #000;
+                margin-bottom: 15px;
+                padding-bottom: 15px;
             }
 
             .patient-info {
-                margin: 0;
-                padding: 0cm;
+                border: 1px solid #000000;
+                margin-bottom: 0;
+                padding: 0px;
+                font-size: var(--patient-info-font-size); /* الحفاظ على الحجم في الطباعة */
             }
 
-            
+            .logo {
+                background: white;
+                color: var(--button-color);
+                border: 2px solid var(--button-color);
+            }
 
             .section-title {
-                background: #f2f2f2;
-                color: #000;
+                background-color: var(--section-title-bg-color);
+                color: var(--section-title-font-color);
                 border-bottom: 1px solid #ddd;
                 padding: 10px 15px;
                 font-size: 16px;
-                page-break-after: avoid; /* تجنب فاصل بعد العنوان */
             }
 
             .editable-field, .signature-input {
@@ -1457,10 +1409,13 @@
             .result-input, .result-select {
                 height: var(--input-height);
                 border: none;
-                background-color: transparent;
+                background-color: var(--result-bg-color); /* الحفاظ على خلفية النتائج في الطباعة */
                 padding: 0;
                 text-align: center !important;
                 width: 100%;
+                appearance: none !important; /* إخفاء السهم المنسدل للـ select في الطباعة */
+                -webkit-appearance: none !important;
+                -moz-appearance: none !important;
             }
 
             .multiple-choice-container {
@@ -1505,10 +1460,12 @@
 
             .test-name {
                 text-align: center;
+                background-color: var(--test-name-bg-color); /* الحفاظ على خلفية أسماء التحاليل في الطباعة */
             }
 
             .normal-range {
                 text-align: center;
+                background-color: var(--normal-range-bg-color); /* الحفاظ على خلفية النورمل رانج في الطباعة */
             }
 
             .footer {
@@ -1530,9 +1487,30 @@
             .lab-footer {
                 position: fixed;
                 bottom: 0;
+                left: 0;
+                right: 0;
+                display: block;
+                border-top: 2px solid #000;
+                padding: 15px;
+                font-size: 12px;
+                color: #000;
+                background-color: var(--footer-bg);
+                margin: 0;
                 width: 100%;
-                height: 3cm; /* مسافة 3cm للفوتر */
-                display: block !important; /* إظهار في الطباعة */
+                box-sizing: border-box;
+            }
+
+            .lab-footer-content {
+                max-width: 100%;
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .lab-footer-item {
+                text-align: center;
+            }
+
+            .lab-footer-title {
+                color: #000;
             }
 
             /* Print styles for stats and patients */
@@ -1607,6 +1585,10 @@
                 flex-direction: column;
                 gap: 10px;
             }
+
+            .doctors-container {
+                grid-template-columns: 1fr; /* في الشاشات الصغيرة، واحد في كل سطر */
+            }
         }
     </style>
 </head>
@@ -1630,6 +1612,8 @@
             <input type="text" id="biologistNameInput" class="settings-input" placeholder="اسم البايلوجي">
             <input type="text" id="doctor1Name" class="settings-input" placeholder="اسم الدكتور الأول">
             <input type="text" id="doctor2Name" class="settings-input" placeholder="اسم الدكتور الثاني">
+            <input type="text" id="doctor3Name" class="settings-input" placeholder="اسم الدكتور الثالث">
+            <input type="text" id="doctor4Name" class="settings-input" placeholder="اسم الدكتور الرابع">
         </div>
         
         <div class="settings-group">
@@ -1641,18 +1625,6 @@
             </button>
             <button class="logo-upload-btn" onclick="resetLogo()" style="background: #f44336;">
                 <i class="fas fa-trash"></i> إعادة اللوغو الافتراضي
-            </button>
-        </div>
-        
-        <div class="settings-group">
-            <h3>خلفية الطباعة</h3>
-            <img id="backgroundPreview" src="" alt="معاينة الخلفية" style="display: none; width: 200px; height: auto; margin: 12px auto; border: 2px dashed var(--button-color); box-shadow: var(--shadow-light);">
-            <input type="file" id="backgroundUpload" accept="image/*" style="display: none;" onchange="handleBackgroundUpload(event)">
-            <button class="logo-upload-btn" onclick="document.getElementById('backgroundUpload').click()">
-                <i class="fas fa-upload"></i> تحميل خلفية الطباعة
-            </button>
-            <button class="logo-upload-btn" onclick="resetBackground()" style="background: #f44336;">
-                <i class="fas fa-trash"></i> إزالة الخلفية
             </button>
         </div>
         
@@ -1736,7 +1708,7 @@
             </div>
             <div class="font-size-picker">
                 <label>حجم خطوط معلومات المريض:</label>
-                <input type="number" id="patientInfoFontSize" class="font-size-input" value="14" min="10" max="30"> px
+                <input type="number" id="patientInfoFontSize" class="font-size-input" value="12" min="10" max="30"> px
             </div>
             <div class="font-size-picker">
                 <label>حجم عنوان القسم:</label>
@@ -1918,6 +1890,14 @@
                 <input type="checkbox" id="showDoctor2" checked>
                 <label for="showDoctor2">إظهار الدكتور الثاني</label>
             </div>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <input type="checkbox" id="showDoctor3" checked>
+                <label for="showDoctor3">إظهار الدكتور الثالث</label>
+            </div>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <input type="checkbox" id="showDoctor4" checked>
+                <label for="showDoctor4">إظهار الدكتور الرابع</label>
+            </div>
         </div>
         
         <div class="settings-group">
@@ -1966,14 +1946,39 @@
                     <i class="fas fa-microscope"></i>
                 </div>
                 <div class="header-text">
-                    <h1 id="labTitle">برنامج اوسكار</h1>
+                    <h1 id="labTitle">   مختبر الدكتورة نور جعفر التخصصي</h1>
                     <div class="doctors-container">
                         <div class="doctor-name" id="doctor1">  الاول اسم الطبيب او التقني او البايلوجي  </div>
                         <div class="doctor-name" id="doctor2">   الثاني اسم الطبيب او التقني او البايلوجي    </div>
+                        <div class="doctor-name" id="doctor3">   الثالث اسم الطبيب او التقني او البايلوجي    </div>
+                        <div class="doctor-name" id="doctor4">   الرابع اسم الطبيب او التقني او البايلوجي    </div>
                     </div>
                 </div>
             </div>
             <div id="customHeader" class="custom-header"></div>
+        </div>
+        
+        <div class="patient-info" id="patientInfoSection">
+            <div class="info-item">
+                <span class="info-label">اسم المريض:</span>
+                <input type="text" class="editable-field" value="" id="patientName" placeholder="اسم المريض">
+            </div>
+            <div class="info-item">
+                <span class="info-label">العمر:</span>
+                <input type="text" class="editable-field" value="" id="patientAge" placeholder="العمر">
+            </div>
+            <div class="info-item">
+                <span class="info-label">الجنس:</span>
+                <input type="text" class="editable-field" value="" id="patientGender" placeholder="الجنس">
+            </div>
+            <div class="info-item">
+                <span class="info-label">تاريخ الإجراء:</span>
+                <input type="text" class="editable-field" id="currentDate">
+            </div>
+            <div class="info-item">
+                <span class="info-label">الطبيب المعالج:</span>
+                <input type="text" class="editable-field" value="" id="doctorName" placeholder="اسم الطبيب">
+            </div>
         </div>
         
         <div class="filled-tests no-print" id="filledTests"></div>
@@ -2011,75 +2016,11 @@
                 <i class="fas fa-users"></i> قائمة المرضى
             </button>
         </div>
-
-        <table class="print-table">  <!-- جدول رئيسي جديد للطباعة -->
-            <thead>
-                <tr>
-                    <td>
-                        <div class="header-space">&nbsp;</div>  <!-- حجز مساحة للهيدر (ارتفاع حسب الهيدر الأصلي، مثل 4.5cm) -->
-                    </td>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>
-                        <div class="patient-info" id="patientInfoSection">
-                            <div class="info-item">
-                                <span class="info-label">اسم المريض:</span>
-                                <input type="text" class="editable-field" value="" id="patientName" placeholder="اسم المريض">
-                            </div>
-                            <div class="info-item">
-                                <span class="info-label">العمر:</span>
-                                <input type="text" class="editable-field" value="" id="patientAge" placeholder="العمر">
-                            </div>
-                            <div class="info-item">
-                                <span class="info-label">الجنس:</span>
-                                <input type="text" class="editable-field" value="" id="patientGender" placeholder="الجنس">
-                            </div>
-                            <div class="info-item">
-                                <span class="info-label">تاريخ الإجراء:</span>
-                                <input type="text" class="editable-field" id="currentDate">
-                            </div>
-                            <div class="info-item">
-                                <span class="info-label">الطبيب المعالج:</span>
-                                <input type="text" class="editable-field" value="" id="doctorName" placeholder="اسم الطبيب">
-                            </div>
-                        </div>
-                        
-                        <div class="results-container" id="resultsContainer">
-                            <!-- سيتم إضافة الأقسام ديناميكيًا بواسطة JavaScript -->
-                        </div>
-                    </td>
-                </tr>
-            </tbody>
-            <tfoot>
-                <tr>
-                    <td>
-                        <div class="footer-space">&nbsp;</div>  <!-- حجز مساحة للفوتر (3cm) -->
-                    </td>
-                </tr>
-            </tfoot>
-        </table>
         
-        <div class="lab-footer">
-            <div class="lab-footer-content">
-                <div class="lab-footer-item">
-                    <div class="lab-footer-title">برنامج اوسكار  </div>
-                    <div id="biologistName">شكراً للشراء البرنامج</div>
-                </div>
-                <div class="lab-footer-item">
-                    <div class="lab-footer-title">العنوان</div>
-                    <div id="labAddress">        تواصل معنا للشراء البرنامج 07806810202</div>
-                </div>
-                <div class="lab-footer-item">
-                    <div class="lab-footer-title">رقم الهاتف</div>
-                    <div id="labPhone">07806810264</div>
-                </div>
-            </div>
+        <div class="results-container" id="resultsContainer">
+            <!-- سيتم إضافة الأقسام ديناميكيًا بواسطة JavaScript -->
         </div>
-
-    </div>
-
+        
     <div id="addSectionModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeAddSectionModal()">&times;</span>
@@ -2301,6 +2242,23 @@
         </div>
     </div>
     
+    <div class="lab-footer">
+        <div class="lab-footer-content">
+            <div class="lab-footer-item">
+                <div class="lab-footer-title">  مختبر الدكتورة نور جعفر التخصصي </div>
+                <div id="biologistName">شكراً للشراء البرنامج</div>
+            </div>
+            <div class="lab-footer-item">
+                <div class="lab-footer-title">العنوان</div>
+                <div id="labAddress">        تواصل معنا للشراء البرنامج 07806810202</div>
+            </div>
+            <div class="lab-footer-item">
+                <div class="lab-footer-title">رقم الهاتف</div>
+                <div id="labPhone">07806810264</div>
+            </div>
+        </div>
+    </div>
+
     <script>
         // متغيرات قاعدة البيانات
         const DB_NAME = 'LabDatabase';
@@ -2634,19 +2592,6 @@
             }
         }
 
-        function handleBackgroundUpload(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const preview = document.getElementById('backgroundPreview');
-                    preview.src = e.target.result;
-                    preview.style.display = 'block';
-                };
-                reader.readAsDataURL(file);
-            }
-        }
-
         function resetLogo() {
             document.getElementById('logoPreview').src = '';
             document.getElementById('logoPreview').style.display = 'none';
@@ -2655,20 +2600,16 @@
             logoElement.innerHTML = `<i class="fas fa-microscope"></i>`;
         }
 
-        function resetBackground() {
-            document.getElementById('backgroundPreview').src = '';
-            document.getElementById('backgroundPreview').style.display = 'none';
-            document.getElementById('backgroundUpload').value = '';
-        }
-
         function loadCurrentSettings() {
             // إزالة تحميل اسم المختبر لأنه ثابت
             document.getElementById('labHeaderInput').value = localStorage.getItem('labHeader') || '';
             document.getElementById('labAddressInput').value = localStorage.getItem('labAddress') || '    للشراء البرنامج تواصل معنا';
             document.getElementById('labPhoneInput').value = localStorage.getItem('labPhone') || '07901821264';
-            document.getElementById('biologistNameInput').value = localStorage.getItem('biologistName') || 'شكراً لزيارتكم';
+            document.getElementById('biologistNameInput').value = localStorage.getItem('biologistName') || 'شكراً لزيارتككم';
             document.getElementById('doctor1Name').value = localStorage.getItem('doctor1Name') || 'الاول اسم الطبيب او التقني او البايلوجي ';
             document.getElementById('doctor2Name').value = localStorage.getItem('doctor2Name') || ' الثاني اسم الطبيب او التقني او البايلوجي';
+            document.getElementById('doctor3Name').value = localStorage.getItem('doctor3Name') || ' الثالث اسم الطبيب او التقني او البايلوجي';
+            document.getElementById('doctor4Name').value = localStorage.getItem('doctor4Name') || ' الرابع اسم الطبيب او التقني او البايلوجي';
 
             document.getElementById('headerColor').value = localStorage.getItem('headerColor') || '#007bff';
             document.getElementById('backgroundColor').value = localStorage.getItem('backgroundColor') || '#f0f8ff';
@@ -2689,19 +2630,13 @@
                 document.getElementById('logoPreview').style.display = 'block';
             }
 
-            const savedBackground = localStorage.getItem('printBackground');
-            if (savedBackground) {
-                document.getElementById('backgroundPreview').src = savedBackground;
-                document.getElementById('backgroundPreview').style.display = 'block';
-            }
-
             document.getElementById('titleFontSize').value = localStorage.getItem('titleFontSize') || '28';
             document.getElementById('testNameFontSize').value = localStorage.getItem('testNameFontSize') || '16';
             document.getElementById('resultFontSize').value = localStorage.getItem('resultFontSize') || '16';
             document.getElementById('rangeFontSize').value = localStorage.getItem('rangeFontSize') || '16';
             document.getElementById('footerFontSize').value = localStorage.getItem('footerFontSize') || '14';
             document.getElementById('doctorFontSize').value = localStorage.getItem('doctorFontSize') || '14';
-            document.getElementById('patientInfoFontSize').value = localStorage.getItem('patientInfoFontSize') || '14';
+            document.getElementById('patientInfoFontSize').value = localStorage.getItem('patientInfoFontSize') || '12';
             document.getElementById('sectionTitleFontSize').value = localStorage.getItem('sectionTitleFontSize') || '20';
             document.getElementById('tableBorderWidth').value = localStorage.getItem('tableBorderWidth') || '1';
             document.getElementById('doctorBoxBorderRadius').value = localStorage.getItem('doctorBoxBorderRadius') || '4';
@@ -2735,6 +2670,8 @@
 
             document.getElementById('showDoctor1').checked = localStorage.getItem('showDoctor1') !== 'false';
             document.getElementById('showDoctor2').checked = localStorage.getItem('showDoctor2') !== 'false';
+            document.getElementById('showDoctor3').checked = localStorage.getItem('showDoctor3') !== 'false';
+            document.getElementById('showDoctor4').checked = localStorage.getItem('showDoctor4') !== 'false';
             
             document.getElementById('tableWidth').value = localStorage.getItem('tableWidth') || '100';
             document.getElementById('cellPadding').value = localStorage.getItem('cellPadding') || '8';
@@ -2752,6 +2689,8 @@
             localStorage.setItem('biologistName', document.getElementById('biologistNameInput').value);
             localStorage.setItem('doctor1Name', document.getElementById('doctor1Name').value);
             localStorage.setItem('doctor2Name', document.getElementById('doctor2Name').value);
+            localStorage.setItem('doctor3Name', document.getElementById('doctor3Name').value);
+            localStorage.setItem('doctor4Name', document.getElementById('doctor4Name').value);
 
             localStorage.setItem('headerColor', document.getElementById('headerColor').value);
             localStorage.setItem('backgroundColor', document.getElementById('backgroundColor').value);
@@ -2771,13 +2710,6 @@
                 localStorage.setItem('labLogo', logoPreview.src);
             } else {
                 localStorage.removeItem('labLogo');
-            }
-
-            const backgroundPreview = document.getElementById('backgroundPreview');
-            if (backgroundPreview.src && backgroundPreview.src !== '') {
-                localStorage.setItem('printBackground', backgroundPreview.src);
-            } else {
-                localStorage.removeItem('printBackground');
             }
 
             localStorage.setItem('titleFontSize', document.getElementById('titleFontSize').value);
@@ -2820,6 +2752,8 @@
 
             localStorage.setItem('showDoctor1', document.getElementById('showDoctor1').checked);
             localStorage.setItem('showDoctor2', document.getElementById('showDoctor2').checked);
+            localStorage.setItem('showDoctor3', document.getElementById('showDoctor3').checked);
+            localStorage.setItem('showDoctor4', document.getElementById('showDoctor4').checked);
 
             localStorage.setItem('tableWidth', document.getElementById('tableWidth').value);
             localStorage.setItem('cellPadding', document.getElementById('cellPadding').value);
@@ -2848,19 +2782,23 @@
             const labHeader = localStorage.getItem('labHeader') || '';
             const labAddress = localStorage.getItem('labAddress') || '  للشراء البرنامج تواصل معنا';
             const labPhone = localStorage.getItem('labPhone') || '07901821264';
-            const biologistName = localStorage.getItem('biologistName') || 'شكراً لزيارتكم';
+            const biologistName = localStorage.getItem('biologistName') || 'شكراً لزيارتككم';
             const doctor1Name = localStorage.getItem('doctor1Name') || 'الاول اسم الطبيب او التقني او البايلوجي';
             const doctor2Name = localStorage.getItem('doctor2Name') || ' الثاني اسم الطبيب او التقني او البايلوجي';
+            const doctor3Name = localStorage.getItem('doctor3Name') || ' الثالث اسم الطبيب او التقني او البايلوجي';
+            const doctor4Name = localStorage.getItem('doctor4Name') || ' الرابع اسم الطبيب او التقني او البايلوجي';
 
-            document.getElementById('watermark').textContent = 'برنامج اوسكار';
             // العنوان ثابت - لا يتم تغييره
-            document.getElementById('labTitle').textContent = 'برنامج اوسكار';
+         
+
             document.getElementById('customHeader').textContent = labHeader;
             document.getElementById('biologistName').textContent = biologistName;
             document.getElementById('labAddress').textContent = labAddress;
             document.getElementById('labPhone').textContent = labPhone;
             document.getElementById('doctor1').textContent = doctor1Name;
             document.getElementById('doctor2').textContent = doctor2Name;
+            document.getElementById('doctor3').textContent = doctor3Name;
+            document.getElementById('doctor4').textContent = doctor4Name;
 
             const savedLogo = localStorage.getItem('labLogo');
             const logoElement = document.getElementById('labLogo');
@@ -2890,7 +2828,7 @@
             document.documentElement.style.setProperty('--range-font-size', (localStorage.getItem('rangeFontSize') || '16') + 'px');
             document.documentElement.style.setProperty('--footer-font-size', (localStorage.getItem('footerFontSize') || '14') + 'px');
             document.documentElement.style.setProperty('--doctor-font-size', (localStorage.getItem('doctorFontSize') || '14') + 'px');
-            document.documentElement.style.setProperty('--patient-info-font-size', (localStorage.getItem('patientInfoFontSize') || '14') + 'px');
+            document.documentElement.style.setProperty('--patient-info-font-size', (localStorage.getItem('patientInfoFontSize') || '12') + 'px');
             document.documentElement.style.setProperty('--section-title-font-size', (localStorage.getItem('sectionTitleFontSize') || '20') + 'px');
 
             document.documentElement.style.setProperty('--title-font-color', localStorage.getItem('titleFontColor') || '#0056b3');
@@ -2927,19 +2865,23 @@
             document.documentElement.style.setProperty('--input-height', (localStorage.getItem('inputHeight') || '30') + 'px');
             document.documentElement.style.setProperty('--print-margin-top', (localStorage.getItem('printMarginTop') || '0.7') + 'cm');
             document.documentElement.style.setProperty('--print-margin-bottom', (localStorage.getItem('printMarginBottom') || '1.2') + 'cm');
-            document.documentElement.style.setProperty('--print-margin-left', localStorage.getItem('printMarginLeft') || '0.7' + 'cm');
-            document.documentElement.style.setProperty('--print-margin-right', localStorage.getItem('printMarginRight') || '0.7' + 'cm');
+            document.documentElement.style.setProperty('--print-margin-left', (localStorage.getItem('printMarginLeft') || '0.7') + 'cm');
+            document.documentElement.style.setProperty('--print-margin-right', (localStorage.getItem('printMarginRight') || '0.7') + 'cm');
 
             const showDoctor1 = localStorage.getItem('showDoctor1') !== 'false';
             const showDoctor2 = localStorage.getItem('showDoctor2') !== 'false';
+            const showDoctor3 = localStorage.getItem('showDoctor3') !== 'false';
+            const showDoctor4 = localStorage.getItem('showDoctor4') !== 'false';
             document.getElementById('doctor1').classList.toggle('hidden', !showDoctor1);
             document.getElementById('doctor2').classList.toggle('hidden', !showDoctor2);
+            document.getElementById('doctor3').classList.toggle('hidden', !showDoctor3);
+            document.getElementById('doctor4').classList.toggle('hidden', !showDoctor4);
 
             const doctorsContainer = document.querySelector('.doctors-container');
-            if (!showDoctor1 && !showDoctor2) {
+            if (!showDoctor1 && !showDoctor2 && !showDoctor3 && !showDoctor4) {
                 doctorsContainer.style.display = 'none';
             } else {
-                doctorsContainer.style.display = 'flex';
+                doctorsContainer.style.display = 'grid';
             }
         }
 
@@ -3567,7 +3509,7 @@
                 customTests[sectionId] = [];
             }
             
-            // التحقق من عدم التكرار في التحاليل المخصصة
+            // التحقق من عدم عدم التكرار في التحاليل المخصصة
             const existingTest = customTests[sectionId].find(test => test.name === testName);
             if (existingTest) {
                 alert('هذا التحليل موجود بالفعل.');
@@ -4217,15 +4159,6 @@
                 section.classList.add('active');
             });
 
-            const savedBackground = localStorage.getItem('printBackground');
-            if (savedBackground) {
-                document.body.style.backgroundImage = `url('${savedBackground}')`;
-                document.body.style.backgroundSize = '21cm 29.7cm';
-                document.body.style.backgroundPosition = 'center top';
-                document.body.style.backgroundRepeat = 'repeat-y';
-                document.body.style.backgroundAttachment = 'local';
-            }
-
             // إخفاء الصفوف الفارغة
             const allResultInputs = document.querySelectorAll('.result-input, .result-select');
             allResultInputs.forEach(input => {
@@ -4295,12 +4228,6 @@
                 element.classList.remove('no-print-row', 'no-print-item', 'no-print-section');
             });
             showSelectedSection();
-
-            document.body.style.backgroundImage = '';
-            document.body.style.backgroundSize = '';
-            document.body.style.backgroundPosition = '';
-            document.body.style.backgroundRepeat = '';
-            document.body.style.backgroundAttachment = '';
         }
 
         function printPage() {
@@ -4382,7 +4309,14 @@
             });
         }
 
-        // إضافة مستمعين للخروج من النوافذ المنبثقة باستخدام ESC
+        // إغلاق الـ dropdown عند النقر خارجها
+        document.addEventListener('click', function(event) {
+            if (!event.target.closest('.patient-visits-dropdown')) {
+                document.querySelectorAll('.visits-dropdown-content').forEach(dd => dd.classList.remove('show'));
+            }
+        });
+
+        // إغلاق النوافذ المنبثقة باستخدام ESC
         document.addEventListener('keydown', function(event) {
             if (event.key === 'Escape') {
                 const modals = document.querySelectorAll('.modal');
@@ -4416,3 +4350,4 @@
     </script>
 </body>
 </html>
+اريد عند استخدام المسافة في كتابة اسم الطبيب تضهر وايضا اضف امكانية تغيير الحقل يكون  عامودي افقي 
