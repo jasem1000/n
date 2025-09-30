@@ -1334,6 +1334,12 @@
             font-weight: var(--main-font-weight);
         }
 
+        /* Force printing of backgrounds and colors */
+        .section-title, .patient-info, .test-name, .normal-range, .result-input, .result-select, th {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
         @media print {
             @page {
                 size: A4;
@@ -4290,7 +4296,7 @@
             
             let filledTests = [];
 
-            // التحقق من الـ inputs والـ selects العادية
+            // التحقق من الـ inputs والـselects العادية
             const allResultInputs = document.querySelectorAll('.result-input, .result-select');
             allResultInputs.forEach(input => {
                 const hasValue = input.value && input.value.trim() !== '' && 
@@ -4361,36 +4367,4 @@
         });
 
         // إغلاق النوافذ المنبثقة باستخدام ESC
-        document.addEventListener('keydown', function(event) {
-            if (event.key === 'Escape') {
-                const modals = document.querySelectorAll('.modal');
-                modals.forEach(modal => {
-                    if (modal.style.display === 'block') {
-                        modal.style.display = 'none';
-                    }
-                });
-                const settingsPanel = document.getElementById('settingsPanel');
-                if (settingsPanel.style.display === 'block') {
-                    toggleSettings();
-                }
-            }
-        });
-
-        // تهيئة الصفحة
-        document.addEventListener('DOMContentLoaded', function() {
-            // تعيين التاريخ الحالي
-            setCurrentDate();
-            setIssueDate();
-            
-            // تهيئة قاعدة البيانات
-            initDb();
-            
-            // تحميل هيكل المختبر
-            loadLabStructure();
-            
-            // تطبيق الإعدادات
-            applySettings();
-        });
-    </script>
-</body>
-</html>
+        document.addEventListener('keydown
