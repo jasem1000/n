@@ -1334,12 +1334,6 @@
             font-weight: var(--main-font-weight);
         }
 
-        /* Force printing of backgrounds and colors */
-        .section-title, .patient-info, .test-name, .normal-range, .result-input, .result-select, th {
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
-        }
-
         @media print {
             @page {
                 size: A4;
@@ -1395,6 +1389,7 @@
                 margin-bottom: 0;
                 padding: 0px;
                 font-size: var(--patient-info-font-size); /* الحفاظ على الحجم في الطباعة */
+                background-color: var(--patient-info-bg); /* الحفاظ على خلفية معلومات المريض في الطباعة */
             }
 
             .logo {
@@ -1428,6 +1423,7 @@
                 appearance: none !important; /* إخفاء السهم المنسدل للـ select في الطباعة */
                 -webkit-appearance: none !important;
                 -moz-appearance: none !important;
+                color: var(--result-font-color);
             }
 
             .multiple-choice-container {
@@ -1473,11 +1469,13 @@
             .test-name {
                 text-align: center;
                 background-color: var(--test-name-bg-color); /* الحفاظ على خلفية أسماء التحاليل في الطباعة */
+                color: var(--test-name-font-color);
             }
 
             .normal-range {
                 text-align: center;
                 background-color: var(--normal-range-bg-color); /* الحفاظ على خلفية النورمل رانج في الطباعة */
+                color: var(--range-font-color);
             }
 
             .footer {
@@ -1505,7 +1503,7 @@
                 border-top: 2px solid #000;
                 padding: 15px;
                 font-size: 12px;
-                color: #000;
+                color: var(--footer-font-color);
                 background-color: var(--footer-bg);
                 margin: 0;
                 width: 100%;
@@ -1522,7 +1520,7 @@
             }
 
             .lab-footer-title {
-                color: #000;
+                color: var(--footer-font-color);
             }
 
             /* Print styles for stats and patients */
@@ -1544,6 +1542,18 @@
             /* إخفاء العناصر المطلوبة في الطباعة */
             
             
+            h1 {
+                color: var(--title-font-color);
+            }
+
+            .doctor-name {
+                color: var(--doctor-font-color);
+            }
+
+            .info-label {
+                color: var(--header-color);
+            }
+
         }
 
         @media (max-width: 600px) {
@@ -3002,7 +3012,7 @@
 
         // دوال إدارة هيكل المختبر
         function loadLabStructure() {
-            const customSections = JSON.parse(localStorage.getItem('customSections')) || {};
+            const customSections = JSON.parse(localStorage.getItem('customSections') || '{}');
             const customTests = JSON.parse(localStorage.getItem('customTests') || '{}');
             const customSectionTitles = JSON.parse(localStorage.getItem('customSectionTitles') || '{}');
 
@@ -3531,7 +3541,7 @@
             
             // إضافة الخيارات إذا كانت اختيار واحد أو متعدد
             if (answerType === 'select' || answerType === 'multiple') {
-                const choiceInputs = document.querySelectorAll('#choice-items .choice-text-input');
+                const choiceInputs = document.querySelectorAll('#choice-items.choice-text-input');
                 const choices = [];
                 let hasEmptyChoice = false;
                 
@@ -4296,7 +4306,7 @@
             
             let filledTests = [];
 
-            // التحقق من الـ inputs والـselects العادية
+            // التحقق من الـ inputs والـ selects العادية
             const allResultInputs = document.querySelectorAll('.result-input, .result-select');
             allResultInputs.forEach(input => {
                 const hasValue = input.value && input.value.trim() !== '' && 
@@ -4367,4 +4377,36 @@
         });
 
         // إغلاق النوافذ المنبثقة باستخدام ESC
-        document.addEventListener('keydown
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                const modals = document.querySelectorAll('.modal');
+                modals.forEach(modal => {
+                    if (modal.style.display === 'block') {
+                        modal.style.display = 'none';
+                    }
+                });
+                const settingsPanel = document.getElementById('settingsPanel');
+                if (settingsPanel.style.display === 'block') {
+                    toggleSettings();
+                }
+            }
+        });
+
+        // تهيئة الصفحة
+        document.addEventListener('DOMContentLoaded', function() {
+            // تعيين التاريخ الحالي
+            setCurrentDate();
+            setIssueDate();
+            
+            // تهيئة قاعدة البيانات
+            initDb();
+            
+            // تحميل هيكل المختبر
+            loadLabStructure();
+            
+            // تطبيق الإعدادات
+            applySettings();
+        });
+    </script>
+</body>
+</html>
