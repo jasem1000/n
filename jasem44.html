@@ -1,5 +1,4 @@
-
-
+```html
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -81,6 +80,9 @@
             --border-radius-medium: 12px;
             --transition-fast: 0.2s ease;
             --transition-slow: 0.3s ease;
+
+            /* إضافة جديدة لتخطيط معلومات المريض */
+            --patient-info-columns: repeat(auto-fit, minmax(200px, 1fr)); /* افتراضي أفقي */
         }
 
         * {
@@ -183,6 +185,8 @@
             background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(240,255,240,0.95) 100%);
             box-shadow: var(--shadow-light);
             transition: all var(--transition-slow);
+            white-space: pre-wrap; /* للحفاظ على المسافات في أسماء الأطباء */
+            word-wrap: break-word; /* لكسر الكلمات الطويلة */
         }
 
         .header .doctor-name:hover {
@@ -194,7 +198,7 @@
             font-size: var(--patient-info-font-size);
             font-weight: var(--patient-info-font-weight);
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: var(--patient-info-columns);
             gap: 0px;
             margin-bottom: 8px;
             padding: 6px;
@@ -1932,6 +1936,14 @@
             </div>
         </div>
         
+        <div class="settings-group">
+            <h3>تخطيط معلومات المريض</h3>
+            <select id="patientInfoLayout" class="settings-select">
+                <option value="horizontal">أفقي (افتراضي)</option>
+                <option value="vertical">عامودي</option>
+            </select>
+        </div>
+        
         <button class="settings-btn" onclick="saveSettings()">حفظ الإعدادات</button>
         <button class="settings-btn" onclick="resetSettings()" style="background: #c20b0b;">إعادة الضبط</button>
         <button class="settings-btn" onclick="toggleSettings()">إغلاق</button>
@@ -2680,6 +2692,9 @@
             document.getElementById('printMarginBottom').value = localStorage.getItem('printMarginBottom') || '1.2';
             document.getElementById('printMarginLeft').value = localStorage.getItem('printMarginLeft') || '0.7';
             document.getElementById('printMarginRight').value = localStorage.getItem('printMarginRight') || '0.7';
+
+            // تحميل تخطيط معلومات المريض
+            document.getElementById('patientInfoLayout').value = localStorage.getItem('patientInfoLayout') || 'horizontal';
         }
 
         function saveSettings() {
@@ -2762,6 +2777,9 @@
             localStorage.setItem('printMarginBottom', document.getElementById('printMarginBottom').value);
             localStorage.setItem('printMarginLeft', document.getElementById('printMarginLeft').value);
             localStorage.setItem('printMarginRight', document.getElementById('printMarginRight').value);
+
+            // حفظ تخطيط معلومات المريض
+            localStorage.setItem('patientInfoLayout', document.getElementById('patientInfoLayout').value);
 
             applySettings();
             toggleSettings();
@@ -2883,6 +2901,11 @@
             } else {
                 doctorsContainer.style.display = 'grid';
             }
+
+            // تطبيق تخطيط معلومات المريض
+            const layout = localStorage.getItem('patientInfoLayout') || 'horizontal';
+            const columns = layout === 'vertical' ? '1fr' : 'repeat(auto-fit, minmax(200px, 1fr))';
+            document.documentElement.style.setProperty('--patient-info-columns', columns);
         }
 
         function toggleSettings() {
@@ -3466,7 +3489,7 @@
                 return;
             }
             
-            // التحقق من عدم تكرار التحليل
+            // التحقق من عدم عدم تكرار التحليل
             const selectedSection = labStructure.find(sec => sec.id === sectionId);
             if (selectedSection && selectedSection.tests[testName]) {
                 alert('هذا التحليل موجود بالفعل في هذا القسم.');
@@ -4350,4 +4373,4 @@
     </script>
 </body>
 </html>
-اريد عند استخدام المسافة في كتابة اسم الطبيب تضهر وايضا اضف امكانية تغيير الحقل يكون  عامودي افقي 
+```
