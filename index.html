@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -22,7 +21,7 @@
             --range-font-size: 16px;
             --footer-font-size: 14px;
             --doctor-font-size: 14px;
-            --patient-info-font-size: 12px; /* تم تصغير حجم خط معلومات المريض افتراضياً */
+            --patient-info-font-size: 12px;
             --title-font-color: #0056b3;
             --test-name-font-color: #212529;
             --result-font-color: #212529;
@@ -80,9 +79,6 @@
             --border-radius-medium: 12px;
             --transition-fast: 0.2s ease;
             --transition-slow: 0.3s ease;
-
-            /* إضافة جديدة لتخطيط معلومات المريض */
-            --patient-info-columns: repeat(auto-fit, minmax(200px, 1fr)); /* افتراضي أفقي */
         }
 
         * {
@@ -165,8 +161,7 @@
         }
 
         .doctors-container {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr); /* اثنين في كل سطر */
+            display: flex;
             justify-content: center;
             width: 100%;
             gap: 15px;
@@ -185,8 +180,6 @@
             background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(240,255,240,0.95) 100%);
             box-shadow: var(--shadow-light);
             transition: all var(--transition-slow);
-            white-space: pre-wrap; /* للحفاظ على المسافات في أسماء الأطباء */
-            word-wrap: break-word; /* لكسر الكلمات الطويلة */
         }
 
         .header .doctor-name:hover {
@@ -198,20 +191,22 @@
             font-size: var(--patient-info-font-size);
             font-weight: var(--patient-info-font-weight);
             display: grid;
-            grid-template-columns: var(--patient-info-columns);
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 0px;
-            margin-bottom: 8px;
-            padding: 6px;
+            margin-bottom: 0px;
+            padding: 15px;
             border: 1px solid rgba(0,0,0,0.1);
             border-radius: var(--border-radius-small);
             background-color: var(--patient-info-bg);
+            direction: rtl; /* تغيير الاتجاه إلى من اليسار إلى اليمين للترتيب من اليمين إلى اليسار (بناءً على الطلب المعاد تفسيره) */
+            
         }
 
         .info-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 4px 0; /* تم تصغير البادينج لتصغير معلومات المريض */
+            padding: 4px 0;
         }
 
         .info-label {
@@ -224,9 +219,9 @@
             font-weight: var(--patient-info-font-weight);
             font-size: var(--patient-info-font-size);
             border: 1px dashed var(--button-color);
-            padding: 4px 8px; /* تم تصغير البادينج لتصغير معلومات المريض */
+            padding: 4px 8px;
             border-radius: var(--border-radius-small);
-            min-width: 120px; /* تم تصغير العرض الأدنى */
+            min-width: 120px;
             text-align: right;
             background-color: white;
             font-family: var(--main-font);
@@ -301,14 +296,15 @@
             font-family: var(--subtitle-font);
         }
 
-        td:first-child { width: 40%; text-align: center; padding: var(--cell-padding); }
-        td:nth-child(2) { width: 30%; }
-        td:last-child { width: 30%; }
+        td:first-child { width: 30%; text-align: center; padding: var(--cell-padding); }
+        td:nth-child(2) { width: 20%; }
+        td:nth-child(3) { width: 20%; }
+        td:nth-child(4) { width: 30%; }
 
         .test-name {
             font-size: var(--test-name-font-size);
             font-weight: var(--test-font-weight);
-            background-color: var(--test-name-bg-color); /* خلفية أسماء التحاليل */
+            background-color: var(--test-name-bg-color);
             color: var(--test-name-font-color);
             font-family: var(--test-font);
         }
@@ -319,7 +315,7 @@
             color: var(--range-font-color);
             direction: ltr;
             font-family: var(--range-font);
-            background-color: var(--normal-range-bg-color); /* خلفية النورمل رانج */
+            background-color: var(--normal-range-bg-color);
         }
 
         .result-container {
@@ -337,7 +333,7 @@
             text-align: center;
             font-family: var(--result-font);
             font-weight: var(--result-font-weight);
-            background-color: var(--result-bg-color); /* خلفية النتائج */
+            background-color: var(--result-bg-color);
             font-size: var(--result-font-size);
             direction: rtl;
             color: var(--result-font-color);
@@ -1145,6 +1141,15 @@
             box-shadow: var(--shadow-light);
         }
 
+        .total-price {
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            margin: 20px 0;
+            color: #4CAF50;
+            display: none; /* مخفي في الطباعة */
+        }
+
         .no-print-row, .no-print-item, .no-print-section {
             display: none !important;
         }
@@ -1332,22 +1337,40 @@
             font-weight: var(--main-font-weight);
         }
 
+        /* خصائص عامة جديدة (أضف في نهاية الـ CSS قبل @media) */
+        .print-table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed; /* لتحسين التوزيع */
+        }
+
+        .header-space,
+        .footer-space {
+            height:0cm; /* ارتفاع الهيدر الأصلي (اضبطه حسب حاجتك، مثل 4.5cm للهيدر) */
+        }
+
+       
+
         @media print {
             @page {
                 size: A4;
-                margin: var(--print-margin-top) var(--print-margin-right) var(--print-margin-bottom) var(--print-margin-left);
+                margin: 0;
             }
 
-            body, html {
+            html, body {
                 width: 100%;
-                height: auto;
+                height: auto; /* غير إلى auto للسماح بصفحات متعددة */
                 margin: 0;
                 padding: 0;
                 background: white;
                 font-size: 10pt;
-                display: flex;
-                flex-direction: column;
-                min-height: 100vh;
+                background-size: 21cm 29.7cm; /* حجم A4 */
+                background-position: center top;
+                background-repeat: repeat-y; /* تكرار الخلفية في كل صفحة جديدة */
+                background-attachment: local; /* لتكرار صحيح في الصفحات المتعددة */
+                -webkit-print-color-adjust: exact; /* دعم طباعة الخلفيات في Chrome */
+                print-color-adjust: exact; /* دعم في المتصفحات الأخرى */
+                page-break-inside: auto; /* السماح بكسر الصفحات */
             }
 
             body * {
@@ -1358,49 +1381,79 @@
                 width: 100%;
                 max-width: 100%;
                 margin: 0;
-                padding: 15px;
+                padding: 0; /* إزالة padding الداخلي للسماح بالكسر الطبيعي */
                 box-shadow: none;
                 border-radius: 0;
                 flex-grow: 1;
+                background-color: transparent !important;
+                position: relative;
+                page-break-after: auto; /* كسر تلقائي بعد المحتوى */
             }
 
-            .no-print, .action-buttons, .test-selection, .settings-toggle, .filled-tests {
+            .no-print, .action-buttons, .test-selection, .settings-toggle, .filled-tests, .total-price {
                 display: none !important;
             }
 
             .section {
                 display: block;
-                page-break-inside: avoid;
+                page-break-inside: auto; /* كسر داخل القسم إذا كان طويلاً */
+                page-break-after: auto; /* كسر بعد القسم */
+                page-break-before: avoid; /* تجنب بدء قسم في صفحة جديدة إلا إذا لزم */
                 border: var(--table-border-width) solid #ddd;
                 margin-bottom: 15px;
                 box-shadow: none;
             }
 
+            .section-title {
+                page-break-after: avoid;
+            }
+
+            table {
+                width: var(--table-width);
+                page-break-inside: auto; /* كسر الجدول عبر صفحات */
+            }
+
+            tr {
+                page-break-inside: avoid; /* تجنب كسر داخل سطر */
+                page-break-after: auto; /* كسر بعد سطر */
+            }
+
+            /* جعل الهيدر والفوتر ثابتين مع تكرار */
             .header {
-                border-bottom: 2px solid #000;
-                margin-bottom: 15px;
-                padding-bottom: 15px;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                z-index: 1000;
+                height: 4.5cm;
+                display: block !important;
+            }
+
+            .lab-footer {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                z-index: 1000;
+                height: 3cm;
+                display: block !important;
             }
 
             .patient-info {
-                border: 1px solid #000000;
-                margin-bottom: 0;
-                padding: 0px;
-                font-size: var(--patient-info-font-size); /* الحفاظ على الحجم في الطباعة */
+                margin: 0;
+                padding: 0cm;
+                background-color: rgb(97, 236, 246);
             }
+/* الحل الجديد: جعل الجدول وكل خلاياه شفافاً بالكامل عند الطباعة */
 
-            .logo {
-                background: white;
-                color: var(--button-color);
-                border: 2px solid var(--button-color);
-            }
-
-            .section-title {
-                background-color: var(--section-title-bg-color);
-                color: var(--section-title-font-color);
+            
+          .section-title {
+                background: #f2f2f2;
+                color: #000;
                 border-bottom: 1px solid #ddd;
                 padding: 10px 15px;
                 font-size: 16px;
+                page-break-after: avoid; /* تجنب فاصل بعد العنوان */
             }
 
             .editable-field, .signature-input {
@@ -1413,13 +1466,10 @@
             .result-input, .result-select {
                 height: var(--input-height);
                 border: none;
-                background-color: var(--result-bg-color); /* الحفاظ على خلفية النتائج في الطباعة */
+                background-color: transparent;
                 padding: 0;
                 text-align: center !important;
                 width: 100%;
-                appearance: none !important; /* إخفاء السهم المنسدل للـ select في الطباعة */
-                -webkit-appearance: none !important;
-                -moz-appearance: none !important;
             }
 
             .multiple-choice-container {
@@ -1428,6 +1478,58 @@
                 gap: 0;
                 font-size: 12px;
             }
+    /* ... باقي الأكواد ... */
+    
+    /* جعل كل المحتوى والحاويات شفافة تماماً */
+    body {
+        background-color: transparent !important;
+    }
+    
+    .container {
+        background-color: transparent !important;
+        background: transparent !important;
+    }
+    
+    .print-table,
+    .print-table tbody,
+    .print-table tfoot,
+    .print-table thead {
+        background-color: transparent !important;
+        background: transparent !important;
+    }
+    
+    .print-table tbody tr,
+    .print-table tbody td,
+    .print-table tfoot tr,
+    .print-table tfoot td {
+        background-color: transparent !important;
+        background: transparent !important;
+    }
+    
+    .results-container {
+        background-color: transparent !important;
+        background: transparent !important;
+    }
+    
+    /* جعل كل الصفحة شفافة */
+    * {
+        background-color: transparent !important;
+    }
+    
+    /* استثناء فقط للعناصر التي تحتاج خلفية */
+    .section-title,
+    .patient-info,
+    .test-name {
+        background-color: var(--section-title-bg-color) !important;
+    }
+    
+    .patient-info {
+        background-color: rgb(97, 236, 246) !important;
+    }
+    
+    .test-name {
+        background-color: var(--test-name-bg-color) !important;
+    }
 
             .choice-option {
                 margin: 0;
@@ -1464,19 +1566,13 @@
 
             .test-name {
                 text-align: center;
-                background-color: var(--test-name-bg-color); /* الحفاظ على خلفية أسماء التحاليل في الطباعة */
             }
 
             .normal-range {
                 text-align: center;
-                background-color: var(--normal-range-bg-color); /* الحفاظ على خلفية النورمل رانج في الطباعة */
             }
 
-            .footer {
-                margin-top: 20px;
-                padding-top: 15px;
-                font-size: 12px;
-            }
+         
 
             .signature-area {
                 margin-top: 25px;
@@ -1491,32 +1587,13 @@
             .lab-footer {
                 position: fixed;
                 bottom: 0;
-                left: 0;
-                right: 0;
-                display: block;
-                border-top: 2px solid #000;
-                padding: 15px;
-                font-size: 12px;
-                color: #000;
-                background-color: var(--footer-bg);
-                margin: 0;
                 width: 100%;
-                box-sizing: border-box;
+                height: 3cm; /* مسافة 3cm للفوتر */
+                display: block !important; /* إظهار في الطباعة */
             }
-
-            .lab-footer-content {
-                max-width: 100%;
-                grid-template-columns: repeat(3, 1fr);
-            }
-
-            .lab-footer-item {
-                text-align: center;
-            }
-
-            .lab-footer-title {
-                color: #000;
-            }
-
+                .header, .lab-footer {
+        display: none !important;
+    }
             /* Print styles for stats and patients */
             .stats-table, .patients-table {
                 font-size: 12px;
@@ -1534,8 +1611,12 @@
             }
 
             /* إخفاء العناصر المطلوبة في الطباعة */
-            
-            
+               .header-space {
+                height: 4.5cm; /* ارتفاع الهيدر الأصلي (اضبطه حسب حاجتك، مثل 4.5cm للهيدر) */
+            }
+            .footer-space {
+                height: 2.5cm; /* ارتفاع الهيدر الأصلي (اضبطه حسب حاجتك، مثل 4.5cm للهيدر) */
+            }
         }
 
         @media (max-width: 600px) {
@@ -1589,14 +1670,77 @@
                 flex-direction: column;
                 gap: 10px;
             }
+        }
 
-            .doctors-container {
-                grid-template-columns: 1fr; /* في الشاشات الصغيرة، واحد في كل سطر */
-            }
+        /* Styles for login modal */
+        #loginModal {
+            display: block;
+            position: fixed;
+            z-index: 10000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.5);
+            padding-top: 60px;
+        }
+
+        #loginModal .modal-content {
+            max-width: 400px;
+            padding: 30px;
+        }
+
+        .login-input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius-small);
+        }
+
+        .login-btn {
+            background: var(--button-color);
+            color: white;
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: var(--border-radius-small);
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .login-btn:hover {
+            background: #388E3C;
+        }
+
+        .total-price {
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            margin: 20px 0;
+            color: #4CAF50;
+            display: none; /* مخفي في الطباعة */
+        }
+
+        .test-price {
+            font-size: 14px;
+            color: #666;
+            text-align: center;
         }
     </style>
 </head>
 <body>
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <h2 style="text-align: center; margin-bottom: 20px;">تسجيل الدخول</h2>
+            <input type="text" id="usernameInput" class="login-input" placeholder="اسم المستخدم (admin)">
+            <input type="password" id="passwordInputLogin" class="login-input" placeholder="كلمة المرور (password)">
+            <button class="login-btn" onclick="login()">دخول</button>
+        </div>
+    </div>
+
     <div class="settings-toggle no-print" onclick="toggleSettings()">
         <i class="fas fa-cog"></i>
     </div>
@@ -1616,8 +1760,6 @@
             <input type="text" id="biologistNameInput" class="settings-input" placeholder="اسم البايلوجي">
             <input type="text" id="doctor1Name" class="settings-input" placeholder="اسم الدكتور الأول">
             <input type="text" id="doctor2Name" class="settings-input" placeholder="اسم الدكتور الثاني">
-            <input type="text" id="doctor3Name" class="settings-input" placeholder="اسم الدكتور الثالث">
-            <input type="text" id="doctor4Name" class="settings-input" placeholder="اسم الدكتور الرابع">
         </div>
         
         <div class="settings-group">
@@ -1629,6 +1771,18 @@
             </button>
             <button class="logo-upload-btn" onclick="resetLogo()" style="background: #f44336;">
                 <i class="fas fa-trash"></i> إعادة اللوغو الافتراضي
+            </button>
+        </div>
+        
+        <div class="settings-group">
+            <h3>خلفية الطباعة</h3>
+            <img id="backgroundPreview" src="" alt="معاينة الخلفية" style="display: none; width: 200px; height: auto; margin: 12px auto; border: 2px dashed var(--button-color); box-shadow: var(--shadow-light);">
+            <input type="file" id="backgroundUpload" accept="image/*" style="display: none;" onchange="handleBackgroundUpload(event)">
+            <button class="logo-upload-btn" onclick="document.getElementById('backgroundUpload').click()">
+                <i class="fas fa-upload"></i> تحميل خلفية الطباعة
+            </button>
+            <button class="logo-upload-btn" onclick="resetBackground()" style="background: #f44336;">
+                <i class="fas fa-trash"></i> إزالة الخلفية
             </button>
         </div>
         
@@ -1712,7 +1866,7 @@
             </div>
             <div class="font-size-picker">
                 <label>حجم خطوط معلومات المريض:</label>
-                <input type="number" id="patientInfoFontSize" class="font-size-input" value="12" min="10" max="30"> px
+                <input type="number" id="patientInfoFontSize" class="font-size-input" value="14" min="10" max="30"> px
             </div>
             <div class="font-size-picker">
                 <label>حجم عنوان القسم:</label>
@@ -1894,14 +2048,6 @@
                 <input type="checkbox" id="showDoctor2" checked>
                 <label for="showDoctor2">إظهار الدكتور الثاني</label>
             </div>
-            <div style="display: flex; gap: 10px; align-items: center;">
-                <input type="checkbox" id="showDoctor3" checked>
-                <label for="showDoctor3">إظهار الدكتور الثالث</label>
-            </div>
-            <div style="display: flex; gap: 10px; align-items: center;">
-                <input type="checkbox" id="showDoctor4" checked>
-                <label for="showDoctor4">إظهار الدكتور الرابع</label>
-            </div>
         </div>
         
         <div class="settings-group">
@@ -1936,64 +2082,31 @@
             </div>
         </div>
         
-        <div class="settings-group">
-            <h3>تخطيط معلومات المريض</h3>
-            <select id="patientInfoLayout" class="settings-select">
-                <option value="horizontal">أفقي (افتراضي)</option>
-                <option value="vertical">عامودي</option>
-            </select>
-        </div>
-        
         <button class="settings-btn" onclick="saveSettings()">حفظ الإعدادات</button>
         <button class="settings-btn" onclick="resetSettings()" style="background: #c20b0b;">إعادة الضبط</button>
         <button class="settings-btn" onclick="toggleSettings()">إغلاق</button>
     </div>
 
-    <div class="watermark" id="watermark">برنامج اوسكار  </div>
     
-    <div class="container">
+    <div class="container" id="mainContainer" style="display: none;">
         <div class="header">
             <div class="logo-container">
                 <div class="logo" id="labLogo">
                     <i class="fas fa-microscope"></i>
                 </div>
                 <div class="header-text">
-                    <h1 id="labTitle">   مختبر الدكتورة نور جعفر التخصصي</h1>
+                    <h1 id="labTitle"> مختبر الدكتورة نور جعفر التخصصي</h1>
                     <div class="doctors-container">
                         <div class="doctor-name" id="doctor1">  الاول اسم الطبيب او التقني او البايلوجي  </div>
                         <div class="doctor-name" id="doctor2">   الثاني اسم الطبيب او التقني او البايلوجي    </div>
-                        <div class="doctor-name" id="doctor3">   الثالث اسم الطبيب او التقني او البايلوجي    </div>
-                        <div class="doctor-name" id="doctor4">   الرابع اسم الطبيب او التقني او البايلوجي    </div>
                     </div>
                 </div>
             </div>
             <div id="customHeader" class="custom-header"></div>
         </div>
         
-        <div class="patient-info" id="patientInfoSection">
-            <div class="info-item">
-                <span class="info-label">اسم المريض:</span>
-                <input type="text" class="editable-field" value="" id="patientName" placeholder="اسم المريض">
-            </div>
-            <div class="info-item">
-                <span class="info-label">العمر:</span>
-                <input type="text" class="editable-field" value="" id="patientAge" placeholder="العمر">
-            </div>
-            <div class="info-item">
-                <span class="info-label">الجنس:</span>
-                <input type="text" class="editable-field" value="" id="patientGender" placeholder="الجنس">
-            </div>
-            <div class="info-item">
-                <span class="info-label">تاريخ الإجراء:</span>
-                <input type="text" class="editable-field" id="currentDate">
-            </div>
-            <div class="info-item">
-                <span class="info-label">الطبيب المعالج:</span>
-                <input type="text" class="editable-field" value="" id="doctorName" placeholder="اسم الطبيب">
-            </div>
-        </div>
-        
         <div class="filled-tests no-print" id="filledTests"></div>
+        <div class="total-price no-print" id="totalPrice"></div> <!-- إضافة عنصر للإجمالي -->
 
         <div class="test-selection no-print">
             <label for="test-select">اختر قسم التحليل:</label>
@@ -2028,11 +2141,75 @@
                 <i class="fas fa-users"></i> قائمة المرضى
             </button>
         </div>
+
+        <table class="print-table">  <!-- جدول رئيسي جديد للطباعة -->
+            <thead>
+                <tr>
+                    <td>
+                        <div class="header-space">&nbsp;</div>  <!-- حجز مساحة للهيدر (ارتفاع حسب الهيدر الأصلي، مثل 4.5cm) -->
+                    </td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <div class="patient-info" id="patientInfoSection">
+                            <div class="info-item">
+                                <span class="info-label">اسم المريض:</span>
+                                <input type="text" class="editable-field" value="" id="patientName" placeholder="اسم المريض">
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">العمر:</span>
+                                <input type="text" class="editable-field" value="" id="patientAge" placeholder="العمر">
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">الجنس:</span>
+                                <input type="text" class="editable-field" value="" id="patientGender" placeholder="الجنس">
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">تاريخ الإجراء:</span>
+                                <input type="text" class="editable-field" id="currentDate">
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">الطبيب المعالج:</span>
+                                <input type="text" class="editable-field" value="" id="doctorName" placeholder="اسم الطبيب">
+                            </div>
+                        </div>
+                        
+                        <div class="results-container" id="resultsContainer">
+                            <!-- سيتم إضافة الأقسام ديناميكيًا بواسطة JavaScript -->
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td>
+                        <div class="footer-space">&nbsp;</div>  <!-- حجز مساحة للفوتر (3cm) -->
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
         
-        <div class="results-container" id="resultsContainer">
-            <!-- سيتم إضافة الأقسام ديناميكيًا بواسطة JavaScript -->
+        <div class="lab-footer">
+            <div class="lab-footer-content">
+                <div class="lab-footer-item">
+                    <div class="lab-footer-title">     برنامج اوسكار  </div>
+                    <div id="biologistName">شكراً للشراء البرنامج</div>
+                </div>
+                <div class="lab-footer-item">
+                    <div class="lab-footer-title">العنوان</div>
+                    <div id="labAddress">        تواصل معنا للشراء البرنامج 07806810202</div>
+                </div>
+                <div class="lab-footer-item">
+                    <div class="lab-footer-title">رقم الهاتف</div>
+                    <div id="labPhone">07806810264</div>
+                </div>
+            </div>
         </div>
-        
+
+    </div>
+
     <div id="addSectionModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeAddSectionModal()">&times;</span>
@@ -2076,6 +2253,7 @@
                         <div class="test-item">
                             <input type="text" class="form-input test-name-input" placeholder="اسم التحليل">
                             <input type="text" class="form-input test-range-input" placeholder="النطاق الطبيعي">
+                            <input type="number" class="form-input test-price-input" placeholder="السعر (IQD)">
                             <span class="remove-test" onclick="removeNewTest(this)">×</span>
                         </div>
                     </div>
@@ -2111,6 +2289,10 @@
                     <div class="form-group">
                         <label>النطاق الطبيعي:</label>
                         <input type="text" id="new-test-range" class="form-input" placeholder="أدخل النطاق الطبيعي">
+                    </div>
+                    <div class="form-group">
+                        <label>السعر (IQD):</label>
+                        <input type="number" id="new-test-price" class="form-input" placeholder="أدخل السعر">
                     </div>
                     
                     <!-- Multiple choice options -->
@@ -2254,23 +2436,6 @@
         </div>
     </div>
     
-    <div class="lab-footer">
-        <div class="lab-footer-content">
-            <div class="lab-footer-item">
-                <div class="lab-footer-title">  مختبر الدكتورة نور جعفر التخصصي </div>
-                <div id="biologistName">شكراً للشراء البرنامج</div>
-            </div>
-            <div class="lab-footer-item">
-                <div class="lab-footer-title">العنوان</div>
-                <div id="labAddress">        تواصل معنا للشراء البرنامج 07806810202</div>
-            </div>
-            <div class="lab-footer-item">
-                <div class="lab-footer-title">رقم الهاتف</div>
-                <div id="labPhone">07806810264</div>
-            </div>
-        </div>
-    </div>
-
     <script>
         // متغيرات قاعدة البيانات
         const DB_NAME = 'LabDatabase';
@@ -2279,37 +2444,37 @@
         const STATS_STORE_NAME = 'statistics';
         let db;
 
-        // هيكل المختبر الافتراضي
+        // هيكل المختبر الافتراضي مع إضافة الأسعار
         const defaultLabStructure = [
             { 
                 id: 'chemicalSection', 
                 title: 'Chemical Tests', 
                 icon: 'fas fa-prescription-bottle', 
                 tests: {
-                    "F.B.S": { type: "text", range: "mg/dl (60-120)" }, 
-                    "R.B.S": { type: "text", range: "mg/dl (110-170)" }, 
-                    "HbA1C": { type: "text", range: "4.8-6.0 %" },
-                    "Na+": { type: "text", range: "mmol/L (135-155)" }, 
-                    "K+": { type: "text", range: "mmol/L (3.6-5.5)" },
-                    "B. Urea": { type: "text", range: "mg/dl (15-45)" }, 
-                    "S. Creatinine": { type: "text", range: "mg/dl (0.4-1.1)" }, 
-                    "eGFR": { type: "text", range: ">90 ml/min/1.73m²" },
-                    "Uric acid": { type: "text", range: "mg/dl (3-6)" }, 
-                    "S. Calcium": { type: "text", range: "mg/dl (8.5-10.3)" }, 
-                    "S. Total Protein": { type: "text", range: "g/dl (6.6-8.0)" },
-                    "S. Albumin": { type: "text", range: "g/dl (3.5-5.5)" }, 
-                    "Total Bilirubin": { type: "text", range: "mg/dl (0.2-1.2)" }, 
-                    "Direct Bilirubin": { type: "text", range: "mg/dl (0-0.3)" },
-                    "Indirect Bilirubin": { type: "text", range: "mg/dl (0.2-0.9)" }, 
-                    "ALT (GPT)": { type: "text", range: "U/L (<46)" }, 
-                    "AST (GOT)": { type: "text", range: "U/L (<46)" },
-                    "ALP": { type: "text", range: "U/L (40-150)" }, 
-                    "Amylase": { type: "text", range: "U/L (30-110)" }, 
-                    "Lipase": { type: "text", range: "U/L (10-140)" }, 
-                    "CK": { type: "text", range: "U/L (20-200)" },
-                    "CK-MB": { type: "text", range: "U/L (<25)" }, 
-                    "LDH": { type: "text", range: "U/L (140-280)" }, 
-                    "A.S.O Titer": { type: "text", range: "IU/ml (<200)" }
+                    "F.B.S": { type: "text", range: "mg/dl (60-120)", price: 10000 }, 
+                    "R.B.S": { type: "text", range: "mg/dl (110-170)", price: 12000 }, 
+                    "HbA1C": { type: "text", range: "4.8-6.0 %", price: 15000 },
+                    "Na+": { type: "text", range: "mmol/L (135-155)", price: 8000 }, 
+                    "K+": { type: "text", range: "mmol/L (3.6-5.5)", price: 8000 },
+                    "B. Urea": { type: "text", range: "mg/dl (15-45)", price: 10000 }, 
+                    "S. Creatinine": { type: "text", range: "mg/dl (0.4-1.1)", price: 10000 }, 
+                    "eGFR": { type: "text", range: ">90 ml/min/1.73m²", price: 12000 },
+                    "Uric acid": { type: "text", range: "mg/dl (3-6)", price: 10000 }, 
+                    "S. Calcium": { type: "text", range: "mg/dl (8.5-10.3)", price: 10000 }, 
+                    "S. Total Protein": { type: "text", range: "g/dl (6.6-8.0)", price: 10000 },
+                    "S. Albumin": { type: "text", range: "g/dl (3.5-5.5)", price: 10000 }, 
+                    "Total Bilirubin": { type: "text", range: "mg/dl (0.2-1.2)", price: 10000 }, 
+                    "Direct Bilirubin": { type: "text", range: "mg/dl (0-0.3)", price: 10000 },
+                    "Indirect Bilirubin": { type: "text", range: "mg/dl (0.2-0.9)", price: 10000 }, 
+                    "ALT (GPT)": { type: "text", range: "U/L (<46)", price: 10000 }, 
+                    "AST (GOT)": { type: "text", range: "U/L (<46)", price: 10000 },
+                    "ALP": { type: "text", range: "U/L (40-150)", price: 10000 }, 
+                    "Amylase": { type: "text", range: "U/L (30-110)", price: 15000 }, 
+                    "Lipase": { type: "text", range: "U/L (10-140)", price: 15000 }, 
+                    "CK": { type: "text", range: "U/L (20-200)", price: 15000 },
+                    "CK-MB": { type: "text", range: "U/L (<25)", price: 15000 }, 
+                    "LDH": { type: "text", range: "U/L (140-280)", price: 15000 }, 
+                    "A.S.O Titer": { type: "text", range: "IU/ml (<200)", price: 15000 }
                 }
             },
             { 
@@ -2317,13 +2482,13 @@
                 title: 'Lipid Profile', 
                 icon: 'fas fa-chart-pie', 
                 tests: {
-                    "S. Cholesterol": { type: "text", range: "mg/dl (150-200)" }, 
-                    "S. Triglyceride": { type: "text", range: "mg/dl (35-165)" }, 
-                    "VLDL": { type: "text", range: "mg/dl (5-30)" },
-                    "S. LDL": { type: "text", range: "mg/dl (130-160)" }, 
-                    "S. HDL": { type: "text", range: "mg/dl (35-65)" }, 
-                    "Chol/HDL Ratio": { type: "text", range: "<5.0" },
-                    "LDL/HDL Ratio": { type: "text", range: "<3.5" }
+                    "S. Cholesterol": { type: "text", range: "mg/dl (150-200)", price: 10000 }, 
+                    "S. Triglyceride": { type: "text", range: "mg/dl (35-165)", price: 10000 }, 
+                    "VLDL": { type: "text", range: "mg/dl (5-30)", price: 10000 },
+                    "S. LDL": { type: "text", range: "mg/dl (130-160)", price: 10000 }, 
+                    "S. HDL": { type: "text", range: "mg/dl (35-65)", price: 10000 }, 
+                    "Chol/HDL Ratio": { type: "text", range: "<5.0", price: 10000 },
+                    "LDL/HDL Ratio": { type: "text", range: "<3.5", price: 10000 }
                 }
             },
             { 
@@ -2331,20 +2496,20 @@
                 title: 'CBC (Complete Blood Count)', 
                 icon: 'fas fa-microscope', 
                 tests: {
-                    "WBC": { type: "text", range: "4.5 - 11.0 x 10³/µL" }, 
-                    "RBC": { type: "text", range: "4.5 - 5.5 x 10⁶/µL" }, 
-                    "Hb": { type: "text", range: "13.5 - 17.5 g/dL (M), 12.0 - 15.5 g/dL (F)" },
-                    "HCT": { type: "text", range: "41 - 53% (M), 36 - 46% (F)" }, 
-                    "MCV": { type: "text", range: "80 - 100 fL" }, 
-                    "MCH": { type: "text", range: "27 - 33 pg" }, 
-                    "MCHC": { type: "text", range: "32 - 36 g/dL" },
-                    "RDW": { type: "text", range: "11.5 - 14.5%" }, 
-                    "Platelets": { type: "text", range: "150 - 450 x 10³/µL" }, 
-                    "Neutrophils": { type: "text", range: "40 - 70 %" }, 
-                    "Lymphocytes": { type: "text", range: "20 - 40 %" },
-                    "Monocytes": { type: "text", range: "2 - 8 %" }, 
-                    "Eosinophils": { type: "text", range: "1 - 4 %" }, 
-                    "Basophils": { type: "text", range: "0.5 - 1 %" }
+                    "WBC": { type: "text", range: "4.5 - 11.0 x 10³/µL", price: 15000 }, 
+                    "RBC": { type: "text", range: "4.5 - 5.5 x 10⁶/µL", price: 15000 }, 
+                    "Hb": { type: "text", range: "13.5 - 17.5 g/dL (M), 12.0 - 15.5 g/dL (F)", price: 15000 },
+                    "HCT": { type: "text", range: "41 - 53% (M), 36 - 46% (F)", price: 15000 }, 
+                    "MCV": { type: "text", range: "80 - 100 fL", price: 15000 }, 
+                    "MCH": { type: "text", range: "27 - 33 pg", price: 15000 }, 
+                    "MCHC": { type: "text", range: "32 - 36 g/dL", price: 15000 },
+                    "RDW": { type: "text", range: "11.5 - 14.5%", price: 15000 }, 
+                    "Platelets": { type: "text", range: "150 - 450 x 10³/µL", price: 15000 }, 
+                    "Neutrophils": { type: "text", range: "40 - 70 %", price: 15000 }, 
+                    "Lymphocytes": { type: "text", range: "20 - 40 %", price: 15000 },
+                    "Monocytes": { type: "text", range: "2 - 8 %", price: 15000 }, 
+                    "Eosinophils": { type: "text", range: "1 - 4 %", price: 15000 }, 
+                    "Basophils": { type: "text", range: "0.5 - 1 %", price: 15000 }
                 }
             },
             {
@@ -2352,13 +2517,13 @@
                 title: 'Liver Function Tests',
                 icon: 'fas fa-vial',
                 tests: {
-                    "ALT (SGPT)": { type: "text", range: "7 - 56 U/L" },
-                    "AST (SGOT)": { type: "text", range: "5 - 40 U/L" },
-                    "Alkaline Phosphatase": { type: "text", range: "44 - 147 U/L" },
-                    "Total Bilirubin": { type: "text", range: "0.3 - 1.2 mg/dL" },
-                    "Direct Bilirubin": { type: "text", range: "0.0 - 0.3 mg/dL" },
-                    "Total Protein": { type: "text", range: "6.0 - 8.3 g/dL" },
-                    "Albumin": { type: "text", range: "3.4 - 5.4 g/dL" }
+                    "ALT (SGPT)": { type: "text", range: "7 - 56 U/L", price: 10000 },
+                    "AST (SGOT)": { type: "text", range: "5 - 40 U/L", price: 10000 },
+                    "Alkaline Phosphatase": { type: "text", range: "44 - 147 U/L", price: 10000 },
+                    "Total Bilirubin": { type: "text", range: "0.3 - 1.2 mg/dL", price: 10000 },
+                    "Direct Bilirubin": { type: "text", range: "0.0 - 0.3 mg/dL", price: 10000 },
+                    "Total Protein": { type: "text", range: "6.0 - 8.3 g/dL", price: 10000 },
+                    "Albumin": { type: "text", range: "3.4 - 5.4 g/dL", price: 10000 }
                 }
             },
             {
@@ -2366,13 +2531,13 @@
                 title: 'Thyroid Function Tests',
                 icon: 'fas fa-dna',
                 tests: {
-                    "T3": { type: "text", range: "0.8 - 2.0 nmol/L" },
-                    "T4": { type: "text", range: "60 - 120 nmol/L" },
-                    "TSH": { type: "text", range: "0.4 - 4.0 µIU/ml" },
-                    "FT3": { type: "text", range: "2.0 - 4.4 pg/ml" },
-                    "FT4": { type: "text", range: "0.9 - 1.7 ng/dl" },
-                    "TPO Ab": { type: "text", range: "< 34 IU/ml" },
-                    "Tg Ab": { type: "text", range: "< 20 IU/ml" }
+                    "T3": { type: "text", range: "0.8 - 2.0 nmol/L", price: 20000 },
+                    "T4": { type: "text", range: "60 - 120 nmol/L", price: 20000 },
+                    "TSH": { type: "text", range: "0.4 - 4.0 µIU/ml", price: 20000 },
+                    "FT3": { type: "text", range: "2.0 - 4.4 pg/ml", price: 20000 },
+                    "FT4": { type: "text", range: "0.9 - 1.7 ng/dl", price: 20000 },
+                    "TPO Ab": { type: "text", range: "< 34 IU/ml", price: 25000 },
+                    "Tg Ab": { type: "text", range: "< 20 IU/ml", price: 25000 }
                 }
             },
             {
@@ -2380,14 +2545,14 @@
                 title: 'Renal Function Tests',
                 icon: 'fas fa-vial',
                 tests: {
-                    "Creatinine": { type: "text", range: "0.6 - 1.2 mg/dL (M), 0.5 - 1.1 mg/dL (F)" },
-                    "Urea (BUN)": { type: "text", range: "7 - 20 mg/dL" },
-                    "Uric Acid": { type: "text", range: "3.5 - 7.2 mg/dL (M), 2.6 - 6.0 mg/dL (F)" },
-                    "GFR": { type: "text", range: "90+ mL/min/1.73m² (Normal)" },
-                    "Sodium (Na)": { type: "text", range: "135 - 145 mEq/L" },
-                    "Potassium (K)": { type: "text", range: "3.5 - 5.0 mEq/L" },
-                    "Chloride (Cl)": { type: "text", range: "96 - 106 mEq/L" },
-                    "Bicarbonate (HCO3)": { type: "text", range: "22 - 29 mEq/L" }
+                    "Creatinine": { type: "text", range: "0.6 - 1.2 mg/dL (M), 0.5 - 1.1 mg/dL (F)", price: 10000 },
+                    "Urea (BUN)": { type: "text", range: "7 - 20 mg/dL", price: 10000 },
+                    "Uric Acid": { type: "text", range: "3.5 - 7.2 mg/dL (M), 2.6 - 6.0 mg/dL (F)", price: 10000 },
+                    "GFR": { type: "text", range: ">90+ mL/min/1.73m² (Normal)", price: 12000 },
+                    "Sodium (Na)": { type: "text", range: "135 - 145 mEq/L", price: 8000 },
+                    "Potassium (K)": { type: "text", range: "3.5 - 5.0 mEq/L", price: 8000 },
+                    "Chloride (Cl)": { type: "text", range: "96 - 106 mEq/L", price: 8000 },
+                    "Bicarbonate (HCO3)": { type: "text", range: "22 - 29 mEq/L", price: 8000 }
                 }
             },
             {
@@ -2395,11 +2560,11 @@
                 title: 'Iron Profile',
                 icon: 'fas fa-vial',
                 tests: {
-                    "Serum Iron": { type: "text", range: "60 - 170 µg/dL (M), 50 - 170 µg/dL (F)" },
-                    "TIBC (Total Iron Binding Capacity)": { type: "text", range: "250 - 450 µg/dL" },
-                    "Transferrin Saturation": { type: "text", range: "20 - 50 %" },
-                    "Ferritin": { type: "text", range: "20 - 250 ng/mL (M), 10 - 120 ng/mL (F)" },
-                    "Transferrin": { type: "text", range: "200 - 360 mg/dL" }
+                    "Serum Iron": { type: "text", range: "60 - 170 µg/dL (M), 50 - 170 µg/dL (F)", price: 15000 },
+                    "TIBC (Total Iron Binding Capacity)": { type: "text", range: "250 - 450 µg/dL", price: 15000 },
+                    "Transferrin Saturation": { type: "text", range: "20 - 50 %", price: 15000 },
+                    "Ferritin": { type: "text", range: "20 - 250 ng/mL (M), 10 - 120 ng/mL (F)", price: 20000 },
+                    "Transferrin": { type: "text", range: "200 - 360 mg/dL", price: 15000 }
                 }
             },
             { 
@@ -2407,20 +2572,20 @@
                 title: 'Hormone Tests', 
                 icon: 'fas fa-microscope', 
                 tests: {
-                    "Cortisol": { type: "text", range: "µg/dl (Morning 6-23)" }, 
-                    "LH": { type: "text", range: "IU/L" }, 
-                    "FSH": { type: "text", range: "IU/L" }, 
-                    "Prolactin": { type: "text", range: "ng/ml (M: 2-18, F: 3-29)" },
-                    "Testosterone": { type: "text", range: "ng/dl (M: 300-1000, F: 15-70)" }, 
-                    "Estradiol (E2)": { type: "text", range: "pg/ml (F: varies by cycle phase, M: 10-50)" },
-                    "Progesterone": { type: "text", range: "ng/ml (F: varies by cycle phase)" }, 
-                    "hCG": { type: "text", range: "mIU/ml (Negative in non-pregnant)" },
-                    "Insulin": { type: "text", range: "µIU/ml (2-25)" }, 
-                    "C-Peptide": { type: "text", range: "ng/ml (2-25)" }, 
-                    "DHEA-S": { type: "text", range: "µg/dl (M: 80-560, F: 35-430)" },
-                    "Growth Hormone (GH)": { type: "text", range: "ng/ml (0-10)" }, 
-                    "IGF-1": { type: "text", range: "ng/ml (varies by age)" }, 
-                    "Parathyroid Hormone (PTH)": { type: "text", range: "pg/ml (10-65)" }
+                    "Cortisol": { type: "text", range: "µg/dl (Morning 6-23)", price: 25000 }, 
+                    "LH": { type: "text", range: "IU/L", price: 20000 }, 
+                    "FSH": { type: "text", range: "IU/L", price: 20000 }, 
+                    "Prolactin": { type: "text", range: "ng/ml (M: 2-18, F: 3-29)", price: 20000 },
+                    "Testosterone": { type: "text", range: "ng/dl (M: 300-1000, F: 15-70)", price: 20000 }, 
+                    "Estradiol (E2)": { type: "text", range: "pg/ml (F: varies by cycle phase, M: 10-50)", price: 20000 },
+                    "Progesterone": { type: "text", range: "ng/ml (F: varies by cycle phase)", price: 20000 }, 
+                    "hCG": { type: "text", range: "mIU/ml (Negative in non-pregnant)", price: 15000 },
+                    "Insulin": { type: "text", range: "µIU/ml (2-25)", price: 20000 }, 
+                    "C-Peptide": { type: "text", range: "ng/ml (2-25)", price: 25000 }, 
+                    "DHEA-S": { type: "text", range: "µg/dl (M: 80-560, F: 35-430)", price: 25000 },
+                    "Growth Hormone (GH)": { type: "text", range: "ng/ml (0-10)", price: 25000 }, 
+                    "IGF-1": { type: "text", range: "ng/ml (varies by age)", price: 30000 }, 
+                    "Parathyroid Hormone (PTH)": { type: "text", range: "pg/ml (10-65)", price: 25000 }
                 }
             },
             { 
@@ -2428,35 +2593,35 @@
                 title: 'Serology & Immunology', 
                 icon: 'fas fa-vial', 
                 tests: {
-                    "Salmonella typhi": { type: "select", range: "Negative", choices: ["Positive", "Negative"] }, 
-                    "Salmonella typhi IgG": { type: "select", range: "Negative", choices: ["Positive", "Negative"] }, 
-                    "Salmonella typhi IgM": { type: "select", range: "Negative", choices: ["Positive", "Negative"] }, 
-                    "Rose Bengal (Brucella)": { type: "select", range: "Negative", choices: ["Positive", "Negative"] },
-                    "H.pylori Ab": { type: "select", range: "Negative", choices: ["Positive", "Negative"] }, 
-                    "CRP": { type: "text", range: "mg/L (<5)" }, 
-                    "Rheumatoid Factor": { type: "text", range: "IU/ml (<20)" }, 
-                    "A.S.O Titer": { type: "text", range: "IU/ml (<200)" },
-                    "Toxoplasma IgG": { type: "select", range: "Negative", choices: ["Positive", "Negative"] }, 
-                    "Toxoplasma IgM": { type: "select", range: "Negative", choices: ["Positive", "Negative"] }, 
-                    "Pregnancy Test": { type: "select", range: "", choices: ["Positive", "Negative"] }, 
-                    "CMV IgG": { type: "select", range: "Negative", choices: ["Positive", "Negative"] }, 
-                    "CMV IgM": { type: "select", range: "Negative", choices: ["Positive", "Negative"] },
-                    "EBV (VCA IgG)": { type: "select", range: "Negative", choices: ["Positive", "Negative"] }, 
-                    "EBV (VCA IgM)": { type: "select", range: "Negative", choices: ["Positive", "Negative"] }, 
-                    "HBsAg": { type: "select", range: "Negative", choices: ["Positive", "Negative"] }, 
-                    "HBsAb": { type: "select", range: "Negative", choices: ["Positive", "Negative"] },
-                    "Anti-HCV (HCV-Ab)": { type: "select", range: "Negative", choices: ["Positive", "Negative"] }, 
-                    "HIV AB": { type: "select", range: "Negative", choices: ["Positive", "Negative"] }, 
-                    "HIV (ELISA)": { type: "select", range: "Negative", choices: ["Positive", "Negative"] },
-                    "VDRL / RPR (Syphilis)": { type: "select", range: "Negative", choices: ["Positive", "Negative"] }, 
-                    "ANA": { type: "select", range: "Negative", choices: ["Positive", "Negative"] }, 
-                    "Anti-dsDNA": { type: "select", range: "Negative", choices: ["Positive", "Negative"] },
-                    "IgG": { type: "text", range: "700-1600 mg/dl" }, 
-                    "IgA": { type: "text", range: "70-400 mg/dl" }, 
-                    "IgM": { type: "text", range: "40-230 mg/dl" }, 
-                    "IgE": { type: "text", range: "<100 IU/ml" },
-                    "C3 Complement": { type: "text", range: "90-180 mg/dl" }, 
-                    "C4 Complement": { type: "text", range: "10-40 mg/dl" }
+                    "Salmonella typhi": { type: "select", range: "Negative", choices: ["Positive", "Negative"], price: 15000 }, 
+                    "Salmonella typhi IgG": { type: "select", range: "Negative", choices: ["Positive", "Negative"], price: 15000 }, 
+                    "Salmonella typhi IgM": { type: "select", range: "Negative", choices: ["Positive", "Negative"], price: 15000 }, 
+                    "Rose Bengal (Brucella)": { type: "select", range: "Negative", choices: ["Positive", "Negative"], price: 15000 },
+                    "H.pylori Ab": { type: "select", range: "Negative", choices: ["Positive", "Negative"], price: 15000 }, 
+                    "CRP": { type: "text", range: "mg/L (<5)", price: 15000 }, 
+                    "Rheumatoid Factor": { type: "text", range: "IU/ml (<20)", price: 15000 }, 
+                    "A.S.O Titer": { type: "text", range: "IU/ml (<200)", price: 15000 },
+                    "Toxoplasma IgG": { type: "select", range: "Negative", choices: ["Positive", "Negative"], price: 20000 }, 
+                    "Toxoplasma IgM": { type: "select", range: "Negative", choices: ["Positive", "Negative"], price: 20000 }, 
+                    "Pregnancy Test": { type: "select", range: "", choices: ["Positive", "Negative"], price: 10000 }, 
+                    "CMV IgG": { type: "select", range: "Negative", choices: ["Positive", "Negative"], price: 20000 }, 
+                    "CMV IgM": { type: "select", range: "Negative", choices: ["Positive", "Negative"], price: 20000 },
+                    "EBV (VCA IgG)": { type: "select", range: "Negative", choices: ["Positive", "Negative"], price: 20000 }, 
+                    "EBV (VCA IgM)": { type: "select", range: "Negative", choices: ["Positive", "Negative"], price: 20000 }, 
+                    "HBsAg": { type: "select", range: "Negative", choices: ["Positive", "Negative"], price: 15000 }, 
+                    "HBsAb": { type: "select", range: "Negative", choices: ["Positive", "Negative"], price: 15000 },
+                    "Anti-HCV (HCV-Ab)": { type: "select", range: "Negative", choices: ["Positive", "Negative"], price: 15000 }, 
+                    "HIV AB": { type: "select", range: "Negative", choices: ["Positive", "Negative"], price: 20000 }, 
+                    "HIV (ELISA)": { type: "select", range: "Negative", choices: ["Positive", "Negative"], price: 20000 },
+                    "VDRL / RPR (Syphilis)": { type: "select", range: "Negative", choices: ["Positive", "Negative"], price: 15000 }, 
+                    "ANA": { type: "select", range: "Negative", choices: ["Positive", "Negative"], price: 25000 }, 
+                    "Anti-dsDNA": { type: "select", range: "Negative", choices: ["Positive", "Negative"], price: 25000 },
+                    "IgG": { type: "text", range: "700-1600 mg/dl", price: 20000 }, 
+                    "IgA": { type: "text", range: "70-400 mg/dl", price: 20000 }, 
+                    "IgM": { type: "text", range: "40-230 mg/dl", price: 20000 }, 
+                    "IgE": { type: "text", range: "<100 IU/ml", price: 20000 },
+                    "C3 Complement": { type: "text", range: "90-180 mg/dl", price: 25000 }, 
+                    "C4 Complement": { type: "text", range: "10-40 mg/dl", price: 25000 }
                 }
             },
             { 
@@ -2464,28 +2629,28 @@
                 title: 'General Urine Examination', 
                 icon: 'fas fa-flask', 
                 tests: {
-                    "Color": { type: "select", range: "Light Yellow to Yellow", choices: ["Pale Yellow", "Yellow", "Dark Yellow", "Amber", "Orange", "Red/Pink", "Brown", "Blue/Green"] }, 
-                    "Appearance": { type: "select", range: "Clear", choices: ["Clear", "Slightly Cloudy", "Cloudy", "Turbid"] },
-                    "Specific Gravity": { type: "text", range: "1.005 - 1.030" },
-                    "pH": { type: "text", range: "4.5 - 8.0" }, 
-                    "Glucose": { type: "select", range: "Nil", choices: ["Nil", "Trace", "1+", "2+", "3+", "4+"] }, 
-                    "Protein": { type: "select", range: "Nil", choices: ["Nil", "Trace", "1+", "2+", "3+", "4+"] }, 
-                    "Ketones": { type: "select", range: "Nil", choices: ["Nil", "Trace", "1+", "2+", "3+", "4+"] }, 
-                    "Blood": { type: "select", range: "Nil", choices: ["Nil", "Trace", "1+", "2+", "3+", "4+"] }, 
-                    "Bilirubin": { type: "select", range: "Nil", choices: ["Nil", "Positive"] }, 
-                    "Urobilinogen": { type: "select", range: "Normal", choices: ["Normal", "Increased"] }, 
-                    "Nitrites": { type: "select", range: "Nil", choices: ["Nil", "Positive"] }, 
-                    "Leukocytes": { type: "select", range: "Nil", choices: ["Nil", "Trace", "1+", "2+", "3+"] },
-                    "RBCs": { type: "select", range: "0-2 /HPF", choices: ["0-2/HPF", "3-5/HPF", "6-10/HPF", ">10/HPF", "Full Filed"] }, 
-                    "Pus Cells": { type: "select", range: "0-5 /HPF", choices: ["0-5/HPF", "6-10/HPF", "11-20/HPF", ">20/HPF", "Full Filed"] }, 
-                    "Epithelial Cells": { type: "select", range: "Few", choices: ["Few", "Moderate", "Many"] }, 
-                    "Casts": { type: "text", range: "Nil" },
-                    "Crystals": { type: "text", range: "Nil" }, 
-                    "Amorphous Urates": { type: "select", range: "Nil", choices: ["Nil", "Few", "Moderate", "Many"] }, 
-                    "Amorphous Phosphates": { type: "select", range: "Nil", choices: ["Nil", "Few", "Moderate", "Many"] }, 
-                    "Bacteria": { type: "select", range: "Nil", choices: ["Nil", "Few", "Moderate", "Many"] },
-                    "Yeast": { type: "select", range: "Nil", choices: ["Nil", "Positive"] }, 
-                    "Mucus threads": { type: "select", range: "Few", choices: ["Few", "Moderate", "Many"] }
+                    "Color": { type: "select", range: "Light Yellow to Yellow", choices: ["Pale Yellow", "Yellow", "Dark Yellow", "Amber", "Orange", "Red/Pink", "Brown", "Blue/Green"], price: 5000 }, 
+                    "Appearance": { type: "select", range: "Clear", choices: ["Clear", "Slightly Cloudy", "Cloudy", "Turbid"], price: 5000 },
+                    "Specific Gravity": { type: "text", range: "1.005 - 1.030", price: 5000 },
+                    "pH": { type: "text", range: "4.5 - 8.0", price: 5000 }, 
+                    "Glucose": { type: "select", range: "Nil", choices: ["Nil", "Trace", "1+", "2+", "3+", "4+"], price: 5000 }, 
+                    "Protein": { type: "select", range: "Nil", choices: ["Nil", "Trace", "1+", "2+", "3+", "4+"], price: 5000 }, 
+                    "Ketones": { type: "select", range: "Nil", choices: ["Nil", "Trace", "1+", "2+", "3+", "4+"], price: 5000 }, 
+                    "Blood": { type: "select", range: "Nil", choices: ["Nil", "Trace", "1+", "2+", "3+", "4+"], price: 5000 }, 
+                    "Bilirubin": { type: "select", range: "Nil", choices: ["Nil", "Positive"], price: 5000 }, 
+                    "Urobilinogen": { type: "select", range: "Normal", choices: ["Normal", "Increased"], price: 5000 }, 
+                    "Nitrites": { type: "select", range: "Nil", choices: ["Nil", "Positive"], price: 5000 }, 
+                    "Leukocytes": { type: "select", range: "Nil", choices: ["Nil", "Trace", "1+", "2+", "3+"], price: 5000 },
+                    "RBCs": { type: "select", range: "0-2 /HPF", choices: ["0-2/HPF", "3-5/HPF", "6-10/HPF", ">10/HPF", "Full Filed"], price: 5000 }, 
+                    "Pus Cells": { type: "select", range: "0-5 /HPF", choices: ["0-5/HPF", "6-10/HPF", "11-20/HPF", ">20/HPF", "Full Filed"], price: 5000 }, 
+                    "Epithelial Cells": { type: "select", range: "Few", choices: ["Few", "Moderate", "Many"], price: 5000 }, 
+                    "Casts": { type: "text", range: "Nil", price: 5000 },
+                    "Crystals": { type: "text", range: "Nil", price: 5000 }, 
+                    "Amorphous Urates": { type: "select", range: "Nil", choices: ["Nil", "Few", "Moderate", "Many"], price: 5000 }, 
+                    "Amorphous Phosphates": { type: "select", range: "Nil", choices: ["Nil", "Few", "Moderate", "Many"], price: 5000 }, 
+                    "Bacteria": { type: "select", range: "Nil", choices: ["Nil", "Few", "Moderate", "Many"], price: 5000 },
+                    "Yeast": { type: "select", range: "Nil", choices: ["Nil", "Positive"], price: 5000 }, 
+                    "Mucus threads": { type: "select", range: "Few", choices: ["Few", "Moderate", "Many"], price: 5000 }
                 }
             },
             { 
@@ -2493,23 +2658,23 @@
                 title: 'SEMİNAL FLUID ANALYSIS', 
                 icon: 'fas fa-seedling', 
                 tests: {
-                    "Volume": { type: "text", range: "ml (1.5-5.0)" }, 
-                    "Color": { type: "select", range: "Whitish gray gray/Opalecent", choices: ["Whitish gray/Opalecent", "Yellowish", "Reddish/Brown"] }, 
-                    "Liquefaction": { type: "text", range: "min (<60)" }, 
-                    "Viscosity": { type: "select", range: "Low", choices: ["Low", "High"] },
-                    "pH": { type: "text", range: "7.2 - 8.0" }, 
-                    "Sperm Concentration": { type: "text", range: "M/ml (≥15)" }, 
-                    "Total Sperm Count": { type: "text", range: "M (≥39)" }, 
-                    "Motility (Total)": { type: "text", range: "% (≥40)" }, 
-                    "Progressive Motility": { type: "text", range: "% (≥32)" }, 
-                    "Non-Progressive Motility": { type: "text", range: "Normal" }, 
-                    "Non-Motile": { type: "text", range: "Normal" }, 
-                    "Morphology": { type: "text", range: "% (≥4)" },
-                    "Vitality": { type: "text", range: "% (≥58)" }, 
-                    "WBC": { type: "text", range: "/hpf (<1)" }, 
-                    "RBC": { type: "text", range: "/hpf (<1)" }, 
-                    "Agglutination": { type: "select", range: "Negative", choices: ["Negative", "Positive"] }, 
-                    "Microscopic Examination": { type: "text", range: "Normal" }
+                    "Volume": { type: "text", range: "ml (1.5-5.0)", price: 30000 }, 
+                    "Color": { type: "select", range: "Whitish gray/Opalecent", choices: ["Whitish gray/Opalecent", "Yellowish", "Reddish/Brown"], price: 30000 }, 
+                    "Liquefaction": { type: "text", range: "min (<60)", price: 30000 }, 
+                    "Viscosity": { type: "select", range: "Low", choices: ["Low", "High"], price: 30000 },
+                    "pH": { type: "text", range: "7.2 - 8.0", price: 30000 }, 
+                    "Sperm Concentration": { type: "text", range: "M/ml (≥15)", price: 30000 }, 
+                    "Total Sperm Count": { type: "text", range: "M (≥39)", price: 30000 }, 
+                    "Motility (Total)": { type: "text", range: "% (≥40)", price: 30000 }, 
+                    "Progressive Motility": { type: "text", range: "% (≥32)", price: 30000 }, 
+                    "Non-Progressive Motility": { type: "text", range: "Normal", price: 30000 }, 
+                    "Non-Motile": { type: "text", range: "Normal", price: 30000 }, 
+                    "Morphology": { type: "text", range: "% (≥4)", price: 30000 },
+                    "Vitality": { type: "text", range: "% (≥58)", price: 30000 }, 
+                    "WBC": { type: "text", range: "/hpf (<1)", price: 30000 }, 
+                    "RBC": { type: "text", range: "/hpf (<1)", price: 30000 }, 
+                    "Agglutination": { type: "select", range: "Negative", choices: ["Negative", "Positive"], price: 30000 }, 
+                    "Microscopic Examination": { type: "text", range: "Normal", price: 30000 }
                 }
             },
             { 
@@ -2517,18 +2682,18 @@
                 title: 'GENERAL STOOL EXAMINATION', 
                 icon: 'fas fa-poo', 
                 tests: {
-                    "Color": { type: "select", range: "Brown", choices: ["Brown", "Green", "Black", "Clay-colored", "Yellowish"] }, 
-                    "Consistency": { type: "select", range: "Formed", choices: ["Formed", "Soft", "Loose", "Watery"] }, 
-                    "Mucus": { type: "select", range: "Nil", choices: ["Nil", "Trace", "Present"] }, 
-                    "Blood": { type: "select", range: "Nil", choices: ["Nil", "Trace", "Present"] }, 
-                    "Ova/Parasite": { type: "text", range: "Nil" }, 
-                    "WBC": { type: "text", range: "/hpf (Nil)" }, 
-                    "RBC": { type: "text", range: "/hpf (Nil)" }, 
-                    "Fat Globules": { type: "text", range: "/hpf (Nil)" }, 
-                    "Starch Granules": { type: "select", range: "Nil", choices: ["Nil", "Present"] }, 
-                    "Undigested Muscle Fibers": { type: "select", range: "Nil", choices: ["Nil", "Present"] }, 
-                    "Yeast Cells": { type: "select", range: "Nil", choices: ["Nil", "Present"] }, 
-                    "Occult Blood": { type: "select", range: "Negative", choices: ["Negative", "Positive"] }
+                    "Color": { type: "select", range: "Brown", choices: ["Brown", "Green", "Black", "Clay-colored", "Yellowish"], price: 5000 }, 
+                    "Consistency": { type: "select", range: "Formed", choices: ["Formed", "Soft", "Loose", "Watery"], price: 5000 }, 
+                    "Mucus": { type: "select", range: "Nil", choices: ["Nil", "Trace", "Present"], price: 5000 }, 
+                    "Blood": { type: "select", range: "Nil", choices: ["Nil", "Trace", "Present"], price: 5000 }, 
+                    "Ova/Parasite": { type: "text", range: "Nil", price: 5000 }, 
+                    "WBC": { type: "text", range: "/hpf (Nil)", price: 5000 }, 
+                    "RBC": { type: "text", range: "/hpf (Nil)", price: 5000 }, 
+                    "Fat Globules": { type: "text", range: "/hpf (Nil)", price: 5000 }, 
+                    "Starch Granules": { type: "select", range: "Nil", choices: ["Nil", "Present"], price: 5000 }, 
+                    "Undigested Muscle Fibers": { type: "select", range: "Nil", choices: ["Nil", "Present"], price: 5000 }, 
+                    "Yeast Cells": { type: "select", range: "Nil", choices: ["Nil", "Present"], price: 5000 }, 
+                    "Occult Blood": { type: "select", range: "Negative", choices: ["Negative", "Positive"], price: 5000 }
                 }
             },
             { 
@@ -2536,13 +2701,13 @@
                 title: 'Coagulation Test', 
                 icon: 'fas fa-heartbeat', 
                 tests: {
-                    "Prothrombin Time (PT)": { type: "text", range: "10-14 seconds" }, 
-                    "INR": { type: "text", range: "0.8-1.2" }, 
-                    "APTT": { type: "text", range: "25-35 seconds" },
-                    "Thrombin Time (TT)": { type: "text", range: "12-18 seconds" }, 
-                    "Fibrinogen": { type: "text", range: "200-400 mg/dL" }, 
-                    "D-Dimer": { type: "text", range: "<500 ng/mL" },
-                    "Platelet Function Assay (PFA)": { type: "text", range: "Closure Time (varies by instrument)" }
+                    "Prothrombin Time (PT)": { type: "text", range: "10-14 seconds", price: 15000 }, 
+                    "INR": { type: "text", range: "0.8-1.2", price: 15000 }, 
+                    "APTT": { type: "text", range: "25-35 seconds", price: 15000 },
+                    "Thrombin Time (TT)": { type: "text", range: "12-18 seconds", price: 15000 }, 
+                    "Fibrinogen": { type: "text", range: "200-400 mg/dL", price: 20000 }, 
+                    "D-Dimer": { type: "text", range: "<500 ng/mL", price: 20000 },
+                    "Platelet Function Assay (PFA)": { type: "text", range: "Closure Time (varies by instrument)", price: 25000 }
                 }
             },
             { 
@@ -2550,21 +2715,21 @@
                 title: 'Viral Studies', 
                 icon: 'fas fa-virus', 
                 tests: {
-                    "Hepatitis A virus (HAV) IgM": { type: "select", range: "Negative", choices: ["Positive", "Negative"] }, 
-                    "Hepatitis A virus (HAV) IgG": { type: "select", range: "Negative", choices: ["Positive", "Negative"] }, 
-                    "Hepatitis B virus (HBV) DNA": { type: "select", range: "Undetectable", choices: ["Undetectable", "Detectable"] },
-                    "Hepatitis C virus (HCV) RNA": { type: "select", range: "Undetectable", choices: ["Undetectable", "Detectable"] }, 
-                    "Epstein-Barr virus (EBV)": { type: "select", range: "Negative", choices: ["Positive", "Negative"] },
-                    "Cytomegalovirus (CMV) IgG": { type: "select", range: "Negative", choices: ["Positive", "Negative"] }, 
-                    "Cytomegalovirus (CMV) IgM": { type: "select", range: "Negative", choices: ["Positive", "Negative"] },
-                    "Herpes Simplex Virus 1/2 (HSV-1/2) IgG": { type: "select", range: "Negative", choices: ["Positive", "Negative"] }, 
-                    "Herpes Simplex Virus 1/2 (HSV-1/2) IgM": { type: "select", range: "Negative", choices: ["Positive", "Negative"] },
-                    "HIV 1/2 /2 Ab": { type: "select", range: "Negative", choices: ["Positive", "Negative"] }, 
-                    "HIV p24 Ag": { type: "select", range: "Negative", choices: ["Positive", "Negative"] }, 
-                    "Measles IgG": { type: "select", range: "Negative", choices: ["Positive", "Negative"] }, 
-                    "Measles IgM": { type: "select", range: "Negative", choices: ["Positive", "Negative"] },
-                    "Mumps IgG": { type: "select", range: "Negative", choices: ["Positive", "Negative"] }, 
-                    "Mumps IgM": { type: "select", range: "Negative", choices: ["Positive", "Negative"] }
+                    "Hepatitis A virus (HAV) IgM": { type: "select", range: "Negative", choices: ["Positive", "Negative"], price: 20000 }, 
+                    "Hepatitis A virus (HAV) IgG": { type: "select", range: "Negative", choices: ["Positive", "Negative"], price: 20000 }, 
+                    "Hepatitis B virus (HBV) DNA": { type: "select", range: "Undetectable", choices: ["Undetectable", "Detectable"], price: 30000 },
+                    "Hepatitis C virus (HCV) RNA": { type: "select", range: "Undetectable", choices: ["Undetectable", "Detectable"], price: 30000 }, 
+                    "Epstein-Barr virus (EBV)": { type: "select", range: "Negative", choices: ["Positive", "Negative"], price: 20000 },
+                    "Cytomegalovirus (CMV) IgG": { type: "select", range: "Negative", choices: ["Positive", "Negative"], price: 20000 }, 
+                    "Cytomegalovirus (CMV) IgM": { type: "select", range: "Negative", choices: ["Positive", "Negative"], price: 20000 },
+                    "Herpes Simplex Virus 1/2 (HSV-1/2) IgG": { type: "select", range: "Negative", choices: ["Positive", "Negative"], price: 20000 }, 
+                    "Herpes Simplex Virus 1/2 (HSV-1/2) IgM": { type: "select", range: "Negative", choices: ["Positive", "Negative"], price: 20000 },
+                    "HIV 1/2 Ab": { type: "select", range: "Negative", choices: ["Positive", "Negative"], price: 20000 }, 
+                    "HIV p24 Ag": { type: "select", range: "Negative", choices: ["Positive", "Negative"], price: 20000 }, 
+                    "Measles IgG": { type: "select", range: "Negative", choices: ["Positive", "Negative"], price: 20000 }, 
+                    "Measles IgM": { type: "select", range: "Negative", choices: ["Positive", "Negative"], price: 20000 },
+                    "Mumps IgG": { type: "select", range: "Negative", choices: ["Positive", "Negative"], price: 20000 }, 
+                    "Mumps IgM": { type: "select", range: "Negative", choices: ["Positive", "Negative"], price: 20000 }
                 }
             },
             { 
@@ -2572,15 +2737,15 @@
                 title: 'Vitamin Tests', 
                 icon: 'fas fa-capsules', 
                 tests: {
-                    "Vitamin A": { type: "text", range: "30-95 µg/dL" }, 
-                    "Vitamin B1 (Thiamine)": { type: "text", range: "2.5-7.5 µg/dL" }, 
-                    "Vitamin B6": { type: "text", range: "5-30 ng/mL" },
-                    "Vitamin B9 (Folic Acid)": { type: "text", range: ">5.4 ng/mL" }, 
-                    "Vitamin B12": { type: "text", range: "200-900 pg/mL" }, 
-                    "Vitamin C": { type: "text", range: "0.4-2.0 mg/dL" },
-                    "Vitamin D (25-OH)": { type: "text", range: "30-100 ng/mL" }, 
-                    "Vitamin E": { type: "text", range: "5.5-17.0 mg/L" }, 
-                    "Vitamin K": { type: "text", range: "0.2-3.2 ng/mL" }
+                    "Vitamin A": { type: "text", range: "30-95 µg/dL", price: 25000 }, 
+                    "Vitamin B1 (Thiamine)": { type: "text", range: "2.5-7.5 µg/dL", price: 25000 }, 
+                    "Vitamin B6": { type: "text", range: "5-30 ng/mL", price: 25000 },
+                    "Vitamin B9 (Folic Acid)": { type: "text", range: ">5.4 ng/mL", price: 25000 }, 
+                    "Vitamin B12": { type: "text", range: "200-900 pg/mL", price: 25000 }, 
+                    "Vitamin C": { type: "text", range: "0.4-2.0 mg/dL", price: 25000 },
+                    "Vitamin D (25-OH)": { type: "text", range: "30-100 ng/mL", price: 25000 }, 
+                    "Vitamin E": { type: "text", range: "5.5-17.0 mg/L", price: 25000 }, 
+                    "Vitamin K": { type: "text", range: "0.2-3.2 ng/mL", price: 25000 }
                 }
             }
         ];
@@ -2588,7 +2753,9 @@
         let labStructure = [];
 
         // الرمز المطلوب (للإحصائيات فقط)
-        const PASSWORD = '100200';
+        const PASSWORD = '1';
+        const LOGIN_USERNAME = '1';
+        const LOGIN_PASSWORD = '1';
 
         // دوال إدارة الإعدادات
         function handleLogoUpload(event) {
@@ -2596,14 +2763,24 @@
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        const logoPreview = document.getElementById('logoPreview');
-                        logoPreview.src = e.target.result;
-                        logoPreview.style.display = 'block';
-                    };
-                    reader.readAsDataURL(file);
+                    const logoPreview = document.getElementById('logoPreview');
+                    logoPreview.src = e.target.result;
+                    logoPreview.style.display = 'block';
                 };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function handleBackgroundUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.getElementById('backgroundPreview');
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
             }
         }
 
@@ -2615,16 +2792,20 @@
             logoElement.innerHTML = `<i class="fas fa-microscope"></i>`;
         }
 
+        function resetBackground() {
+            document.getElementById('backgroundPreview').src = '';
+            document.getElementById('backgroundPreview').style.display = 'none';
+            document.getElementById('backgroundUpload').value = '';
+        }
+
         function loadCurrentSettings() {
             // إزالة تحميل اسم المختبر لأنه ثابت
             document.getElementById('labHeaderInput').value = localStorage.getItem('labHeader') || '';
             document.getElementById('labAddressInput').value = localStorage.getItem('labAddress') || '    للشراء البرنامج تواصل معنا';
-            document.getElementById('labPhoneInput').value = localStorage.getItem('labPhone') || '07806810264';
-            document.getElementById('biologistNameInput').value = localStorage.getItem('biologistName') || 'شكراً لزيارتككم';
+            document.getElementById('labPhoneInput').value = localStorage.getItem('labPhone') || '07901821264';
+            document.getElementById('biologistNameInput').value = localStorage.getItem('biologistName') || 'شكراً لزيارتكم';
             document.getElementById('doctor1Name').value = localStorage.getItem('doctor1Name') || 'الاول اسم الطبيب او التقني او البايلوجي ';
             document.getElementById('doctor2Name').value = localStorage.getItem('doctor2Name') || ' الثاني اسم الطبيب او التقني او البايلوجي';
-            document.getElementById('doctor3Name').value = localStorage.getItem('doctor3Name') || ' الثالث اسم الطبيب او التقني او البايلوجي';
-            document.getElementById('doctor4Name').value = localStorage.getItem('doctor4Name') || '07806810264 الرابع اسم الطبيب او التقني او البايلوجي';
 
             document.getElementById('headerColor').value = localStorage.getItem('headerColor') || '#007bff';
             document.getElementById('backgroundColor').value = localStorage.getItem('backgroundColor') || '#f0f8ff';
@@ -2645,13 +2826,19 @@
                 document.getElementById('logoPreview').style.display = 'block';
             }
 
+            const savedBackground = localStorage.getItem('printBackground');
+            if (savedBackground) {
+                document.getElementById('backgroundPreview').src = savedBackground;
+                document.getElementById('backgroundPreview').style.display = 'block';
+            }
+
             document.getElementById('titleFontSize').value = localStorage.getItem('titleFontSize') || '28';
             document.getElementById('testNameFontSize').value = localStorage.getItem('testNameFontSize') || '16';
             document.getElementById('resultFontSize').value = localStorage.getItem('resultFontSize') || '16';
             document.getElementById('rangeFontSize').value = localStorage.getItem('rangeFontSize') || '16';
             document.getElementById('footerFontSize').value = localStorage.getItem('footerFontSize') || '14';
             document.getElementById('doctorFontSize').value = localStorage.getItem('doctorFontSize') || '14';
-            document.getElementById('patientInfoFontSize').value = localStorage.getItem('patientInfoFontSize') || '12';
+            document.getElementById('patientInfoFontSize').value = localStorage.getItem('patientInfoFontSize') || '14';
             document.getElementById('sectionTitleFontSize').value = localStorage.getItem('sectionTitleFontSize') || '20';
             document.getElementById('tableBorderWidth').value = localStorage.getItem('tableBorderWidth') || '1';
             document.getElementById('doctorBoxBorderRadius').value = localStorage.getItem('doctorBoxBorderRadius') || '4';
@@ -2685,8 +2872,6 @@
 
             document.getElementById('showDoctor1').checked = localStorage.getItem('showDoctor1') !== 'false';
             document.getElementById('showDoctor2').checked = localStorage.getItem('showDoctor2') !== 'false';
-            document.getElementById('showDoctor3').checked = localStorage.getItem('showDoctor3') !== 'false';
-            document.getElementById('showDoctor4').checked = localStorage.getItem('showDoctor4') !== 'false';
             
             document.getElementById('tableWidth').value = localStorage.getItem('tableWidth') || '100';
             document.getElementById('cellPadding').value = localStorage.getItem('cellPadding') || '8';
@@ -2695,9 +2880,6 @@
             document.getElementById('printMarginBottom').value = localStorage.getItem('printMarginBottom') || '1.2';
             document.getElementById('printMarginLeft').value = localStorage.getItem('printMarginLeft') || '0.7';
             document.getElementById('printMarginRight').value = localStorage.getItem('printMarginRight') || '0.7';
-
-            // تحميل تخطيط معلومات المريض
-            document.getElementById('patientInfoLayout').value = localStorage.getItem('patientInfoLayout') || 'horizontal';
         }
 
         function saveSettings() {
@@ -2707,8 +2889,6 @@
             localStorage.setItem('biologistName', document.getElementById('biologistNameInput').value);
             localStorage.setItem('doctor1Name', document.getElementById('doctor1Name').value);
             localStorage.setItem('doctor2Name', document.getElementById('doctor2Name').value);
-            localStorage.setItem('doctor3Name', document.getElementById('doctor3Name').value);
-            localStorage.setItem('doctor4Name', document.getElementById('doctor4Name').value);
 
             localStorage.setItem('headerColor', document.getElementById('headerColor').value);
             localStorage.setItem('backgroundColor', document.getElementById('backgroundColor').value);
@@ -2728,6 +2908,13 @@
                 localStorage.setItem('labLogo', logoPreview.src);
             } else {
                 localStorage.removeItem('labLogo');
+            }
+
+            const backgroundPreview = document.getElementById('backgroundPreview');
+            if (backgroundPreview.src && backgroundPreview.src !== '') {
+                localStorage.setItem('printBackground', backgroundPreview.src);
+            } else {
+                localStorage.removeItem('printBackground');
             }
 
             localStorage.setItem('titleFontSize', document.getElementById('titleFontSize').value);
@@ -2770,8 +2957,6 @@
 
             localStorage.setItem('showDoctor1', document.getElementById('showDoctor1').checked);
             localStorage.setItem('showDoctor2', document.getElementById('showDoctor2').checked);
-            localStorage.setItem('showDoctor3', document.getElementById('showDoctor3').checked);
-            localStorage.setItem('showDoctor4', document.getElementById('showDoctor4').checked);
 
             localStorage.setItem('tableWidth', document.getElementById('tableWidth').value);
             localStorage.setItem('cellPadding', document.getElementById('cellPadding').value);
@@ -2780,9 +2965,6 @@
             localStorage.setItem('printMarginBottom', document.getElementById('printMarginBottom').value);
             localStorage.setItem('printMarginLeft', document.getElementById('printMarginLeft').value);
             localStorage.setItem('printMarginRight', document.getElementById('printMarginRight').value);
-
-            // حفظ تخطيط معلومات المريض
-            localStorage.setItem('patientInfoLayout', document.getElementById('patientInfoLayout').value);
 
             applySettings();
             toggleSettings();
@@ -2803,23 +2985,18 @@
             const labHeader = localStorage.getItem('labHeader') || '';
             const labAddress = localStorage.getItem('labAddress') || '  للشراء البرنامج تواصل معنا';
             const labPhone = localStorage.getItem('labPhone') || '07901821264';
-            const biologistName = localStorage.getItem('biologistName') || 'شكراً لزيارتككم';
+            const biologistName = localStorage.getItem('biologistName') || 'شكراً لزيارتكم';
             const doctor1Name = localStorage.getItem('doctor1Name') || 'الاول اسم الطبيب او التقني او البايلوجي';
             const doctor2Name = localStorage.getItem('doctor2Name') || ' الثاني اسم الطبيب او التقني او البايلوجي';
-            const doctor3Name = localStorage.getItem('doctor3Name') || ' الثالث اسم الطبيب او التقني او البايلوجي';
-            const doctor4Name = localStorage.getItem('doctor4Name') || ' الرابع اسم الطبيب او التقني او البايلوجي';
 
             // العنوان ثابت - لا يتم تغييره
-         
-
+            document.getElementById('labTitle').textContent = 'برنامج اوسكار للمختبرات الطبية    ';
             document.getElementById('customHeader').textContent = labHeader;
             document.getElementById('biologistName').textContent = biologistName;
             document.getElementById('labAddress').textContent = labAddress;
             document.getElementById('labPhone').textContent = labPhone;
             document.getElementById('doctor1').textContent = doctor1Name;
             document.getElementById('doctor2').textContent = doctor2Name;
-            document.getElementById('doctor3').textContent = doctor3Name;
-            document.getElementById('doctor4').textContent = doctor4Name;
 
             const savedLogo = localStorage.getItem('labLogo');
             const logoElement = document.getElementById('labLogo');
@@ -2849,7 +3026,7 @@
             document.documentElement.style.setProperty('--range-font-size', (localStorage.getItem('rangeFontSize') || '16') + 'px');
             document.documentElement.style.setProperty('--footer-font-size', (localStorage.getItem('footerFontSize') || '14') + 'px');
             document.documentElement.style.setProperty('--doctor-font-size', (localStorage.getItem('doctorFontSize') || '14') + 'px');
-            document.documentElement.style.setProperty('--patient-info-font-size', (localStorage.getItem('patientInfoFontSize') || '12') + 'px');
+            document.documentElement.style.setProperty('--patient-info-font-size', (localStorage.getItem('patientInfoFontSize') || '14') + 'px');
             document.documentElement.style.setProperty('--section-title-font-size', (localStorage.getItem('sectionTitleFontSize') || '20') + 'px');
 
             document.documentElement.style.setProperty('--title-font-color', localStorage.getItem('titleFontColor') || '#0056b3');
@@ -2887,28 +3064,19 @@
             document.documentElement.style.setProperty('--print-margin-top', (localStorage.getItem('printMarginTop') || '0.7') + 'cm');
             document.documentElement.style.setProperty('--print-margin-bottom', (localStorage.getItem('printMarginBottom') || '1.2') + 'cm');
             document.documentElement.style.setProperty('--print-margin-left', (localStorage.getItem('printMarginLeft') || '0.7') + 'cm');
-            document.documentElement.style.setProperty('--print-margin-right', (localStorage.getItem('printMarginRight') || '0.7') + 'cm');
+            document.documentElement.style.setProperty('--print-margin-right', localStorage.getItem('printMarginRight') || '0.7' + 'cm');
 
             const showDoctor1 = localStorage.getItem('showDoctor1') !== 'false';
             const showDoctor2 = localStorage.getItem('showDoctor2') !== 'false';
-            const showDoctor3 = localStorage.getItem('showDoctor3') !== 'false';
-            const showDoctor4 = localStorage.getItem('showDoctor4') !== 'false';
             document.getElementById('doctor1').classList.toggle('hidden', !showDoctor1);
             document.getElementById('doctor2').classList.toggle('hidden', !showDoctor2);
-            document.getElementById('doctor3').classList.toggle('hidden', !showDoctor3);
-            document.getElementById('doctor4').classList.toggle('hidden', !showDoctor4);
 
             const doctorsContainer = document.querySelector('.doctors-container');
-            if (!showDoctor1 && !showDoctor2 && !showDoctor3 && !showDoctor4) {
+            if (!showDoctor1 && !showDoctor2) {
                 doctorsContainer.style.display = 'none';
             } else {
-                doctorsContainer.style.display = 'grid';
+                doctorsContainer.style.display = 'flex';
             }
-
-            // تطبيق تخطيط معلومات المريض
-            const layout = localStorage.getItem('patientInfoLayout') || 'horizontal';
-            const columns = layout === 'vertical' ? '1fr' : 'repeat(auto-fit, minmax(200px, 1fr))';
-            document.documentElement.style.setProperty('--patient-info-columns', columns);
         }
 
         function toggleSettings() {
@@ -2919,7 +3087,1515 @@
             }
         }
 
-        // ... (باقي الدوال تبقى كما هي، بما في ذلك loadLabStructure, renderLabStructure, إلخ) ...
+        // دوال إدارة الخيارات المتعددة
+        function toggleChoicesContainer() {
+            const answerType = document.getElementById('answer-type').value;
+            const choicesContainer = document.getElementById('choices-container');
+            
+            if (answerType === 'select' || answerType === 'multiple') {
+                choicesContainer.style.display = 'block';
+            } else {
+                choicesContainer.style.display = 'none';
+            }
+        }
+
+        function addChoice() {
+            const choiceItems = document.getElementById('choice-items');
+            const newChoice = document.createElement('div');
+            newChoice.className = 'choice-item';
+            newChoice.innerHTML = `
+                <input type="text" class="choice-text-input" placeholder="أدخل خيار جديد">
+                <span class="remove-choice" onclick="removeChoice(this)">×</span>
+            `;
+            choiceItems.appendChild(newChoice);
+        }
+
+        function removeChoice(element) {
+            if (document.querySelectorAll('#choice-items .choice-item').length > 1) {
+                element.parentElement.remove();
+            } else {
+                alert('يجب أن يكون هناك خيار واحد على الأقل');
+            }
+        }
+
+        // دالة تسجيل الدخول
+        function login() {
+            const username = document.getElementById('usernameInput').value.trim();
+            const password = document.getElementById('passwordInputLogin').value.trim();
+            if (username === LOGIN_USERNAME && password === LOGIN_PASSWORD) {
+                document.getElementById('loginModal').style.display = 'none';
+                document.getElementById('mainContainer').style.display = 'block';
+                initDb();
+                loadLabStructure();
+                applySettings();
+            } else {
+                alert('اسم المستخدم أو كلمة المرور خاطئة!');
+            }
+        }
+
+        // دوال قاعدة البيانات
+        function initDb() {
+            const request = indexedDB.open(DB_NAME, DB_VERSION);
+            request.onerror = (event) => console.error("IndexedDB error:", event.target.error);
+            request.onupgradeneeded = (event) => {
+                db = event.target.result;
+                if (db.objectStoreNames.contains('patients')) { // إزالة الـ store القديم إذا وجد
+                    db.deleteObjectStore('patients');
+                }
+                if (!db.objectStoreNames.contains(STORE_NAME)) {
+                    const patientStore = db.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
+                    patientStore.createIndex('patientName', 'patientName', { unique: false });
+                    patientStore.createIndex('visitDate', 'visitDate', { unique: false });
+                }
+                if (!db.objectStoreNames.contains(STATS_STORE_NAME)) {
+                    const statsStore = db.createObjectStore(STATS_STORE_NAME, { keyPath: 'id', autoIncrement: true });
+                    statsStore.createIndex('date', 'date', { unique: false });
+                    statsStore.createIndex('testName', 'testName', { unique: false });
+                }
+            };
+            request.onsuccess = (event) => {
+                db = event.target.result;
+                console.log("Database initialized successfully");
+            };
+        }
+
+        // دوال إدارة هيكل المختبر
+        function loadLabStructure() {
+            const customSections = JSON.parse(localStorage.getItem('customSections') || '{}');
+            const customTests = JSON.parse(localStorage.getItem('customTests') || '{}');
+            const customSectionTitles = JSON.parse(localStorage.getItem('customSectionTitles') || '{}');
+
+            labStructure = JSON.parse(JSON.stringify(defaultLabStructure));
+
+            // تطبيق التعديلات على أسماء الأقسام الافتراضية
+            labStructure.forEach(section => {
+                if (customSectionTitles[section.id]) {
+                    section.title = customSectionTitles[section.id];
+                }
+            });
+
+            // إضافة الأقسام المخصصة
+            for (const sectionId in customSections) {
+                const customSection = customSections[sectionId];
+                const tests = {};
+                customSection.tests.forEach(test => {
+                    tests[test.name] = test;
+                });
+                labStructure.push({
+                    id: sectionId,
+                    title: customSection.name,
+                    icon: customSection.icon,
+                    tests: tests
+                });
+            }
+
+            // إضافة التحاليل المخصصة للأقسام الموجودة
+            for (const sectionId in customTests) {
+                const existingSection = labStructure.find(sec => sec.id === sectionId);
+                if (existingSection) {
+                    customTests[sectionId].forEach(test => {
+                        existingSection.tests[test.name] = test;
+                    });
+                }
+            }
+
+            // تطبيق التعديلات على أسماء الأقسام المخصصة إذا كان هناك
+            labStructure.forEach(section => {
+                if (customSectionTitles[section.id]) {
+                    section.title = customSectionTitles[section.id];
+                }
+            });
+
+            renderLabStructure();
+            updateSelectMenus();
+        }
+
+        function createResultInput(test) {
+            const testName = Object.keys(test)[0];
+            const testData = test[testName];
+            
+            let inputHTML;
+            if (testData.type === 'text') {
+                inputHTML = `<input type="text" class="result-input" data-test-name="${testName}" placeholder="أدخل النتيجة">`;
+            } else if (testData.type === 'select') {
+                inputHTML = `<select class="result-select" data-test-name="${testName}"><option value="">اختر...</option>`;
+                if (testData.choices && testData.choices.length > 0) {
+                    testData.choices.forEach(choice => {
+                        inputHTML += `<option value="${choice}">${choice}</option>`;
+                    });
+                } else {
+                    inputHTML += '<option value="Positive">Positive</option><option value="Negative">Negative</option>';
+                }
+                inputHTML += '</select>';
+            } else if (testData.type === 'multiple') {
+                inputHTML = `<div class="multiple-choice-container" data-test-name="${testName}">`;
+                if (testData.choices && testData.choices.length > 0) {
+                    testData.choices.forEach((choice, index) => {
+                        inputHTML += `
+                            <div class="choice-option" onclick="selectChoice(this)">
+                                <input type="radio" name="${testName}_choices" class="choice-radio" value="${choice}" id="${testName}_choice_${index}">
+                                <label for="${testName}_choice_${index}" class="choice-text">${choice}</label>
+                            </div>
+                        `;
+                    });
+                } else {
+                    inputHTML += `
+                        <div class="choice-option" onclick="selectChoice(this)">
+                            <input type="radio" name="${testName}_choices" class="choice-radio" value="Positive" id="${testName}_choice_0">
+                            <label for="${testName}_choice_0" class="choice-text">Positive</label>
+                        </div>
+                        <div class="choice-option" onclick="selectChoice(this)">
+                            <input type="radio" name="${testName}_choices" class="choice-radio" value="Negative" id="${testName}_choice_1">
+                            <label for="${testName}_choice_1" class="choice-text">Negative</label>
+                        </div>
+                    `;
+                }
+                inputHTML += '</div>';
+            } else {
+                inputHTML = `<input type="text" class="result-input" data-test-name="${testName}" placeholder="أدخل النتيجة">`;
+            }
+            
+            // إضافة الخيار الصغير H N L
+            const hlnHTML = `
+                <select class="hln-select" data-test-name="${testName}">
+                    <option value=""></option>
+                    <option value="H">H</option>
+                    <option value="N">N</option>
+                    <option value="L">L</option>
+                </select>
+            `;
+            
+            return `<div class="result-container">${inputHTML}${hlnHTML}</div>`;
+        }
+
+        function renderLabStructure() {
+            const resultsContainer = document.getElementById('resultsContainer');
+            resultsContainer.innerHTML = '';
+            
+            labStructure.forEach(section => {
+                const sectionDiv = document.createElement('div');
+                sectionDiv.id = section.id;
+                sectionDiv.className = 'section';
+                
+                let tableHTML = `<div class="section-title"><i class="${section.icon}"></i> ${section.title}</div>`;
+                
+                tableHTML += `<table><thead><tr><th>Test</th><th>Result</th><th class="no-print">Price (IQD)</th><th>Normal Range</th></tr></thead><tbody>`;
+                for (const testName in section.tests) {
+                    const testData = section.tests[testName];
+                    tableHTML += `
+                        <tr>
+                            <td class="test-name">${testName}</td>
+                            <td>${createResultInput({[testName]: testData})}</td>
+                            <td class="test-price no-print">${testData.price || '0'}</td>
+                            <td class="normal-range">${testData.range || ''}</td>
+                        </tr>
+                    `;
+                }
+                tableHTML += `</tbody></table>`;
+                
+                sectionDiv.innerHTML = tableHTML;
+                resultsContainer.appendChild(sectionDiv);
+            });
+            
+            // إضافة مستمعين للعناصر الجديدة
+            addEventListenersToResults();
+            showSelectedSection();
+        }
+
+        function addEventListenersToResults() {
+            // إضافة مستمعين للـ inputs والـ selects
+            document.querySelectorAll('.result-input, .result-select').forEach(input => {
+                input.removeEventListener('input', updateFilledTests);
+                input.removeEventListener('change', updateFilledTests);
+                input.addEventListener('input', updateFilledTests);
+                input.addEventListener('change', updateFilledTests);
+            });
+
+            // إضافة مستمعين للعناصر المتعددة
+            document.querySelectorAll('.choice-radio').forEach(radio => {
+                radio.removeEventListener('change', updateFilledTests);
+                radio.addEventListener('change', updateFilledTests);
+            });
+
+            // إضافة مستمعين للنقر على الخيارات
+            document.querySelectorAll('.choice-option').forEach(option => {
+                option.removeEventListener('click', handleChoiceClick);
+                option.addEventListener('click', handleChoiceClick);
+            });
+            
+            // إضافة مستمعين للـ H L N
+            document.querySelectorAll('.hln-select').forEach(select => {
+                select.removeEventListener('change', updateFilledTests);
+                select.addEventListener('change', updateFilledTests);
+            });
+        }
+
+        function handleChoiceClick(element) {
+            const radio = element.querySelector('.choice-radio');
+            if (radio) {
+                radio.checked = true;
+                radio.dispatchEvent(new Event('change'));
+                
+                // تحديث مظهر الخيار
+                document.querySelectorAll('.choice-option').forEach(opt => {
+                    opt.classList.remove('selected');
+                });
+                element.classList.add('selected');
+            }
+        }
+
+        function selectChoice(element) {
+            const radio = element.querySelector('.choice-radio');
+            if (radio) {
+                radio.checked = true;
+                radio.dispatchEvent(new Event('change'));
+                
+                // تحديث مظهر الخيار
+                document.querySelectorAll(`[name="${radio.name}"]`).forEach(radioInput => {
+                    const parentOption = radioInput.closest('.choice-option');
+                    if (radioInput.checked) {
+                        parentOption.classList.add('selected');
+                    } else {
+                        parentOption.classList.remove('selected');
+                    }
+                });
+            }
+        }
+
+        function updateSelectMenus() {
+            const testSelect = document.getElementById('test-select');
+            const sectionSelectModal = document.getElementById('sectionSelect');
+            const sectionForNewTestSelect = document.getElementById('existing-sections');
+            
+            testSelect.innerHTML = '<option value="">اختر قسم...</option>';
+            if (sectionSelectModal) sectionSelectModal.innerHTML = '<option value="">اختر قسم...</option>';
+            if (sectionForNewTestSelect) sectionForNewTestSelect.innerHTML = '<option value="">اختر قسم...</option>';
+            
+            labStructure.forEach(section => {
+                const option = document.createElement('option');
+                option.value = section.id;
+                option.textContent = section.title;
+                testSelect.appendChild(option.cloneNode(true));
+                
+                if (sectionSelectModal) {
+                    const option2 = option.cloneNode(true);
+                    sectionSelectModal.appendChild(option2);
+                }
+                
+                if (sectionForNewTestSelect) {
+                    const option3 = option.cloneNode(true);
+                    sectionForNewTestSelect.appendChild(option3);
+                }
+            });
+            
+            populateExistingSections();
+        }
+
+        // دوال إدارة النطاقات
+        function openRangeManager() {
+            document.getElementById('rangeModal').style.display = 'block';
+            updateSelectMenus();
+            loadSectionRanges();
+        }
+
+        function closeRangeManager() {
+            document.getElementById('rangeModal').style.display = 'none';
+        }
+
+        function loadSectionRanges() {
+            const sectionId = document.getElementById('sectionSelect').value;
+            if (!sectionId) {
+                document.getElementById('rangeTableContainer').innerHTML = '<p>يرجى اختيار قسم لعرض التحاليل</p>';
+                document.getElementById('sectionNameEdit').style.display = 'none';
+                return;
+            }
+            
+            const selectedSection = labStructure.find(sec => sec.id === sectionId);
+            if (!selectedSection) {
+                document.getElementById('rangeTableContainer').innerHTML = '<p>القسم غير موجود</p>';
+                document.getElementById('sectionNameEdit').style.display = 'none';
+                return;
+            }
+
+            // عرض حقل تعديل اسم القسم
+            document.getElementById('editSectionName').value = selectedSection.title;
+            document.getElementById('sectionNameEdit').style.display = 'block';
+
+            let tableHTML = `
+                <table class="range-table">
+                    <tr>
+                        <th>اسم التحليل</th>
+                        <th>النطاق الطبيعي</th>
+                        <th>السعر (IQD)</th>
+                        <th>نوع الإجابة</th>
+                        <th>إجراءات</th>
+                    </tr>
+            `;
+            
+            for (const testName in selectedSection.tests) {
+                const testData = selectedSection.tests[testName];
+                tableHTML += `
+                    <tr>
+                        <td>${testName}</td>
+                        <td>
+                            <input type="text" class="normal-range-input" 
+                                data-section="${sectionId}" 
+                                data-test="${testName}" 
+                                value="${testData.range || ''}">
+                        </td>
+                        <td>
+                            <input type="number" class="normal-range-input" 
+                                data-section="${sectionId}" 
+                                data-test="${testName}_price" 
+                                value="${testData.price || 0}">
+                        </td>
+                        <td>
+                            <select class="form-input" style="width: 100px;">
+                                <option value="text" ${testData.type === 'text' ? 'selected' : ''}>نص</option>
+                                <option value="select" ${testData.type === 'select' ? 'selected' : ''}>اختيار واحد</option>
+                                <option value="multiple" ${testData.type === 'multiple' ? 'selected' : ''}>اختيار متعدد</option>
+                            </select>
+                        </td>
+                        <td>
+                            <button class="btn btn-clear" onclick="removeTest('${sectionId}', '${testName}')" style="padding: 5px 10px; font-size: 12px;">
+                                <i class="fas fa-trash"></i> حذف
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }
+            
+            tableHTML += `</table>`;
+            document.getElementById('rangeTableContainer').innerHTML = tableHTML;
+        }
+
+        function saveSectionName() {
+            const sectionId = document.getElementById('sectionSelect').value;
+            const newName = document.getElementById('editSectionName').value.trim();
+            
+            if (!newName) {
+                alert('يرجى إدخال اسم جديد للقسم.');
+                return;
+            }
+            
+            const selectedSection = labStructure.find(sec => sec.id === sectionId);
+            if (selectedSection) {
+                selectedSection.title = newName;
+            }
+
+            // حفظ التعديل في localStorage
+            let customSectionTitles = JSON.parse(localStorage.getItem('customSectionTitles') || '{}');
+            customSectionTitles[sectionId] = newName;
+            localStorage.setItem('customSectionTitles', JSON.stringify(customSectionTitles));
+
+            // إذا كان قسم مخصص، تحديث في customSections أيضًا
+            let customSections = JSON.parse(localStorage.getItem('customSections') || '{}');
+            if (customSections[sectionId]) {
+                customSections[sectionId].name = newName;
+                localStorage.setItem('customSections', JSON.stringify(customSections));
+            }
+            
+            loadLabStructure();
+            alert('تم تعديل اسم القسم بنجاح!');
+            loadSectionRanges(); // إعادة تحميل الجدول
+        }
+
+        function saveRanges() {
+            const inputs = document.querySelectorAll('#rangeTableContainer .normal-range-input');
+            const typeSelects = document.querySelectorAll('#rangeTableContainer select');
+            const customRanges = JSON.parse(localStorage.getItem('customTests') || '{}');
+
+            let index = 0;
+            inputs.forEach((input, i) => {
+                if (i % 2 === 0) { // النطاق الطبيعي
+                    const sectionId = input.dataset.section;
+                    const testName = input.dataset.test;
+                    const rangeValue = input.value.trim();
+                    const typeValue = typeSelects[index].value;
+
+                    const section = labStructure.find(sec => sec.id === sectionId);
+                    if (section && section.tests[testName]) {
+                        section.tests[testName].range = rangeValue;
+                        section.tests[testName].type = typeValue;
+                        if (!customRanges[sectionId]) {
+                            customRanges[sectionId] = [];
+                        }
+                        const existingTest = customRanges[sectionId].find(test => test.name === testName);
+                        if (existingTest) {
+                            existingTest.range = rangeValue;
+                            existingTest.type = typeValue;
+                        } else {
+                            customRanges[sectionId].push({ 
+                                name: testName, 
+                                range: rangeValue,
+                                type: typeValue
+                            });
+                        }
+                        index++;
+                    }
+                } else { // السعر
+                    const sectionId = input.dataset.section;
+                    const testName = input.dataset.test.replace('_price', '');
+                    const priceValue = parseInt(input.value) || 0;
+
+                    const section = labStructure.find(sec => sec.id === sectionId);
+                    if (section && section.tests[testName]) {
+                        section.tests[testName].price = priceValue;
+                        const existingTest = customRanges[sectionId].find(test => test.name === testName);
+                        if (existingTest) {
+                            existingTest.price = priceValue;
+                        }
+                    }
+                }
+            });
+
+            localStorage.setItem('customTests', JSON.stringify(customRanges));
+            
+            loadLabStructure();
+            alert('تم حفظ النطاقات الطبيعية والأسعار بنجاح!');
+            closeRangeManager();
+        }
+
+        function removeTest(sectionId, testName) {
+            if (confirm(`هل تريد حذف التحليل "${testName}"؟`)) {
+                const section = labStructure.find(sec => sec.id === sectionId);
+                if (section) {
+                    delete section.tests[testName];
+                    
+                    // تحديث localStorage
+                    let customTests = JSON.parse(localStorage.getItem('customTests') || '{}');
+                    if (customTests[sectionId]) {
+                        customTests[sectionId] = customTests[sectionId].filter(test => test.name !== testName);
+                        if (customTests[sectionId].length === 0) {
+                            delete customTests[sectionId];
+                        }
+                        localStorage.setItem('customTests', JSON.stringify(customTests));
+                    }
+                    
+                    loadLabStructure();
+                    loadSectionRanges();
+                    alert('تم حذف التحليل بنجاح!');
+                }
+            }
+        }
+
+        // دوال إدارة الأقسام والتحاليل الجديدة
+        function openAddSectionModal() {
+            document.getElementById('addSectionModal').style.display = 'block';
+            populateExistingSections();
+        }
+
+        function closeAddSectionModal() {
+            document.getElementById('addSectionModal').style.display = 'none';
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.modal-tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            const activeTab = document.querySelector(`[data-tab="${tabId}"]`);
+            if (activeTab) activeTab.classList.add('active');
+            
+            const activeContent = document.getElementById(tabId);
+            if (activeContent) activeContent.classList.add('active');
+            
+            if (tabId === 'add-test-tab') {
+                toggleChoicesContainer();
+            }
+        }
+
+        function addNewTestField() {
+            const newTestHTML = `
+                <div class="test-item">
+                    <input type="text" class="form-input test-name-input" placeholder="اسم التحليل">
+                    <input type="text" class="form-input test-range-input" placeholder="النطاق الطبيعي">
+                    <input type="number" class="form-input test-price-input" placeholder="السعر (IQD)">
+                    <span class="remove-test" onclick="removeNewTest(this)">×</span>
+                </div>
+            `;
+            document.getElementById('new-section-tests').insertAdjacentHTML('beforeend', newTestHTML);
+        }
+
+        function removeNewTest(element) {
+            element.parentElement.remove();
+        }
+
+        function saveNewSection() {
+            const sectionName = document.getElementById('new-section-name').value.trim();
+            const sectionIcon = document.getElementById('new-section-icon').value;
+            
+            if (!sectionName) {
+                alert('يرجى إدخال اسم للقسم الجديد.');
+                return;
+            }
+            
+            const sectionId = 'customSection_' + Date.now();
+            const testItems = document.querySelectorAll('#new-section-tests .test-item');
+            const tests = [];
+            
+            testItems.forEach(testItem => {
+                const nameInput = testItem.querySelector('.test-name-input');
+                const rangeInput = testItem.querySelector('.test-range-input');
+                const priceInput = testItem.querySelector('.test-price-input');
+                
+                if (nameInput.value.trim() && rangeInput.value.trim() && priceInput.value.trim()) {
+                    tests.push({
+                        name: nameInput.value.trim(),
+                        range: rangeInput.value.trim(),
+                        price: parseInt(priceInput.value.trim()),
+                        type: 'text'
+                    });
+                }
+            });
+            
+            if (tests.length === 0) {
+                alert('يرجى إدخال تحليل واحد على الأقل للقسم الجديد.');
+                return;
+            }
+            
+            let customSections = JSON.parse(localStorage.getItem('customSections') || '{}');
+            customSections[sectionId] = {
+                name: sectionName,
+                icon: sectionIcon,
+                tests: tests
+            };
+            localStorage.setItem('customSections', JSON.stringify(customSections));
+            
+            loadLabStructure();
+            
+            document.getElementById('new-section-name').value = '';
+            document.getElementById('new-section-tests').innerHTML = `
+                <div class="test-item">
+                    <input type="text" class="form-input test-name-input" placeholder="اسم التحليل">
+                    <input type="text" class="form-input test-range-input" placeholder="النطاق الطبيعي">
+                    <input type="number" class="form-input test-price-input" placeholder="السعر (IQD)">
+                    <span class="remove-test" onclick="removeNewTest(this)">×</span>
+                </div>
+            `;
+            
+            alert('تم إضافة القسم الجديد بنجاح!');
+            closeAddSectionModal();
+        }
+
+        function populateExistingSections() {
+            const existingSectionsSelect = document.getElementById('existing-sections');
+            if (!existingSectionsSelect) return;
+            
+            existingSectionsSelect.innerHTML = '<option value="">اختر قسم...</option>';
+            
+            labStructure.forEach(section => {
+                const option = document.createElement('option');
+                option.value = section.id;
+                option.textContent = section.title;
+                existingSectionsSelect.appendChild(option);
+            });
+        }
+
+        function saveNewTest() {
+            const sectionId = document.getElementById('existing-sections').value;
+            const testName = document.getElementById('new-test-name').value.trim();
+            const testRange = document.getElementById('new-test-range').value.trim();
+            const testPrice = parseInt(document.getElementById('new-test-price').value.trim()) || 0;
+            const answerType = document.getElementById('answer-type').value;
+            
+            if (!sectionId || !testName || !testRange || testPrice <= 0) {
+                alert('يرجى إدخال اسم القسم واسم التحليل والنطاق الطبيعي والسعر.');
+                return;
+            }
+            
+            // التحقق من عدم تكرار التحليل
+            const selectedSection = labStructure.find(sec => sec.id === sectionId);
+            if (selectedSection && selectedSection.tests[testName]) {
+                alert('هذا التحليل موجود بالفعل في هذا القسم.');
+                return;
+            }
+            
+            let newTest = {
+                name: testName,
+                range: testRange,
+                price: testPrice,
+                type: answerType
+            };
+            
+            // إضافة الخيارات إذا كانت اختيار واحد أو متعدد
+            if (answerType === 'select' || answerType === 'multiple') {
+                const choiceInputs = document.querySelectorAll('#choice-items .choice-text-input');
+                const choices = [];
+                let hasEmptyChoice = false;
+                
+                choiceInputs.forEach(input => {
+                    const value = input.value.trim();
+                    if (value) {
+                        choices.push(value);
+                    } else if (!value && choices.length === 0) {
+                        hasEmptyChoice = true;
+                    }
+                });
+                
+                if (hasEmptyChoice && choices.length === 0) {
+                    alert('يرجى إدخل خيار واحد على الأقل للتحليل.');
+                    return;
+                }
+                
+                if (choices.length > 0) {
+                    newTest.choices = choices;
+                }
+            }
+            
+            let customTests = JSON.parse(localStorage.getItem('customTests') || '{}');
+            if (!customTests[sectionId]) {
+                customTests[sectionId] = [];
+            }
+            
+            // التحقق من عدم التكرار في التحاليل المخصصة
+            const existingTest = customTests[sectionId].find(test => test.name === testName);
+            if (existingTest) {
+                alert('هذا التحليل موجود بالفعل.');
+                return;
+            }
+            
+            customTests[sectionId].push(newTest);
+            localStorage.setItem('customTests', JSON.stringify(customTests));
+            
+            loadLabStructure();
+            
+            // إعادة تعيين النموذج
+            document.getElementById('new-test-name').value = '';
+            document.getElementById('new-test-range').value = '';
+            document.getElementById('new-test-price').value = '';
+            document.getElementById('answer-type').value = 'text';
+            document.getElementById('existing-sections').selectedIndex = 0;
+            document.getElementById('choices-container').style.display = 'none';
+            document.getElementById('choice-items').innerHTML = `
+                <div class="choice-item">
+                    <input type="text" class="choice-text-input" placeholder="أدخل الخيار الأول">
+                    <span class="remove-choice" onclick="removeChoice(this)">×</span>
+                </div>
+            `;
+            
+            alert('تم إضافة التحليل الجديد بنجاح!');
+        }
+
+        // دوال إدارة بيانات المريض (مع دعم المراجعات المتعددة)
+        function savePatientData() {
+            const patientName = document.getElementById('patientName').value.trim();
+            if (!patientName) {
+                alert('يرجى إدخال اسم المريض أولاً.');
+                return;
+            }
+
+            if (!db) {
+                alert('قاعدة البيانات غير جاهزة. يرجى المحاولة مرة أخرى.');
+                return;
+            }
+
+            const transaction = db.transaction([STORE_NAME], 'readwrite');
+            const store = transaction.objectStore(STORE_NAME);
+
+            const patientData = {
+                patientName: patientName,
+                patientAge: document.getElementById('patientAge').value,
+                patientGender: document.getElementById('patientGender').value,
+                currentDate: document.getElementById('currentDate').value,
+                doctorName: document.getElementById('doctorName').value,
+                examinerName: document.getElementById('examinerName')?.value || '',
+                biologistSignature: document.getElementById('biologistSignature')?.value || '',
+                issueDate: document.getElementById('issueDate')?.value || '',
+                visitDate: new Date().toISOString().split('T')[0], // تاريخ المراجعة
+                tests: {}
+            };
+
+            const allSections = document.querySelectorAll('.section');
+            allSections.forEach(section => {
+                const sectionId = section.id;
+                patientData.tests[sectionId] = {};
+                
+                // التعامل مع الـ inputs العادية والـ selects
+                const textInputs = section.querySelectorAll('.result-input, .result-select');
+                textInputs.forEach(input => {
+                    const testName = input.dataset.testName || input.closest('tr')?.querySelector('.test-name')?.textContent?.trim();
+                    if (testName && input.value.trim()) {
+                        patientData.tests[sectionId][testName] = input.value.trim();
+                    }
+                });
+                
+                // التعامل مع الخيارات المتعددة
+                const multipleContainers = section.querySelectorAll('.multiple-choice-container');
+                multipleContainers.forEach(container => {
+                    const testName = container.dataset.testName;
+                    const selectedRadio = container.querySelector('input[type="radio"]:checked');
+                    if (testName && selectedRadio) {
+                        patientData.tests[sectionId][testName] = selectedRadio.value;
+                    }
+                });
+
+                // التعامل مع H L N
+                const hlnSelects = section.querySelectorAll('.hln-select');
+                hlnSelects.forEach(select => {
+                    const testName = select.dataset.testName;
+                    if (testName && select.value) {
+                        patientData.tests[sectionId][testName + '_hln'] = select.value;
+                    }
+                });
+            });
+
+            const request = store.add(patientData); // استخدام add بدلاً من put لإضافة مراجعة جديدة
+
+            request.onsuccess = () => {
+                // حفظ الإحصائيات
+                saveStatsForPatient(patientData);
+                alert('تم حفظ بيانات المريض بنجاح!');
+                updateFilledTests();
+            };
+
+            request.onerror = (event) => {
+                console.error("خطأ في الحفظ:", event.target.error);
+                alert('فشل في حفظ البيانات. يرجى المحاولة مرة أخرى.');
+            };
+        }
+
+        // دالة حفظ الإحصائيات
+        function saveStatsForPatient(patientData) {
+            const saveDate = new Date().toISOString();
+            const statsTransaction = db.transaction([STATS_STORE_NAME], 'readwrite');
+            const statsStore = statsTransaction.objectStore(STATS_STORE_NAME);
+
+            let totalTests = 0;
+            for (const sectionId in patientData.tests) {
+                for (const testName in patientData.tests[sectionId]) {
+                    if (patientData.tests[sectionId][testName] && !testName.endsWith('_hln')) {
+                        const statEntry = {
+                            date: saveDate,
+                            testName: testName,
+                            patientName: patientData.patientName
+                        };
+                        statsStore.add(statEntry);
+                        totalTests++;
+                    }
+                }
+            }
+        }
+
+        function loadPatientData() {
+            document.getElementById('searchModal').style.display = 'block';
+        }
+
+        function searchPatientData() {
+            const patientName = document.getElementById('searchPatientName').value.trim();
+            if (!patientName) {
+                alert('يرجى إدخال اسم المريض للبحث.');
+                return;
+            }
+
+            if (!db) {
+                alert('قاعدة البيانات غير جاهزة.');
+                return;
+            }
+
+            const transaction = db.transaction([STORE_NAME], 'readonly');
+            const store = transaction.objectStore(STORE_NAME);
+            const index = store.index('patientName');
+            const request = index.getAll(patientName);
+
+            request.onsuccess = (event) => {
+                const visits = event.target.result;
+                if (visits.length > 0) {
+                    if (visits.length === 1) {
+                        // إذا كانت مراجعة واحدة فقط، حمّلها مباشرة
+                        loadVisitData(visits[0].id);
+                    } else {
+                        // إذا كانت مراجعات متعددة، اعرض قائمة
+                        showVisitsList(visits, patientName);
+                    }
+                } else {
+                    alert('لم يتم العثور على بيانات لهذا المريض.');
+                }
+            };
+
+            request.onerror = (event) => {
+                console.error("خطأ في الاستعادة:", event.target.error);
+                alert('فشل في استعادة البيانات.');
+            };
+        }
+
+        function showVisitsList(visits, patientName) {
+            let listHTML = '<div style="text-align: center; margin: 20px 0;"><h3>اختر مراجعة للاستعادة:</h3><ul style="list-style: none; padding: 0;">';
+            visits.forEach(visit => {
+                listHTML += `<li style="padding: 10px; border: 1px solid #ddd; margin: 5px 0; border-radius: 5px;">
+                    <strong>${visit.visitDate}</strong> - ${Object.values(visit.tests).reduce((acc, sec) => acc + Object.keys(sec).length, 0)} تحليل
+                    <button class="visit-load-btn" onclick="loadVisitData(${visit.id})" style="margin-left: 10px;">تحميل</button>
+                </li>`;
+            });
+            listHTML += '</ul></div>';
+            const modalContent = document.querySelector('#searchModal .modal-content');
+            modalContent.innerHTML = `<span class="close" onclick="closeSearchModal()">&times;</span>
+                <h2 style="text-align: center;">مراجعات المريض: ${patientName}</h2>
+                ${listHTML}
+                <button class="btn btn-clear" onclick="closeSearchModal()" style="width: 100%; margin-top: 20px;">إغلاق</button>`;
+        }
+
+        function loadVisitData(visitId) {
+            if (!db) return;
+
+            const transaction = db.transaction([STORE_NAME], 'readonly');
+            const store = transaction.objectStore(STORE_NAME);
+            const request = store.get(visitId);
+
+            request.onsuccess = (event) => {
+                const patientData = event.target.result;
+                if (patientData) {
+                    document.getElementById('patientName').value = patientData.patientName || '';
+                    document.getElementById('patientAge').value = patientData.patientAge || '';
+                    document.getElementById('patientGender').value = patientData.patientGender || '';
+                    document.getElementById('currentDate').value = patientData.currentDate || '';
+                    document.getElementById('doctorName').value = patientData.doctorName || '';
+                    if (document.getElementById('examinerName')) {
+                        document.getElementById('examinerName').value = patientData.examinerName || '';
+                    }
+                    if (document.getElementById('biologistSignature')) {
+                        document.getElementById('biologistSignature').value = patientData.biologistSignature || '';
+                    }
+                    if (document.getElementById('issueDate')) {
+                        document.getElementById('issueDate').value = patientData.issueDate || '';
+                    }
+
+                    // مسح جميع النتائج أولاً
+                    document.querySelectorAll('.result-input, .result-select').forEach(input => {
+                        input.value = '';
+                    });
+                    document.querySelectorAll('.choice-radio').forEach(radio => {
+                        radio.checked = false;
+                    });
+                    document.querySelectorAll('.choice-option').forEach(option => {
+                        option.classList.remove('selected');
+                    });
+                    document.querySelectorAll('.hln-select').forEach(select => {
+                        select.value = '';
+                    });
+                    
+                    // استعادة النتائج
+                    for (const sectionId in patientData.tests) {
+                        const tests = patientData.tests[sectionId];
+                        for (const testName in tests) {
+                            if (testName.endsWith('_hln')) {
+                                const baseName = testName.replace('_hln', '');
+                                const select = document.querySelector(`#${sectionId} [data-test-name="${baseName}"].hln-select`);
+                                if (select) {
+                                    select.value = tests[testName];
+                                }
+                            } else {
+                                const testRows = document.querySelectorAll('#' + sectionId + ' .test-name');
+                                for (let row of testRows) {
+                                    if (row.textContent.trim() === testName) {
+                                        const input = row.closest('tr').querySelector('.result-input, .result-select');
+                                        if (input) {
+                                            input.value = tests[testName];
+                                        }
+                                        break;
+                                    }
+                                }
+                                
+                                // استعادة الخيارات المتعددة
+                                const multipleContainer = document.querySelector(`#${sectionId} [data-test-name="${testName}"]`);
+                                if (multipleContainer && multipleContainer.classList.contains('multiple-choice-container')) {
+                                    const radios = multipleContainer.querySelectorAll('input[type="radio"]');
+                                    radios.forEach(radio => {
+                                        if (radio.value === tests[testName]) {
+                                            radio.checked = true;
+                                            const parentOption = radio.closest('.choice-option');
+                                            if (parentOption) {
+                                                parentOption.classList.add('selected');
+                                            }
+                                        }
+                                    });
+                                }
+                            }
+                        }
+                    }
+
+                    alert('تم استعادة بيانات المراجعة بنجاح!');
+                    closeSearchModal();
+                    updateFilledTests();
+                }
+            };
+        }
+
+        function closeSearchModal() {
+            document.getElementById('searchModal').style.display = 'none';
+            document.getElementById('searchPatientName').value = '';
+            // إعادة تعيين محتوى الـ modal
+            const modalContent = document.querySelector('#searchModal .modal-content');
+            modalContent.innerHTML = `
+                <span class="close" onclick="closeSearchModal()">&times;</span>
+                <h2 style="text-align: center; margin-bottom: 20px;">البحث عن بيانات المريض</h2>
+                <div style="margin-bottom: 20px;">
+                    <label for="searchPatientName">اسم المريض:</label>
+                    <input type="text" id="searchPatientName" class="form-input" placeholder="أدخل اسم المريض" style="width: 100%; padding: 10px; margin-top: 5px;">
+                </div>
+                <div style="text-align: left; margin-top: 20px;">
+                    <button class="btn btn-load" onclick="searchPatientData()">
+                        <i class="fas fa-search"></i> البحث
+                    </button>
+                    <button class="btn btn-clear" onclick="closeSearchModal()">
+                        <i class="fas fa-times"></i> إغلاق
+                    </button>
+                </div>
+            `;
+        }
+
+        // دوال الإحصائيات والمرضى (الإحصائيات محمية، قائمة المرضى مفتوحة)
+        function openPasswordModal() {
+            document.getElementById('passwordModal').style.display = 'block';
+        }
+
+        function openPatientsModal() {
+            document.getElementById('patientsModal').style.display = 'block';
+            loadPatientsList();
+        }
+
+        function closePasswordModal() {
+            document.getElementById('passwordModal').style.display = 'none';
+            document.getElementById('passwordInput').value = '';
+        }
+
+        function verifyPassword() {
+            const input = document.getElementById('passwordInput').value;
+            if (input === PASSWORD) {
+                closePasswordModal();
+                openStatsModal();
+            } else {
+                alert('رمز خاطئ!');
+                document.getElementById('passwordInput').value = '';
+            }
+        }
+
+        function openStatsModal() {
+            document.getElementById('statsModal').style.display = 'block';
+            loadStats();
+        }
+
+        function closeStatsModal() {
+            document.getElementById('statsModal').style.display = 'none';
+        }
+
+        function loadStats() {
+            if (!db) return;
+
+            const now = new Date();
+            const currentMonth = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+            const firstDay = currentMonth + '-01';
+            const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
+
+            const transaction = db.transaction([STATS_STORE_NAME], 'readonly');
+            const store = transaction.objectStore(STATS_STORE_NAME);
+            const index = store.index('date');
+            const request = index.getAll(IDBKeyRange.bound(firstDay, lastDay));
+
+            request.onsuccess = (event) => {
+                const stats = event.target.result;
+                const testCounts = {};
+                stats.forEach(stat => {
+                    const testName = stat.testName;
+                    testCounts[testName] = (testCounts[testName] || 0) + 1;
+                });
+
+                const total = stats.length;
+                document.getElementById('statsSummary').innerHTML = `إجمالي التحاليل في الشهر الحالي: ${total}`;
+
+                const tbody = document.querySelector('#statsTable tbody');
+                tbody.innerHTML = '';
+                Object.entries(testCounts).forEach(([testName, count]) => {
+                    const row = tbody.insertRow();
+                    row.innerHTML = `
+                        <td>${testName}</td>
+                        <td>${count}</td>
+                        <td><button class="delete-btn" onclick="deleteStat('${testName}')">حذف</button></td>
+                    `;
+                });
+            };
+        }
+
+        function deleteStat(testName) {
+            if (confirm(`هل تريد حذف إحصائيات التحليل "${testName}"؟`)) {
+                const now = new Date();
+                const currentMonth = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+                const firstDay = currentMonth + '-01';
+                const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
+
+                const transaction = db.transaction([STATS_STORE_NAME], 'readwrite');
+                const store = transaction.objectStore(STATS_STORE_NAME);
+                const index = store.index('testName');
+                const range = IDBKeyRange.only(testName);
+                const request = index.openCursor(range);
+
+                request.onsuccess = (event) => {
+                    const cursor = event.target.result;
+                    if (cursor) {
+                        if (cursor.value.date.startsWith(currentMonth)) {
+                            store.delete(cursor.value.id);
+                        }
+                        cursor.continue();
+                    } else {
+                        loadStats();
+                        alert('تم الحذف بنجاح!');
+                    }
+                };
+            }
+        }
+
+        function clearAllStats() {
+            if (confirm('هل تريد مسح جميع الإحصائيات؟')) {
+                const transaction = db.transaction([STATS_STORE_NAME], 'readwrite');
+                const store = transaction.objectStore(STATS_STORE_NAME);
+                const request = store.clear();
+
+                request.onsuccess = () => {
+                    loadStats();
+                    alert('تم مسح جميع الإحصائيات!');
+                };
+            }
+        }
+
+        function printStats() {
+            const printWindow = window.open('', '_blank');
+            const statsHtml = document.getElementById('statsModal').innerHTML;
+            printWindow.document.write(`
+                <html><head><title>إحصائيات التحاليل</title>
+                <style>
+                    body { font-family: 'Cairo', sans-serif; direction: rtl; }
+                    table { width: 100%; border-collapse: collapse; }
+                    th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
+                    th { background-color: #f2f2f2; }
+                    .stats-summary { text-align: center; font-size: 18px; font-weight: bold; margin: 10px; }
+                </style></head><body>
+                <h2 style="text-align: center;">إحصائيات التحاليل الشهرية</h2>
+                ${document.getElementById('statsSummary').outerHTML}
+                ${document.getElementById('statsTable').outerHTML}
+                </body></html>
+            `);
+            printWindow.document.close();
+            printWindow.print();
+        }
+
+        function closePatientsModal() {
+            document.getElementById('patientsModal').style.display = 'none';
+        }
+
+        function loadPatientsList() {
+            if (!db) return;
+
+            const transaction = db.transaction([STORE_NAME], 'readonly');
+            const store = transaction.objectStore(STORE_NAME);
+            const index = store.index('patientName');
+            const request = index.getAll();
+
+            request.onsuccess = (event) => {
+                const allVisits = event.target.result;
+                const patientsMap = {};
+
+                allVisits.forEach(visit => {
+                    if (!patientsMap[visit.patientName]) {
+                        patientsMap[visit.patientName] = {
+                            age: visit.patientAge,
+                            gender: visit.patientGender,
+                            doctor: visit.doctorName,
+                            visits: []
+                        };
+                    }
+                    patientsMap[visit.patientName].visits.push(visit);
+                });
+
+                const tbody = document.querySelector('#patientsTable tbody');
+                tbody.innerHTML = '';
+
+                Object.entries(patientsMap).forEach(([patientName, data]) => {
+                    const totalVisits = data.visits.length;
+                    const totalTests = data.visits.reduce((acc, visit) => {
+                        return acc + Object.values(visit.tests).reduce((sAcc, sec) => sAcc + Object.keys(sec).length, 0);
+                    }, 0);
+
+                    const row = tbody.insertRow();
+                    row.dataset.patientName = patientName;
+                    row.innerHTML = `
+                        <td>${patientName}</td>
+                        <td>${data.age || ''}</td>
+                        <td>${data.gender || ''}</td>
+                        <td>${data.doctor || ''}</td>
+                        <td>${totalVisits}</td>
+                        <td>
+                            <div class="patient-visits-dropdown">
+                                <button class="visits-button" onclick="toggleVisitsDropdown(this)">
+                                    <i class="fas fa-list"></i> عرض التحاليل (${totalTests} إجمالي)
+                                </button>
+                                <div class="visits-dropdown-content" id="visits-${patientName}">
+                                    ${data.visits.map(visit => {
+                                        const visitTestsSummary = Object.entries(visit.tests).map(([secId, tests]) => 
+                                            Object.entries(tests).map(([test, result]) => `${test}: ${result}`).join(', ')
+                                        ).join('; ');
+                                        return `
+                                            <div class="visit-item">
+                                                <div>
+                                                    <div class="visit-date">${visit.visitDate}</div>
+                                                    <div class="visit-tests">${visitTestsSummary || 'لا توجد نتائج'}</div>
+                                                </div>
+                                                <div>
+                                                    <button class="visit-load-btn" onclick="loadVisitData(${visit.id})">تحميل</button>
+                                                    <button class="visit-delete-btn" onclick="deleteVisit(${visit.id}, '${patientName}')">حذف</button>
+                                                </div>
+                                            </div>
+                                        `;
+                                    }).join('')}
+                                </div>
+                            </div>
+                        </td>
+                        <td><button class="delete-btn" onclick="deletePatient('${patientName}')">حذف جميع مراجعات</button></td>
+                    `;
+                });
+            };
+        }
+
+        function filterPatients() {
+            const searchTerm = document.getElementById('patientsSearch').value.toLowerCase();
+            const rows = document.querySelectorAll('#patientsTable tbody tr');
+            rows.forEach(row => {
+                const patientName = row.dataset.patientName.toLowerCase();
+                row.style.display = patientName.includes(searchTerm) ? '' : 'none';
+            });
+        }
+
+        function toggleVisitsDropdown(button) {
+            const dropdown = button.nextElementSibling;
+            dropdown.classList.toggle('show');
+        }
+
+        // إغلاق الـ dropdown عند النقر خارجها
+        document.addEventListener('click', function(event) {
+            if (!event.target.closest('.patient-visits-dropdown')) {
+                document.querySelectorAll('.visits-dropdown-content').forEach(dd => dd.classList.remove('show'));
+            }
+        });
+
+        function deleteVisit(visitId, patientName) {
+            if (confirm(`هل تريد حذف هذه المراجعة للمريض ${patientName}؟`)) {
+                const transaction = db.transaction([STORE_NAME], 'readwrite');
+                const store = transaction.objectStore(STORE_NAME);
+                const request = store.delete(visitId);
+
+                request.onsuccess = () => {
+                    loadPatientsList();
+                    alert('تم حذف المراجعة بنجاح!');
+                };
+            }
+        }
+
+        function deletePatient(patientName) {
+            if (confirm(`هل تريد حذف جميع مراجعات المريض "${patientName}"؟`)) {
+                const transaction = db.transaction([STORE_NAME], 'readwrite');
+                const store = transaction.objectStore(STORE_NAME);
+                const index = store.index('patientName');
+                const range = IDBKeyRange.only(patientName);
+                const request = index.openCursor(range);
+
+                request.onsuccess = (event) => {
+                    const cursor = event.target.result;
+                    if (cursor) {
+                        store.delete(cursor.value.id);
+                        cursor.continue();
+                    } else {
+                        loadPatientsList();
+                        alert('تم حذف جميع المراجعات بنجاح!');
+                    }
+                };
+            }
+        }
+
+        function printPatientsList() {
+            const printWindow = window.open('', '_blank');
+            const patientsHtml = document.getElementById('patientsModal').innerHTML;
+            printWindow.document.write(`
+                <html><head><title>قائمة المرضى</title>
+                <style>
+                    body { font-family: 'Cairo', sans-serif; direction: rtl; }
+                    table { width: 100%; border-collapse: collapse; }
+                    th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
+                    th { background-color: #f2f2f2; }
+                    .visits-dropdown-content { display: block !important; position: static; box-shadow: none; }
+                </style></head><body>
+                <h2 style="text-align: center;">قائمة المرضى المحفوظين</h2>
+                ${document.getElementById('patientsTable').outerHTML}
+                </body></html>
+            `);
+            printWindow.document.close();
+            printWindow.print();
+        }
+
+        // دوال العرض والطباعة
+        function setCurrentDate() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            document.getElementById('currentDate').value = `${year}-${month}-${day}`;
+        }
+
+        function setIssueDate() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            if (document.getElementById('issueDate')) {
+                document.getElementById('issueDate').value = `${year}-${month}-${day}`;
+            }
+        }
+
+        function showSelectedSection() {
+            const sections = document.querySelectorAll('.section');
+            const selectedSectionId = document.getElementById('test-select').value;
+            sections.forEach(section => {
+                if (section.id === selectedSectionId) {
+                    section.classList.add('active');
+                } else {
+                    section.classList.remove('active');
+                }
+            });
+        }
+
+        function clearAllFields() {
+            if(confirm('هل أنت متأكد من مسح جميع الحقول؟')) {
+                const inputs = document.querySelectorAll('input[type="text"], input[type="number"]');
+                inputs.forEach(input => {
+                    if (input.id !== 'currentDate' && input.id !== 'issueDate') {
+                        input.value = '';
+                    }
+                });
+                
+                const selects = document.querySelectorAll('select');
+                selects.forEach(select => {
+                    select.selectedIndex = 0;
+                });
+                
+                const radios = document.querySelectorAll('input[type="radio"]');
+                radios.forEach(radio => {
+                    radio.checked = false;
+                });
+                
+                document.querySelectorAll('.choice-option').forEach(option => {
+                    option.classList.remove('selected');
+                });
+                
+                setCurrentDate();
+                setIssueDate();
+                showSelectedSection();
+                updateFilledTests();
+                alert('تم مسح جميع الحقول بنجاح!');
+            }
+        }
+
+        function prepareForPrint() {
+            // إظهار جميع الأقسام للطباعة
+            const allSections = document.querySelectorAll('.section');
+            allSections.forEach(section => {
+                section.classList.add('active');
+            });
+
+            const savedBackground = localStorage.getItem('printBackground');
+            if (savedBackground) {
+                document.body.style.backgroundImage = `url('${savedBackground}')`;
+                document.body.style.backgroundSize = '21cm 29.7cm';
+                document.body.style.backgroundPosition = 'center top';
+                document.body.style.backgroundRepeat = 'repeat-y';
+                document.body.style.backgroundAttachment = 'local';
+            }
+
+            // إخفاء الصفوف الفارغة
+            const allResultInputs = document.querySelectorAll('.result-input, .result-select');
+            allResultInputs.forEach(input => {
+                const row = input.closest('tr');
+                if ((input.value.trim() === '' || (input.tagName === 'SELECT' && input.selectedIndex === 0)) && row) {
+                    row.classList.add('no-print-row');
+                } else {
+                    row.classList.remove('no-print-row');
+                }
+            });
+            
+            // التعامل مع الخيارات المتعددة في الطباعة
+            const multipleContainers = document.querySelectorAll('.multiple-choice-container');
+            multipleContainers.forEach(container => {
+                const row = container.closest('tr');
+                const hasSelection = container.querySelector('input[type="radio"]:checked');
+                if (!hasSelection && row) {
+                    row.classList.add('no-print-row');
+                } else {
+                    row.classList.remove('no-print-row');
+                }
+            });
+            
+            // إخفاء معلومات المريض الفارغة
+            const patientInfoInputs = document.querySelectorAll('#patientInfoSection .editable-field');
+            patientInfoInputs.forEach(input => {
+                const infoItem = input.closest('.info-item');
+                if (input.value.trim() === '' && infoItem) {
+                    infoItem.classList.add('no-print-item');
+                } else {
+                    infoItem.classList.remove('no-print-item');
+                }
+            });
+            
+            // إخفاء الأقسام الفارغة بالكامل
+            const sections = document.querySelectorAll('.section');
+            sections.forEach(section => {
+                const inputsInSection = section.querySelectorAll('input, select');
+                let hasValue = false;
+                
+                inputsInSection.forEach(input => {
+                    if (input.value.trim() !== '' || (input.tagName === 'SELECT' && input.selectedIndex > 0)) {
+                        hasValue = true;
+                    }
+                });
+                
+                // التحقق من الخيارات المتعددة
+                const multipleContainersInSection = section.querySelectorAll('.multiple-choice-container');
+                multipleContainersInSection.forEach(container => {
+                    const selectedRadio = container.querySelector('input[type="radio"]:checked');
+                    if (selectedRadio) {
+                        hasValue = true;
+                    }
+                });
+                
+                if (!hasValue) {
+                    section.classList.add('no-print-section');
+                } else {
+                    section.classList.remove('no-print-section');
+                }
+            });
+        }
+
+        function restoreAfterPrint() {
+            const hiddenElements = document.querySelectorAll('.no-print-row, .no-print-item, .no-print-section');
+            hiddenElements.forEach(element => {
+                element.classList.remove('no-print-row', 'no-print-item', 'no-print-section');
+            });
+            showSelectedSection();
+
+            document.body.style.backgroundImage = '';
+            document.body.style.backgroundSize = '';
+            document.body.style.backgroundPosition = '';
+            document.body.style.backgroundRepeat = '';
+            document.body.style.backgroundAttachment = '';
+        }
+
+        function printPage() {
+            if (!document.getElementById('patientName').value.trim()) {
+                alert('يرجى إدخال اسم المريض قبل الطباعة.');
+                return;
+            }
+            savePatientData();
+            prepareForPrint();
+            window.print();
+        }
+
+        function updateFilledTests() {
+            const filledList = document.getElementById('filledTests');
+            const totalPriceElem = document.getElementById('totalPrice'); // العنصر الجديد للإجمالي
+            
+            if (!filledList || !totalPriceElem) return;
+            
+            let filledTests = [];
+            let totalPrice = 0;
+
+            // التحقق من الـ inputs والـ selects العادية
+            const allResultInputs = document.querySelectorAll('.result-input, .result-select');
+            allResultInputs.forEach(input => {
+                const hasValue = input.value && input.value.trim() !== '' && 
+                                (input.tagName !== 'SELECT' || input.selectedIndex > 0);
+                
+                if (hasValue) {
+                    const row = input.closest('tr');
+                    if (row) {
+                        const testNameElement = row.querySelector('.test-name');
+                        const priceElement = row.querySelector('.test-price');
+                        if (testNameElement && priceElement) {
+                            const testName = testNameElement.textContent.trim();
+                            const price = parseInt(priceElement.textContent.trim()) || 0;
+                            if (testName && !filledTests.includes(testName)) {
+                                filledTests.push(testName);
+                                totalPrice += price;
+                            }
+                        }
+                    }
+                }
+            });
+
+            // التحقق من الخيارات المتعددة
+            const multipleContainers = document.querySelectorAll('.multiple-choice-container');
+            multipleContainers.forEach(container => {
+                const selectedRadio = container.querySelector('input[type="radio"]:checked');
+                if (selectedRadio) {
+                    const testName = container.dataset.testName;
+                    const row = container.closest('tr');
+                    if (row) {
+                        const priceElement = row.querySelector('.test-price');
+                        if (priceElement) {
+                            const price = parseInt(priceElement.textContent.trim()) || 0;
+                            if (testName && !filledTests.includes(testName)) {
+                                filledTests.push(testName);
+                                totalPrice += price;
+                            }
+                        }
+                    }
+                }
+            });
+
+            if (filledTests.length > 0) {
+                filledList.innerHTML = `<i class="fas fa-check-circle"></i> التحاليل المكتملة: <strong>${filledTests.join(', ')}</strong> (${filledTests.length} تحليل)`;
+                filledList.style.display = 'block';
+                filledList.style.color = '#4CAF50';
+                
+                totalPriceElem.innerHTML = `الإجمالي: ${totalPrice} IQD`; // عرض الإجمالي
+                totalPriceElem.style.display = 'block';
+            } else {
+                filledList.style.display = 'none';
+                totalPriceElem.style.display = 'none';
+            }
+        }
+
+        // إضافة مستمع للطباعة
+        if (window.matchMedia) {
+            const mediaQueryList = window.matchMedia('print');
+            mediaQueryList.addListener(function(mql) {
+                if (!mql.matches) {
+                    restoreAfterPrint();
+                }
+            });
+        } else {
+            window.onafterprint = restoreAfterPrint;
+        }
+
+        // إضافة مستمعين للنوافذ المنبثقة
+        window.onclick = function(event) {
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(modal => {
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        }
+
+        // إضافة مستمعين للخروج من النوافذ المنبثقة باستخدام ESC
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                const modals = document.querySelectorAll('.modal');
+                modals.forEach(modal => {
+                    if (modal.style.display === 'block') {
+                        modal.style.display = 'none';
+                    }
+                });
+                const settingsPanel = document.getElementById('settingsPanel');
+                if (settingsPanel.style.display === 'block') {
+                    toggleSettings();
+                }
+            }
+        });
 
         // تهيئة الصفحة
         document.addEventListener('DOMContentLoaded', function() {
@@ -2927,16 +4603,9 @@
             setCurrentDate();
             setIssueDate();
             
-            // تهيئة قاعدة البيانات
-            initDb();
-            
-            // تحميل هيكل المختبر
-            loadLabStructure();
-            
-            // تطبيق الإعدادات
-            applySettings();
+            // عرض الـ login modal تلقائياً
+            document.getElementById('loginModal').style.display = 'block';
         });
     </script>
 </body>
 </html>
-```
