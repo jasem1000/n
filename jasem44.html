@@ -1141,6 +1141,15 @@
             box-shadow: var(--shadow-light);
         }
 
+        .total-price {
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            margin: 20px 0;
+            color: #4CAF50;
+            display: none; /* مخفي في الطباعة */
+        }
+
         .no-print-row, .no-print-item, .no-print-section {
             display: none !important;
         }
@@ -1381,7 +1390,7 @@
                 page-break-after: auto; /* كسر تلقائي بعد المحتوى */
             }
 
-            .no-print, .action-buttons, .test-selection, .settings-toggle, .filled-tests {
+            .no-print, .action-buttons, .test-selection, .settings-toggle, .filled-tests, .total-price {
                 display: none !important;
             }
 
@@ -2097,6 +2106,7 @@
         </div>
         
         <div class="filled-tests no-print" id="filledTests"></div>
+        <div class="total-price no-print" id="totalPrice"></div> <!-- إضافة عنصر للإجمالي -->
 
         <div class="test-selection no-print">
             <label for="test-select">اختر قسم التحليل:</label>
@@ -3269,7 +3279,7 @@
                 
                 let tableHTML = `<div class="section-title"><i class="${section.icon}"></i> ${section.title}</div>`;
                 
-                tableHTML += `<table><thead><tr><th>Test</th><th>Result</th><th>Price (IQD)</th><th>Normal Range</th></tr></thead><tbody>`;
+                tableHTML += `<table><thead><tr><th>Test</th><th>Result</th><th class="no-print">Price (IQD)</th><th>Normal Range</th></tr></thead><tbody>`;
                 for (const testName in section.tests) {
                     const testData = section.tests[testName];
                     tableHTML += `
@@ -3301,7 +3311,7 @@
                 input.addEventListener('change', updateFilledTests);
             });
 
-            // إضافة مستمعين للخيارات المتعددة
+            // إضافة مستمعين للعناصر المتعددة
             document.querySelectorAll('.choice-radio').forEach(radio => {
                 radio.removeEventListener('change', updateFilledTests);
                 radio.addEventListener('change', updateFilledTests);
@@ -4486,7 +4496,9 @@
 
         function updateFilledTests() {
             const filledList = document.getElementById('filledTests');
-            if (!filledList) return;
+            const totalPriceElem = document.getElementById('totalPrice'); // العنصر الجديد للإجمالي
+            
+            if (!filledList || !totalPriceElem) return;
             
             let filledTests = [];
             let totalPrice = 0;
@@ -4538,11 +4550,12 @@
                 filledList.innerHTML = `<i class="fas fa-check-circle"></i> التحاليل المكتملة: <strong>${filledTests.join(', ')}</strong> (${filledTests.length} تحليل)`;
                 filledList.style.display = 'block';
                 filledList.style.color = '#4CAF50';
-                document.querySelector('.total-price').innerHTML = `الإجمالي: ${totalPrice} IQD`;
-                document.querySelector('.total-price').style.display = 'block';
+                
+                totalPriceElem.innerHTML = `الإجمالي: ${totalPrice} IQD`; // عرض الإجمالي
+                totalPriceElem.style.display = 'block';
             } else {
                 filledList.style.display = 'none';
-                document.querySelector('.total-price').style.display = 'none';
+                totalPriceElem.style.display = 'none';
             }
         }
 
@@ -4595,4 +4608,4 @@
         });
     </script>
 </body>
-</html>اريدتحل مشكله الطباعة يضهر جدول الاسعار اريد تخفية وايضَ اريد تضيف  مجموع سعر التحالي المكتملة بجانب التحاليل المكتملة
+</html>
