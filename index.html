@@ -1787,14 +1787,6 @@
         </div>
         
         <div class="settings-group">
-            <h3>إعدادات المقارنة</h3>
-            <div style="display: flex; gap: 10px; align-items: center;">
-                <input type="checkbox" id="enableComparison" checked>
-                <label for="enableComparison">تفعيل مقارنة النتائج مع المراجعة السابقة في الطباعة</label>
-            </div>
-        </div>
-        
-        <div class="settings-group">
             <h3>تغيير الألوان</h3>
             <div class="color-picker">
                 <label>لون الهيدر:</label>
@@ -2648,6 +2640,7 @@
                     "Bilirubin": { type: "select", range: "Nil", choices: ["Nil", "Positive"], price: 5000 }, 
                     "Urobilinogen": { type: "select", range: "Normal", choices: ["Normal", "Increased"], price: 5000 }, 
                     "Nitrites": { type: "select", range: "Nil", choices: ["Nil", "Positive"], price: 5000 }, 
+                    "Nitrites": { type: "select", range: "Nil", choices: ["Nil", "Positive"], price: 5000 }, 
                     "Leukocytes": { type: "select", range: "Nil", choices: ["Nil", "Trace", "1+", "2+", "3+"], price: 5000 },
                     "RBCs": { type: "select", range: "0-2 /HPF", choices: ["0-2/HPF", "3-5/HPF", "6-10/HPF", ">10/HPF", "Full Filed"], price: 5000 }, 
                     "Pus Cells": { type: "select", range: "0-5 /HPF", choices: ["0-5/HPF", "6-10/HPF", "11-20/HPF", ">20/HPF", "Full Filed"], price: 5000 }, 
@@ -2880,9 +2873,7 @@
 
             document.getElementById('showDoctor1').checked = localStorage.getItem('showDoctor1') !== 'false';
             document.getElementById('showDoctor2').checked = localStorage.getItem('showDoctor2') !== 'false';
-
-            document.getElementById('enableComparison').checked = localStorage.getItem('enableComparison') !== 'false';
-
+            
             document.getElementById('tableWidth').value = localStorage.getItem('tableWidth') || '100';
             document.getElementById('cellPadding').value = localStorage.getItem('cellPadding') || '8';
             document.getElementById('inputHeight').value = localStorage.getItem('inputHeight') || '30';
@@ -2967,8 +2958,6 @@
 
             localStorage.setItem('showDoctor1', document.getElementById('showDoctor1').checked);
             localStorage.setItem('showDoctor2', document.getElementById('showDoctor2').checked);
-
-            localStorage.setItem('enableComparison', document.getElementById('enableComparison').checked);
 
             localStorage.setItem('tableWidth', document.getElementById('tableWidth').value);
             localStorage.setItem('cellPadding', document.getElementById('cellPadding').value);
@@ -3227,9 +3216,9 @@
             const testData = test[testName];
             
             let inputHTML;
-            if (testData.type === "text") {
+            if (testData.type === 'text') {
                 inputHTML = `<input type="text" class="result-input" data-test-name="${testName}" placeholder="أدخل النتيجة">`;
-            } else if (testData.type === "select") {
+            } else if (testData.type === 'select') {
                 inputHTML = `<select class="result-select" data-test-name="${testName}"><option value="">اختر...</option>`;
                 if (testData.choices && testData.choices.length > 0) {
                     testData.choices.forEach(choice => {
@@ -3239,7 +3228,7 @@
                     inputHTML += '<option value="Positive">Positive</option><option value="Negative">Negative</option>';
                 }
                 inputHTML += '</select>';
-            } else if (testData.type === "multiple") {
+            } else if (testData.type === 'multiple') {
                 inputHTML = `<div class="multiple-choice-container" data-test-name="${testName}">`;
                 if (testData.choices && testData.choices.length > 0) {
                     testData.choices.forEach((choice, index) => {
@@ -3323,12 +3312,13 @@
                 input.addEventListener('change', updateFilledTests);
             });
 
-            // إضافة مستمعين للـ choice
+            // إضافة مستمعين للعناصر المتعددة
             document.querySelectorAll('.choice-radio').forEach(radio => {
                 radio.removeEventListener('change', updateFilledTests);
                 radio.addEventListener('change', updateFilledTests);
             });
 
+            // إضافة مستمعين للنقر على الخيارات
             document.querySelectorAll('.choice-option').forEach(option => {
                 option.removeEventListener('click', handleChoiceClick);
                 option.addEventListener('click', handleChoiceClick);
@@ -4402,66 +4392,12 @@
             }
         }
 
-        async function getPreviousVisit(patientName) {
-            if (!db) return null;
-
-            return new Promise((resolve) => {
-                const transaction = db.transaction([STORE_NAME], 'readonly');
-                const store = transaction.objectStore(STORE_NAME);
-                const index = store.index('patientName');
-                const request = index.getAll(patientName);
-
-                request.onsuccess = (event) => {
-                    const visits = event.target.result;
-                    if (visits.length < 2) {
-                        resolve(null);
-                        return;
-                    }
-                    // رتب المراجعات تنازلياً بالتاريخ
-                    visits.sort((a, b) => new Date(b.visitDate) - new Date(a.visitDate));
-                    // أعد الثاني (السابق)
-                    resolve(visits[1]);
-                };
-            });
-        }
-
-        async function addComparisonToPrint() {
-            const enableComparison = localStorage.getItem('enableComparison') === 'true';
-            if (!enableComparison) return;
-
-            const patientName = document.getElementById('patientName').value.trim();
-            if (!patientName) return;
-
-            const previousVisit = await getPreviousVisit(patientName);
-            if (!previousVisit) return;
-
-            const sections = document.querySelectorAll('.section.active');
-            sections.forEach(section => {
-                const thead = section.querySelector('thead tr');
-                const thPrevious = document.createElement('th');
-                thPrevious.textContent = 'Previous Result (' + previousVisit.visitDate + ')';
-                thead.insertBefore(thPrevious, thead.lastChild);
-
-                const rows = section.querySelectorAll('tbody tr');
-                rows.forEach(row => {
-                    const testName = row.querySelector('.test-name').textContent.trim();
-                    const previousResult = previousVisit.tests[section.id]?.[testName] || '';
-                    const tdPrevious = document.createElement('td');
-                    tdPrevious.textContent = previousResult;
-                    tdPrevious.classList.add('previous-result');
-                    row.insertBefore(tdPrevious, row.lastChild);
-                });
-            });
-        }
-
         function prepareForPrint() {
             // إظهار جميع الأقسام للطباعة
             const allSections = document.querySelectorAll('.section');
             allSections.forEach(section => {
                 section.classList.add('active');
             });
-
-            addComparisonToPrint(); // إضافة المقارنة إذا مفعلة
 
             const savedBackground = localStorage.getItem('printBackground');
             if (savedBackground) {
@@ -4483,7 +4419,7 @@
                 }
             });
             
-            // التعامل مع الـ multiple choices في الطباعة
+            // التعامل مع الخيارات المتعددة في الطباعة
             const multipleContainers = document.querySelectorAll('.multiple-choice-container');
             multipleContainers.forEach(container => {
                 const row = container.closest('tr');
@@ -4541,14 +4477,6 @@
                 element.classList.remove('no-print-row', 'no-print-item', 'no-print-section');
             });
             showSelectedSection();
-
-            // إزالة أعمدة المقارنة
-            document.querySelectorAll('.previous-result').forEach(td => td.remove());
-            document.querySelectorAll('th').forEach(th => {
-                if (th.textContent.includes('Previous Result')) {
-                    th.remove();
-                }
-            });
 
             document.body.style.backgroundImage = '';
             document.body.style.backgroundSize = '';
