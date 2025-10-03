@@ -216,7 +216,7 @@
             cursor: pointer;
             font-size: 16px;
             transition: background-color 0.3s;
-            display: flex;
+            display: inline-flex;
             align-items: center;
             gap: 5px;
         }
@@ -525,7 +525,6 @@
     </style>
 </head>
 <body>
-    <!-- الشريط العلوي -->
     <div class="header no-print">
         <div class="logo">
             <i class="fas fa-store"></i>
@@ -537,37 +536,36 @@
         </div>
     </div>
     
-    <!-- القائمة الجانبية -->
     <div class="sidebar no-print">
         <ul class="sidebar-menu">
             <li><a href="#" class="menu-item active" data-page="dashboard"><i class="fas fa-tachometer-alt"></i> <span>لوحة التحكم</span></a></li>
             <li>
                 <a href="#" class="menu-item" data-page="invoices"><i class="fas fa-file-invoice"></i> <span>إدارة الفواتير</span></a>
                 <ul class="submenu">
-                    <li><a href="#" data-page="purchase-invoice"><i class="fas fa-shopping-cart"></i> <span>فاتورة شراء</span></a></li>
-                    <li><a href="#" data-page="sales-invoice"><i class="fas fa-cash-register"></i> <span>فاتورة بيع</span></a></li>
-                    <li><a href="#" data-page="review-purchase"><i class="fas fa-clipboard-check"></i> <span>مراجعة شراء</span></a></li>
-                    <li><a href="#" data-page="review-sales"><i class="fas fa-clipboard-check"></i> <span>مراجعة بيع</span></a></li>
+                    <li><a href="#" class="menu-item" data-page="purchase-invoice"><i class="fas fa-shopping-cart"></i> <span>فاتورة شراء</span></a></li>
+                    <li><a href="#" class="menu-item" data-page="sales-invoice"><i class="fas fa-cash-register"></i> <span>فاتورة بيع</span></a></li>
+                    <li><a href="#" class="menu-item" data-page="review-purchase"><i class="fas fa-clipboard-check"></i> <span>مراجعة شراء</span></a></li>
+                    <li><a href="#" class="menu-item" data-page="review-sales"><i class="fas fa-clipboard-check"></i> <span>مراجعة بيع</span></a></li>
                 </ul>
             </li>
             <li>
                 <a href="#" class="menu-item" data-page="inventory"><i class="fas fa-boxes"></i> <span>إدارة المخزون</span></a>
                 <ul class="submenu">
-                    <li><a href="#" data-page="products"><i class="fas fa-box"></i> <span>إدارة الأصناف</span></a></li>
-                    <li><a href="#" data-page="categories"><i class="fas fa-tags"></i> <span>التصنيفات</span></a></li>
-                    <li><a href="#" data-page="stock-count"><i class="fas fa-clipboard-list"></i> <span>الجرد</span></a></li>
-                    <li><a href="#" data-page="stock-movement"><i class="fas fa-exchange-alt"></i> <span>حركة الأصناف</span></a></li>
-                    <li><a href="#" data-page="stock-balance"><i class="fas fa-chart-bar"></i> <span>كشف الأرصدة</span></a></li>
+                    <li><a href="#" class="menu-item" data-page="products"><i class="fas fa-box"></i> <span>إدارة الأصناف</span></a></li>
+                    <li><a href="#" class="menu-item" data-page="categories"><i class="fas fa-tags"></i> <span>التصنيفات</span></a></li>
+                    <li><a href="#" class="menu-item" data-page="stock-count"><i class="fas fa-clipboard-list"></i> <span>الجرد</span></a></li>
+                    <li><a href="#" class="menu-item" data-page="stock-movement"><i class="fas fa-exchange-alt"></i> <span>حركة الأصناف</span></a></li>
+                    <li><a href="#" class="menu-item" data-page="stock-balance"><i class="fas fa-chart-bar"></i> <span>كشف الأرصدة</span></a></li>
                 </ul>
             </li>
             <li>
                 <a href="#" class="menu-item" data-page="accounts"><i class="fas fa-calculator"></i> <span>إدارة الحسابات</span></a>
                 <ul class="submenu">
-                    <li><a href="#" data-page="revenues"><i class="fas fa-money-bill-wave"></i> <span>الإيرادات</span></a></li>
-                    <li><a href="#" data-page="expenses"><i class="fas fa-receipt"></i> <span>المصروفات</span></a></li>
-                    <li><a href="#" data-page="daily-entries"><i class="fas fa-book"></i> <span>القيود اليومية</span></a></li>
-                    <li><a href="#" data-page="financial-reports"><i class="fas fa-chart-line"></i> <span>التقارير المالية</span></a></li>
-                    <li><a href="#" data-page="bank-accounts"><i class="fas fa-university"></i> <span>الحسابات البنكية</span></a></li>
+                    <li><a href="#" class="menu-item" data-page="revenues"><i class="fas fa-money-bill-wave"></i> <span>الإيرادات</span></a></li>
+                    <li><a href="#" class="menu-item" data-page="expenses"><i class="fas fa-receipt"></i> <span>المصروفات</span></a></li>
+                    <li><a href="#" class="menu-item" data-page="daily-entries"><i class="fas fa-book"></i> <span>القيود اليومية</span></a></li>
+                    <li><a href="#" class="menu-item" data-page="financial-reports"><i class="fas fa-chart-line"></i> <span>التقارير المالية</span></a></li>
+                    <li><a href="#" class="menu-item" data-page="bank-accounts"><i class="fas fa-university"></i> <span>الحسابات البنكية</span></a></li>
                 </ul>
             </li>
             <li><a href="#" class="menu-item" data-page="cashier"><i class="fas fa-cash-register"></i> <span>إدارة الخزينة</span></a></li>
@@ -576,9 +574,7 @@
         </ul>
     </div>
     
-    <!-- المحتوى الرئيسي -->
     <div class="main-content">
-        <!-- لوحة التحكم -->
         <div id="dashboard" class="page active">
             <h1 class="page-title"><i class="fas fa-tachometer-alt"></i> لوحة التحكم</h1>
             
@@ -615,8 +611,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <!-- سيتم ملؤها بالبيانات -->
-                            </tbody>
+                                </tbody>
                         </table>
                     </div>
                 </div>
@@ -633,15 +628,13 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <!-- سيتم ملؤها بالبيانات -->
-                            </tbody>
+                                </tbody>
                         </table>
                     </div>
                 </div>
             </div>
         </div>
         
-        <!-- صفحات أخرى سيتم إضافتها هنا -->
         <div id="invoices" class="page">
             <h1 class="page-title"><i class="fas fa-file-invoice"></i> إدارة الفواتير</h1>
             <div class="alert alert-info">
@@ -649,7 +642,6 @@
             </div>
         </div>
         
-        <!-- صفحة فاتورة الشراء -->
         <div id="purchase-invoice" class="page">
             <h1 class="page-title"><i class="fas fa-shopping-cart"></i> فاتورة شراء</h1>
             
@@ -707,8 +699,7 @@
                             </tr>
                         </thead>
                         <tbody id="purchase-items">
-                            <!-- سيتم إضافة العناصر ديناميكياً -->
-                        </tbody>
+                            </tbody>
                     </table>
                 </div>
                 
@@ -733,7 +724,6 @@
             </div>
         </div>
         
-        <!-- صفحة فاتورة البيع -->
         <div id="sales-invoice" class="page">
             <h1 class="page-title"><i class="fas fa-cash-register"></i> فاتورة بيع</h1>
             
@@ -792,8 +782,7 @@
                             </tr>
                         </thead>
                         <tbody id="sales-items">
-                            <!-- سيتم إضافة العناصر ديناميكياً -->
-                        </tbody>
+                            </tbody>
                     </table>
                 </div>
                 
@@ -818,11 +807,10 @@
             </div>
         </div>
         
-        <!-- صفحة إدارة الأصناف -->
         <div id="products" class="page">
             <h1 class="page-title"><i class="fas fa-box"></i> إدارة الأصناف</h1>
             
-            <div class="btn-group">
+            <div class="btn-group" style="margin-bottom: 20px;">
                 <button id="add-product-btn" class="btn-success"><i class="fas fa-plus"></i> إضافة صنف جديد</button>
                 <button id="import-products" class=""><i class="fas fa-file-import"></i> استيراد بيانات</button>
                 <button id="export-products" class=""><i class="fas fa-file-export"></i> تصدير البيانات</button>
@@ -848,13 +836,11 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- سيتم ملؤها بالبيانات -->
-                    </tbody>
+                        </tbody>
                 </table>
             </div>
         </div>
         
-        <!-- صفحة الباركود -->
         <div id="barcode" class="page">
             <h1 class="page-title"><i class="fas fa-barcode"></i> البحث وطباعة الباركود</h1>
             
@@ -875,10 +861,18 @@
             </div>
         </div>
         
-        <!-- صفحة إدارة المستخدمين -->
         <div id="users" class="page">
             <h1 class="page-title"><i class="fas fa-users-cog"></i> إدارة المستخدمين والصلاحيات</h1>
             
+            <div class="form-container" style="margin-bottom: 20px;">
+                <h3 class="card-title"><i class="fas fa-cog"></i> إعدادات النظام والنسخ الاحتياطي</h3>
+                <p>لحماية بياناتك، قم بتصدير نسخة احتياطية بشكل دوري واحفظها في مكان آمن.</p>
+                <div class="btn-group">
+                    <button id="export-data-btn" class="btn-success"><i class="fas fa-download"></i> تصدير نسخة احتياطية</button>
+                    <button id="import-data-btn" class="btn-warning"><i class="fas fa-upload"></i> استيراد نسخة احتياطية</button>
+                    <input type="file" id="import-file-input" style="display: none;" accept=".json">
+                </div>
+            </div>
             <div class="btn-group">
                 <button id="add-user-btn" class="btn-success"><i class="fas fa-user-plus"></i> إضافة مستخدم جديد</button>
             </div>
@@ -896,14 +890,12 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- سيتم ملؤها بالبيانات -->
-                    </tbody>
+                        </tbody>
                 </table>
             </div>
         </div>
     </div>
 
-    <!-- نموذج إضافة/تعديل صنف -->
     <div id="product-modal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -1060,50 +1052,28 @@
         function addCategory(name) {
             const transaction = db.transaction(['categories'], 'readwrite');
             const store = transaction.objectStore('categories');
-            const request = store.get(name, 'name');
-            
-            request.onsuccess = function() {
-                if (!request.result) {
-                    store.add({ name: name });
-                }
-            };
+            const request = store.add({ name: name });
         }
         
         // دالة لإضافة مورد
         function addSupplier(name) {
-            const transaction = db.transaction(['suppliers'], 'readwrite');
+             const transaction = db.transaction(['suppliers'], 'readwrite');
             const store = transaction.objectStore('suppliers');
-            const request = store.get(name, 'name');
-            
-            request.onsuccess = function() {
-                if (!request.result) {
-                    store.add({ name: name });
-                }
-            };
+            const request = store.add({ name: name });
         }
         
         // دالة لإضافة عميل
         function addCustomer(name) {
             const transaction = db.transaction(['customers'], 'readwrite');
             const store = transaction.objectStore('customers');
-            const request = store.get(name, 'name');
-            
-            request.onsuccess = function() {
-                if (!request.result) {
-                    store.add({ name: name });
-                }
-            };
+            const request = store.add({ name: name });
         }
         
         // دالة لإضافة مستخدم
         function addUser(fullName, username, email, role, status) {
             const transaction = db.transaction(['users'], 'readwrite');
             const store = transaction.objectStore('users');
-            const request = store.get(username, 'username');
-            
-            request.onsuccess = function() {
-                if (!request.result) {
-                    store.add({
+            const request = store.add({
                         fullName: fullName,
                         username: username,
                         email: email,
@@ -1111,12 +1081,11 @@
                         status: status,
                         lastLogin: new Date().toLocaleString('ar-SA')
                     });
-                }
-            };
         }
         
         // تحميل التصنيفات في القوائم المنسدلة
         function loadCategories() {
+            if (!db) return;
             const transaction = db.transaction(['categories'], 'readonly');
             const store = transaction.objectStore('categories');
             const request = store.getAll();
@@ -1137,6 +1106,7 @@
         
         // تحميل الموردين في القوائم المنسدلة
         function loadSuppliers() {
+            if (!db) return;
             const transaction = db.transaction(['suppliers'], 'readonly');
             const store = transaction.objectStore('suppliers');
             const request = store.getAll();
@@ -1157,6 +1127,7 @@
         
         // تحميل العملاء في القوائم المنسدلة
         function loadCustomers() {
+            if (!db) return;
             const transaction = db.transaction(['customers'], 'readonly');
             const store = transaction.objectStore('customers');
             const request = store.getAll();
@@ -1177,17 +1148,18 @@
         
         // تحميل الأصناف في الجدول
         function loadProducts() {
+            if (!db) return;
             const transaction = db.transaction(['products'], 'readonly');
             const store = transaction.objectStore('products');
             const request = store.getAll();
             
             request.onsuccess = function() {
                 const products = request.result;
-                const productsTable = document.getElementById('products-table').getElementsByTagName('tbody')[0];
-                productsTable.innerHTML = '';
+                const productsTableBody = document.getElementById('products-table').getElementsByTagName('tbody')[0];
+                productsTableBody.innerHTML = '';
                 
                 products.forEach(product => {
-                    const row = productsTable.insertRow();
+                    const row = productsTableBody.insertRow();
                     row.innerHTML = `
                         <td>${product.code}</td>
                         <td>${product.name}</td>
@@ -1203,7 +1175,6 @@
                     `;
                 });
                 
-                // إضافة مستمعي الأحداث للأزرار
                 document.querySelectorAll('.edit-product').forEach(button => {
                     button.addEventListener('click', function() {
                         editProduct(parseInt(this.getAttribute('data-id')));
@@ -1220,17 +1191,18 @@
         
         // تحميل المستخدمين في الجدول
         function loadUsers() {
+            if (!db) return;
             const transaction = db.transaction(['users'], 'readonly');
             const store = transaction.objectStore('users');
             const request = store.getAll();
             
             request.onsuccess = function() {
                 const users = request.result;
-                const usersTable = document.getElementById('users-table').getElementsByTagName('tbody')[0];
-                usersTable.innerHTML = '';
+                const usersTableBody = document.getElementById('users-table').getElementsByTagName('tbody')[0];
+                usersTableBody.innerHTML = '';
                 
                 users.forEach(user => {
-                    const row = usersTable.insertRow();
+                    const row = usersTableBody.insertRow();
                     row.innerHTML = `
                         <td>${user.fullName}</td>
                         <td>${user.email}</td>
@@ -1248,95 +1220,65 @@
         
         // تحديث لوحة التحكم
         function updateDashboard() {
-            // تحديث إحصائيات اليوم
+            if (!db) return;
             const today = new Date().toISOString().split('T')[0];
             
-            // حساب المبيعات اليوم
-            const salesTransaction = db.transaction(['invoices'], 'readonly');
-            const salesStore = salesTransaction.objectStore('invoices');
-            const salesIndex = salesStore.index('type');
-            const salesRequest = salesIndex.getAll('بيع');
+            const transaction = db.transaction(['invoices', 'products'], 'readonly');
+            const invoicesStore = transaction.objectStore('invoices');
+            const productsStore = transaction.objectStore('products');
             
+            const salesIndex = invoicesStore.index('type');
+            const salesRequest = salesIndex.getAll('بيع');
             salesRequest.onsuccess = function() {
                 const salesInvoices = salesRequest.result;
-                let todaySales = 0;
-                let todaySalesCount = 0;
-                
+                let todaySales = 0, todaySalesCount = 0;
                 salesInvoices.forEach(invoice => {
                     if (invoice.date === today) {
                         todaySales += invoice.total;
                         todaySalesCount++;
                     }
                 });
-                
                 document.getElementById('today-sales').textContent = todaySales.toFixed(2) + ' ر.س';
                 document.getElementById('today-invoices').textContent = todaySalesCount;
             };
-            
-            // حساب المشتريات اليوم
+
             const purchaseRequest = salesIndex.getAll('شراء');
-            
             purchaseRequest.onsuccess = function() {
                 const purchaseInvoices = purchaseRequest.result;
                 let todayPurchases = 0;
-                
                 purchaseInvoices.forEach(invoice => {
                     if (invoice.date === today) {
                         todayPurchases += invoice.total;
                     }
                 });
-                
                 document.getElementById('today-purchases').textContent = todayPurchases.toFixed(2) + ' ر.س';
             };
-            
-            // حساب الأصناف المنخفضة
-            const productsTransaction = db.transaction(['products'], 'readonly');
-            const productsStore = productsTransaction.objectStore('products');
+
             const productsRequest = productsStore.getAll();
-            
             productsRequest.onsuccess = function() {
                 const products = productsRequest.result;
                 let lowStockCount = 0;
-                const lowStockTable = document.getElementById('low-stock-items').getElementsByTagName('tbody')[0];
-                lowStockTable.innerHTML = '';
-                
+                const lowStockTableBody = document.getElementById('low-stock-items').getElementsByTagName('tbody')[0];
+                lowStockTableBody.innerHTML = '';
                 products.forEach(product => {
                     if (product.currentStock <= product.minStock) {
                         lowStockCount++;
-                        
-                        const row = lowStockTable.insertRow();
-                        row.innerHTML = `
-                            <td>${product.name}</td>
-                            <td class="low-stock">${product.currentStock}</td>
-                            <td>${product.minStock}</td>
-                        `;
+                        const row = lowStockTableBody.insertRow();
+                        row.innerHTML = `<td>${product.name}</td><td class="low-stock">${product.currentStock}</td><td>${product.minStock}</td>`;
                     }
                 });
-                
                 document.getElementById('low-stock-count').textContent = lowStockCount;
             };
             
-            // تحديث الفواتير الحديثة
-            const invoicesTransaction = db.transaction(['invoices'], 'readonly');
-            const invoicesStore = invoicesTransaction.objectStore('invoices');
-            const invoicesRequest = invoicesStore.getAll();
-            
-            invoicesRequest.onsuccess = function() {
-                const invoices = request.result;
-                const recentInvoicesTable = document.getElementById('recent-invoices').getElementsByTagName('tbody')[0];
-                recentInvoicesTable.innerHTML = '';
-                
-                // عرض آخر 5 فواتير
+            const allInvoicesRequest = invoicesStore.getAll();
+            allInvoicesRequest.onsuccess = function() {
+                const invoices = allInvoicesRequest.result;
+                const recentInvoicesTableBody = document.getElementById('recent-invoices').getElementsByTagName('tbody')[0];
+                recentInvoicesTableBody.innerHTML = '';
                 const recentInvoices = invoices.slice(-5).reverse();
-                
                 recentInvoices.forEach(invoice => {
-                    const row = recentInvoicesTable.insertRow();
-                    row.innerHTML = `
-                        <td>${invoice.number}</td>
-                        <td>${invoice.date}</td>
-                        <td>${invoice.type}</td>
-                        <td>${invoice.total.toFixed(2)} ر.س</td>
-                    `;
+                    const row = recentInvoicesTableBody.insertRow();
+                    row.innerHTML = `<td>${invoice.number}</td><td>${invoice.date}</td><td>${invoice.type}</td><td>${invoice.total.toFixed(2)} ر.س</td>`;
                 });
             };
         }
@@ -1344,60 +1286,39 @@
         // إضافة صنف جديد
         function addProduct() {
             const modal = document.getElementById('product-modal');
-            modal.style.display = 'flex';
             document.getElementById('product-modal-title').textContent = 'إضافة صنف جديد';
             
             // مسح الحقول
-            document.getElementById('product-name').value = '';
-            document.getElementById('product-code').value = '';
-            document.getElementById('product-category').value = '';
-            document.getElementById('product-barcode').value = '';
-            document.getElementById('purchase-price').value = '';
-            document.getElementById('selling-price').value = '';
-            document.getElementById('current-stock').value = '';
-            document.getElementById('min-stock').value = '';
-            document.getElementById('product-description').value = '';
+            document.getElementById('product-form').reset();
             
-            // إزالة مستمعي الأحداث السابقين
+            modal.style.display = 'flex';
+            
             const saveButton = document.getElementById('save-product');
             const newSaveButton = saveButton.cloneNode(true);
             saveButton.parentNode.replaceChild(newSaveButton, saveButton);
             
-            // إضافة مستمع حدث جديد
-            newSaveButton.addEventListener('click', function() {
-                saveNewProduct();
-            });
+            newSaveButton.addEventListener('click', saveNewProduct);
         }
         
         // حفظ الصنف الجديد
         function saveNewProduct() {
-            const name = document.getElementById('product-name').value;
-            const code = document.getElementById('product-code').value;
-            const category = document.getElementById('product-category').value;
-            const barcode = document.getElementById('product-barcode').value;
-            const purchasePrice = parseFloat(document.getElementById('purchase-price').value);
-            const sellingPrice = parseFloat(document.getElementById('selling-price').value);
-            const currentStock = parseInt(document.getElementById('current-stock').value);
-            const minStock = parseInt(document.getElementById('min-stock').value);
-            const description = document.getElementById('product-description').value;
-            
-            if (!name || !code || !category || isNaN(purchasePrice) || isNaN(sellingPrice) || isNaN(currentStock) || isNaN(minStock)) {
-                alert('يرجى ملء جميع الحقول المطلوبة');
-                return;
-            }
-            
             const product = {
-                name: name,
-                code: code,
-                category: category,
-                barcode: barcode || code,
-                purchasePrice: purchasePrice,
-                sellingPrice: sellingPrice,
-                currentStock: currentStock,
-                minStock: minStock,
-                description: description,
+                name: document.getElementById('product-name').value,
+                code: document.getElementById('product-code').value,
+                category: document.getElementById('product-category').value,
+                barcode: document.getElementById('product-barcode').value || document.getElementById('product-code').value,
+                purchasePrice: parseFloat(document.getElementById('purchase-price').value),
+                sellingPrice: parseFloat(document.getElementById('selling-price').value),
+                currentStock: parseInt(document.getElementById('current-stock').value),
+                minStock: parseInt(document.getElementById('min-stock').value),
+                description: document.getElementById('product-description').value,
                 createdAt: new Date().toISOString()
             };
+            
+            if (!product.name || !product.code || !product.category || isNaN(product.purchasePrice) || isNaN(product.sellingPrice) || isNaN(product.currentStock) || isNaN(product.minStock)) {
+                alert('يرجى ملء جميع الحقول المطلوبة بشكل صحيح');
+                return;
+            }
             
             const transaction = db.transaction(['products'], 'readwrite');
             const store = transaction.objectStore('products');
@@ -1411,7 +1332,7 @@
             };
             
             request.onerror = function() {
-                alert('حدث خطأ أثناء إضافة الصنف');
+                alert('حدث خطأ. قد يكون كود الصنف مكرراً.');
             };
         }
         
@@ -1425,10 +1346,8 @@
                 const product = request.result;
                 if (product) {
                     const modal = document.getElementById('product-modal');
-                    modal.style.display = 'flex';
                     document.getElementById('product-modal-title').textContent = 'تعديل الصنف';
                     
-                    // تعبئة الحقول ببيانات الصنف
                     document.getElementById('product-name').value = product.name;
                     document.getElementById('product-code').value = product.code;
                     document.getElementById('product-category').value = product.category;
@@ -1439,67 +1358,46 @@
                     document.getElementById('min-stock').value = product.minStock;
                     document.getElementById('product-description').value = product.description || '';
                     
-                    // إزالة مستمعي الأحداث السابقين
+                    modal.style.display = 'flex';
+                    
                     const saveButton = document.getElementById('save-product');
                     const newSaveButton = saveButton.cloneNode(true);
                     saveButton.parentNode.replaceChild(newSaveButton, saveButton);
                     
-                    // إضافة مستمع حدث جديد
-                    newSaveButton.addEventListener('click', function() {
-                        updateProduct(id);
-                    });
+                    newSaveButton.addEventListener('click', () => updateProduct(id));
                 }
             };
         }
         
         // تحديث الصنف
         function updateProduct(id) {
-            const name = document.getElementById('product-name').value;
-            const code = document.getElementById('product-code').value;
-            const category = document.getElementById('product-category').value;
-            const barcode = document.getElementById('product-barcode').value;
-            const purchasePrice = parseFloat(document.getElementById('purchase-price').value);
-            const sellingPrice = parseFloat(document.getElementById('selling-price').value);
-            const currentStock = parseInt(document.getElementById('current-stock').value);
-            const minStock = parseInt(document.getElementById('min-stock').value);
-            const description = document.getElementById('product-description').value;
-            
-            if (!name || !code || !category || isNaN(purchasePrice) || isNaN(sellingPrice) || isNaN(currentStock) || isNaN(minStock)) {
-                alert('يرجى ملء جميع الحقول المطلوبة');
-                return;
-            }
-            
+            const updatedProductData = {
+                id: id,
+                name: document.getElementById('product-name').value,
+                code: document.getElementById('product-code').value,
+                category: document.getElementById('product-category').value,
+                barcode: document.getElementById('product-barcode').value || document.getElementById('product-code').value,
+                purchasePrice: parseFloat(document.getElementById('purchase-price').value),
+                sellingPrice: parseFloat(document.getElementById('selling-price').value),
+                currentStock: parseInt(document.getElementById('current-stock').value),
+                minStock: parseInt(document.getElementById('min-stock').value),
+                description: document.getElementById('product-description').value,
+                updatedAt: new Date().toISOString()
+            };
+
             const transaction = db.transaction(['products'], 'readwrite');
             const store = transaction.objectStore('products');
-            const getRequest = store.get(id);
-            
-            getRequest.onsuccess = function() {
-                const product = getRequest.result;
-                if (product) {
-                    product.name = name;
-                    product.code = code;
-                    product.category = category;
-                    product.barcode = barcode || code;
-                    product.purchasePrice = purchasePrice;
-                    product.sellingPrice = sellingPrice;
-                    product.currentStock = currentStock;
-                    product.minStock = minStock;
-                    product.description = description;
-                    product.updatedAt = new Date().toISOString();
-                    
-                    const updateRequest = store.put(product);
-                    
-                    updateRequest.onsuccess = function() {
-                        alert('تم تحديث الصنف بنجاح');
-                        document.getElementById('product-modal').style.display = 'none';
-                        loadProducts();
-                        updateDashboard();
-                    };
-                    
-                    updateRequest.onerror = function() {
-                        alert('حدث خطأ أثناء تحديث الصنف');
-                    };
-                }
+            const request = store.put(updatedProductData);
+
+            request.onsuccess = function() {
+                alert('تم تحديث الصنف بنجاح');
+                document.getElementById('product-modal').style.display = 'none';
+                loadProducts();
+                updateDashboard();
+            };
+
+            request.onerror = function() {
+                alert('حدث خطأ أثناء تحديث الصنف');
             };
         }
         
@@ -1536,11 +1434,7 @@
             
             request.onsuccess = function() {
                 const products = request.result;
-                const product = products.find(p => 
-                    p.barcode === searchTerm || 
-                    p.code === searchTerm || 
-                    p.name.includes(searchTerm)
-                );
+                const product = products.find(p => p.barcode === searchTerm || p.code === searchTerm || p.name.includes(searchTerm));
                 
                 if (product) {
                     document.getElementById('barcode-product-name').textContent = product.name;
@@ -1560,216 +1454,234 @@
             const printContent = document.getElementById('barcode-result').innerHTML;
             const originalContent = document.body.innerHTML;
             
-            document.body.innerHTML = `
-                <div class="barcode-container" style="display: block; text-align: center;">
-                    ${printContent}
-                </div>
-            `;
+            document.body.innerHTML = `<div class="barcode-container" style="display: block; text-align: center;">${printContent}</div>`;
             
             window.print();
             document.body.innerHTML = originalContent;
-            location.reload();
+            // A simple way to re-initialize scripts after print
+            location.reload(); 
         }
-        
+
+        // --- الكود الخاص بالنسخ الاحتياطي والاستيراد ---
+
+        async function exportData() {
+            if (!db) {
+                alert("قاعدة البيانات غير جاهزة بعد.");
+                return;
+            }
+
+            const backup = {};
+            const storeNames = Array.from(db.objectStoreNames);
+            
+            const promises = storeNames.map(storeName => {
+                return new Promise((resolve, reject) => {
+                    const transaction = db.transaction(storeName, 'readonly');
+                    const store = transaction.objectStore(storeName);
+                    const request = store.getAll();
+                    request.onsuccess = () => {
+                        backup[storeName] = request.result;
+                        resolve();
+                    };
+                    request.onerror = (event) => reject(event.target.error);
+                });
+            });
+
+            try {
+                await Promise.all(promises);
+                const dataStr = JSON.stringify(backup, null, 2);
+                const blob = new Blob([dataStr], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                const today = new Date().toISOString().slice(0, 10);
+                a.href = url;
+                a.download = `backup-${DB_NAME}-${today}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                alert("تم تصدير النسخة الاحتياطية بنجاح!");
+            } catch (error) {
+                console.error("فشل تصدير البيانات:", error);
+                alert("حدث خطأ أثناء تصدير البيانات.");
+            }
+        }
+
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            if (!confirm("تحذير: سيتم حذف جميع البيانات الحالية واستبدالها بالبيانات من الملف. هل أنت متأكد من المتابعة؟")) {
+                event.target.value = null;
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const backup = JSON.parse(e.target.result);
+                    const storeNames = Object.keys(backup);
+                    const transaction = db.transaction(storeNames, 'readwrite');
+                    
+                    transaction.oncomplete = () => {
+                         alert("تم استيراد البيانات بنجاح! سيتم إعادة تحميل الصفحة.");
+                         location.reload();
+                    };
+
+                    transaction.onerror = (event) => {
+                        console.error("فشل استيراد البيانات:", event.target.error);
+                        alert("حدث خطأ أثناء استيراد البيانات.");
+                    };
+
+                    storeNames.forEach(storeName => {
+                        const store = transaction.objectStore(storeName);
+                        store.clear(); // مسح البيانات القديمة
+                        backup[storeName].forEach(item => {
+                            store.put(item);
+                        });
+                    });
+                } catch (error) {
+                    console.error("فشل قراءة الملف:", error);
+                    alert("فشل في قراءة الملف. تأكد من أنه ملف نسخة احتياطية صحيح.");
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = null;
+        }
+
         // تهيئة النظام عند تحميل الصفحة
         document.addEventListener('DOMContentLoaded', function() {
-            // تهيئة قاعدة البيانات
             initDB();
             
-            // إعداد التواريخ الحالية
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('purchase-date').textContent = today;
             document.getElementById('sales-date').textContent = today;
             document.getElementById('purchase-invoice-date').value = today;
             document.getElementById('sales-invoice-date').value = today;
             
-            // التنقل بين الصفحات
-            const menuItems = document.querySelectorAll('.menu-item');
-            menuItems.forEach(item => {
+            document.querySelectorAll('.menu-item, .submenu a').forEach(item => {
                 item.addEventListener('click', function(e) {
                     e.preventDefault();
-                    
-                    const submenu = this.nextElementSibling;
-                    if (submenu && submenu.classList.contains('submenu')) {
-                        submenu.classList.toggle('active');
-                    }
-                    
-                    // إخفاء جميع الصفحات
-                    document.querySelectorAll('.page').forEach(page => {
-                        page.classList.remove('active');
-                    });
-                    
-                    // إظهار الصفحة المحددة
+                    e.stopPropagation();
+
                     const pageId = this.getAttribute('data-page');
+                    if (!pageId) {
+                        const submenu = this.nextElementSibling;
+                        if (submenu && submenu.classList.contains('submenu')) {
+                            submenu.classList.toggle('active');
+                        }
+                        return;
+                    }
+
+                    document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
                     document.getElementById(pageId).classList.add('active');
-                    
-                    // تحديث القائمة النشطة
-                    document.querySelectorAll('.menu-item').forEach(item => {
-                        item.classList.remove('active');
-                    });
+
+                    document.querySelectorAll('.menu-item, .submenu a').forEach(i => i.classList.remove('active'));
                     this.classList.add('active');
+                    if (this.closest('.submenu')) {
+                        this.closest('.submenu').previousElementSibling.classList.add('active');
+                    }
                 });
             });
             
-            // إضافة صنف جديد في فاتورة الشراء
-            document.getElementById('add-purchase-item').addEventListener('click', function() {
-                addInvoiceItem('purchase');
-            });
-            
-            // إضافة صنف جديد في فاتورة البيع
-            document.getElementById('add-sales-item').addEventListener('click', function() {
-                addInvoiceItem('sales');
-            });
-            
-            // زر إضافة صنف جديد
+            document.getElementById('add-purchase-item').addEventListener('click', () => addInvoiceItem('purchase'));
+            document.getElementById('add-sales-item').addEventListener('click', () => addInvoiceItem('sales'));
             document.getElementById('add-product-btn').addEventListener('click', addProduct);
-            
-            // زر البحث عن الباركود
             document.getElementById('search-barcode').addEventListener('click', searchBarcode);
-            
-            // زر طباعة الباركود
             document.getElementById('print-barcode').addEventListener('click', printBarcode);
             
-            // إغلاق النموذج
-            document.querySelector('.close-modal').addEventListener('click', function() {
+            document.querySelector('#product-modal .close-modal').addEventListener('click', () => {
+                document.getElementById('product-modal').style.display = 'none';
+            });
+            document.getElementById('cancel-product').addEventListener('click', () => {
                 document.getElementById('product-modal').style.display = 'none';
             });
             
-            document.getElementById('cancel-product').addEventListener('click', function() {
-                document.getElementById('product-modal').style.display = 'none';
-            });
-            
-            // زر تسجيل الخروج
-            document.getElementById('logoutBtn').addEventListener('click', function() {
+            document.getElementById('logoutBtn').addEventListener('click', () => {
                 if (confirm('هل أنت متأكد من تسجيل الخروج؟')) {
                     alert('تم تسجيل الخروج بنجاح');
-                    // في التطبيق الحقيقي، سيتم توجيه المستخدم إلى صفحة تسجيل الدخول
                 }
             });
-            
-            // إضافة عنصر فاتورة
+
+            // ربط أزرار النسخ الاحتياطي
+            document.getElementById('export-data-btn').addEventListener('click', exportData);
+            document.getElementById('import-data-btn').addEventListener('click', () => document.getElementById('import-file-input').click());
+            document.getElementById('import-file-input').addEventListener('change', importData);
+
             function addInvoiceItem(type) {
                 const containerId = type === 'purchase' ? 'purchase-items' : 'sales-items';
                 const container = document.getElementById(containerId);
-                
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td>
-                        <select class="product-select">
-                            <option value="">اختر الصنف</option>
-                        </select>
-                    </td>
+                    <td><select class="product-select"><option value="">اختر الصنف</option></select></td>
                     <td><input type="number" class="quantity" value="1" min="1"></td>
-                    <td><input type="number" class="unit-price" value="0" step="0.01"></td>
+                    <td><input type="number" class="unit-price" value="0.00" step="0.01"></td>
                     <td class="item-total">0.00 ر.س</td>
                     <td><button class="btn-danger remove-item"><i class="fas fa-trash"></i></button></td>
                 `;
                 container.appendChild(row);
-                
-                // تحميل الأصناف في القائمة المنسدلة
-                loadProductsForInvoice(row.querySelector('.product-select'));
-                
-                // إضافة مستمعي الأحداث
+                loadProductsForInvoice(row.querySelector('.product-select'), type);
                 addEventListenersToRow(row, type);
             }
             
-            // تحميل الأصناف في قائمة الفاتورة
-            function loadProductsForInvoice(selectElement) {
+            function loadProductsForInvoice(selectElement, type) {
                 const transaction = db.transaction(['products'], 'readonly');
                 const store = transaction.objectStore('products');
                 const request = store.getAll();
-                
-                request.onsuccess = function() {
+                request.onsuccess = () => {
                     const products = request.result;
-                    selectElement.innerHTML = '<option value="">اختر الصنف</option>';
-                    
                     products.forEach(product => {
                         const option = document.createElement('option');
                         option.value = product.id;
-                        option.textContent = product.name;
-                        option.setAttribute('data-price', product.purchasePrice);
+                        option.textContent = `${product.name} (${product.currentStock})`;
+                        const price = (type === 'sales') ? product.sellingPrice : product.purchasePrice;
+                        option.setAttribute('data-price', price);
                         selectElement.appendChild(option);
                     });
                 };
             }
             
-            // إضافة مستمعي الأحداث لعنصر الفاتورة
             function addEventListenersToRow(row, type) {
                 const productSelect = row.querySelector('.product-select');
                 const quantityInput = row.querySelector('.quantity');
                 const unitPriceInput = row.querySelector('.unit-price');
-                const removeBtn = row.querySelector('.remove-item');
                 
                 productSelect.addEventListener('change', function() {
                     const selectedOption = this.options[this.selectedIndex];
-                    const price = selectedOption.getAttribute('data-price') || 0;
-                    unitPriceInput.value = price;
+                    unitPriceInput.value = selectedOption.getAttribute('data-price') || 0;
                     calculateItemTotal(row, type);
                 });
                 
-                quantityInput.addEventListener('input', function() {
-                    calculateItemTotal(row, type);
-                });
-                
-                unitPriceInput.addEventListener('input', function() {
-                    calculateItemTotal(row, type);
-                });
-                
-                removeBtn.addEventListener('click', function() {
+                quantityInput.addEventListener('input', () => calculateItemTotal(row, type));
+                unitPriceInput.addEventListener('input', () => calculateItemTotal(row, type));
+                row.querySelector('.remove-item').addEventListener('click', () => {
                     row.remove();
                     calculateInvoiceTotal(type);
                 });
             }
             
-            // حساب الإجمالي للصنف
             function calculateItemTotal(row, type) {
                 const quantity = parseFloat(row.querySelector('.quantity').value) || 0;
                 const unitPrice = parseFloat(row.querySelector('.unit-price').value) || 0;
-                const total = quantity * unitPrice;
-                
-                row.querySelector('.item-total').textContent = total.toFixed(2) + ' ر.س';
+                row.querySelector('.item-total').textContent = (quantity * unitPrice).toFixed(2) + ' ر.س';
                 calculateInvoiceTotal(type);
             }
             
-            // حساب إجمالي الفاتورة
             function calculateInvoiceTotal(type) {
                 const containerId = type === 'purchase' ? 'purchase-items' : 'sales-items';
-                const subtotalId = type === 'purchase' ? 'purchase-subtotal' : 'sales-subtotal';
-                const totalId = type === 'purchase' ? 'purchase-total' : 'sales-total';
-                const discountId = type === 'purchase' ? 'purchase-discount' : 'sales-discount';
-                
                 let subtotal = 0;
                 document.querySelectorAll(`#${containerId} .item-total`).forEach(item => {
-                    const value = parseFloat(item.textContent) || 0;
-                    subtotal += value;
+                    subtotal += parseFloat(item.textContent) || 0;
                 });
                 
+                const discountId = type === 'purchase' ? 'purchase-discount' : 'sales-discount';
                 const discount = parseFloat(document.getElementById(discountId).value) || 0;
-                const total = subtotal - discount;
                 
-                document.getElementById(subtotalId).textContent = subtotal.toFixed(2) + ' ر.س';
-                document.getElementById(totalId).textContent = total.toFixed(2) + ' ر.س';
+                document.getElementById(`${type}-subtotal`).textContent = subtotal.toFixed(2) + ' ر.س';
+                document.getElementById(`${type}-total`).textContent = (subtotal - discount).toFixed(2) + ' ر.س';
             }
             
-            // إضافة مستمعي الأحداث للحقول الموجودة
-            document.querySelectorAll('#purchase-items tr').forEach(row => {
-                loadProductsForInvoice(row.querySelector('.product-select'));
-                addEventListenersToRow(row, 'purchase');
-            });
-            
-            document.querySelectorAll('#sales-items tr').forEach(row => {
-                loadProductsForInvoice(row.querySelector('.product-select'));
-                addEventListenersToRow(row, 'sales');
-            });
-            
-            // تحديث الإجمالي عند تغيير الخصم
-            document.getElementById('purchase-discount').addEventListener('input', function() {
-                calculateInvoiceTotal('purchase');
-            });
-            
-            document.getElementById('sales-discount').addEventListener('input', function() {
-                calculateInvoiceTotal('sales');
-            });
+            document.getElementById('purchase-discount').addEventListener('input', () => calculateInvoiceTotal('purchase'));
+            document.getElementById('sales-discount').addEventListener('input', () => calculateInvoiceTotal('sales'));
         });
     </script>
 </body>
