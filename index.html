@@ -808,16 +808,37 @@
     function printSalesStats() {
         const now = new Date();
         const printContainer = document.getElementById('print-report-content');
-        const statsContent = `
-            <div style="font-size: 14pt; padding: 20px; text-align: right; border: 1px solid #ccc; border-radius: 10px;">
-                ${document.getElementById('daily-sales-text').outerHTML}
-                ${document.getElementById('monthly-sales-text').outerHTML}
-                ${document.getElementById('yearly-sales-text').outerHTML}
-                <hr style="margin: 15px 0;">
-                ${document.getElementById('total-sales-text').outerHTML}
-            </div>`;
-        const summary = `الإحصائيات حتى تاريخ: ${now.toLocaleDateString('ar-IQ')}`;
-        printReport('تقرير إحصائيات المبيعات', '', statsContent, summary); // No table for this report
+        
+        // استخدام .textContent للحصول على البيانات نظيفة بدون وسوم HTML أو تنسيقات من الصفحة الرئيسية
+        const dailySales = document.getElementById('daily-sales-text').textContent;
+        const monthlySales = document.getElementById('monthly-sales-text').textContent;
+        const yearlySales = document.getElementById('yearly-sales-text').textContent;
+        const totalSales = document.getElementById('total-sales-text').textContent;
+
+        const reportHTML = `
+            <div class="report-print-header">
+                <h2>تقرير إحصائيات المبيعات</h2>
+                <p>نظام أوسكار لإدارة الصيدليات</p>
+                <div class="report-print-info">
+                    <span>تاريخ التقرير: ${now.toLocaleDateString('ar-IQ')}</span>
+                    <span>وقت التقرير: ${now.toLocaleTimeString('ar-IQ')}</span>
+                </div>
+            </div>
+
+            <div style="padding: 20px; font-size: 14pt; text-align: right;">
+                <p style="padding: 10px; border-bottom: 1px solid #eee;">${dailySales}</p>
+                <p style="padding: 10px; border-bottom: 1px solid #eee;">${monthlySales}</p>
+                <p style="padding: 10px; border-bottom: 1px solid #eee;">${yearlySales}</p>
+                <p style="padding: 15px 10px; font-weight: bold; font-size: 16pt; margin-top: 15px; background-color: #f2f2f2; border-radius: 5px;">${totalSales}</p>
+            </div>
+
+            <div class="report-print-footer">
+                <p>هذا التقرير تم إنشاؤه بواسطة نظام أوسكار.</p>
+            </div>
+        `;
+
+        printContainer.innerHTML = reportHTML;
+        window.print();
     }
 
     </script>
