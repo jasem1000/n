@@ -102,10 +102,45 @@
 
         .report-section { margin-bottom: 30px; }
         .report-section h3 { border-bottom: 2px solid var(--accent-color); padding-bottom: 10px; margin-bottom: 15px; }
+        .report-section .print-btn { margin-top: 10px; display: block; width: fit-content; margin-right: auto; margin-left: auto; }
 
+        .sales-stats { text-align: center; font-size: 18px; }
+        .sales-stats p { margin: 10px 0; font-weight: bold; }
+
+        /* تحسينات للطباعة */
         @media print {
             .no-print { display: none !important; }
-            body, .container { padding: 0; margin: 0; box-shadow: none; }
+            body, .container { padding: 0; margin: 0; box-shadow: none; background: white; }
+            .header { border-bottom: none; margin-bottom: 10px; }
+            .header h1 { font-size: 24px; }
+            .invoice-details { grid-template-columns: repeat(3, 1fr); padding: 10px; border: none; background: none; }
+            .info-item input { border: none; background: none; padding: 0; font-weight: bold; }
+            .scanner-area { display: none; }
+            .sales-cart table { border: 1px solid #000; }
+            .sales-cart th, .sales-cart td { border: 1px solid #000; padding: 8px; }
+            .sales-cart th { background: #f0f0f0; }
+            .total-section { border-top: 1px solid #000; padding-top: 10px; font-size: 18px; text-align: center; }
+            .footer-print { display: block; text-align: center; margin-top: 20px; font-size: 12px; color: #555; }
+            .container { max-width: 100%; border: 1px solid #000; padding: 20px; }
+            .modal { display: none; } /* إخفاء النوافذ أثناء الطباعة العامة */
+            .print-content { display: block !important; background: white; padding: 20px; border: 1px solid #000; }
+            .print-content h3 { text-align: center; font-size: 20px; margin-bottom: 15px; }
+            .print-content .report-date { text-align: center; font-size: 14px; margin-bottom: 20px; color: #555; }
+            .print-content table { border-collapse: collapse; width: 100%; margin: 0 auto; }
+            .print-content th, .print-content td { border: 1px solid #000; padding: 10px; text-align: center; }
+            .print-content th { background-color: #e9ecef; }
+            .print-content .sales-stats p { text-align: center; font-size: 16px; margin: 10px 0; }
+            
+            /* تحسينات طباعة التقارير */
+            .print-report { display: block !important; }
+            .print-report-header { text-align: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #333; }
+            .print-report-header h2 { font-size: 22px; margin-bottom: 5px; }
+            .print-report-header .report-info { display: flex; justify-content: space-between; margin-top: 10px; }
+            .print-report-table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+            .print-report-table th { background-color: #f0f0f0; font-weight: bold; padding: 10px; border: 1px solid #000; }
+            .print-report-table td { padding: 8px; border: 1px solid #000; }
+            .print-report-summary { margin-top: 20px; padding-top: 15px; border-top: 1px solid #333; }
+            .print-report-footer { text-align: center; margin-top: 30px; font-size: 12px; color: #555; }
         }
     </style>
 </head>
@@ -119,7 +154,8 @@
             <button class="btn btn-success" onclick="completeSale()"><i class="fas fa-check-circle"></i> إتمام البيع</button>
             <button class="btn btn-primary" onclick="printReceipt()"><i class="fas fa-print"></i> طباعة الفاتورة</button>
             <button class="btn btn-info" onclick="openInventoryManager()"><i class="fas fa-boxes"></i> إدارة المخزون</button>
-            <button class="btn btn-warning" onclick="openReportsModal()"><i class="fas fa-chart-line"></i> التقارير والتنبيهات</button>
+            <button class="btn btn-warning" onclick="openReportsModal()"><i class="fas fa-chart-line"></i> تقارير المنتجات</button>
+            <button class="btn btn-primary" onclick="openSalesStatsModal()"><i class="fas fa-chart-bar"></i> إحصائيات البيع</button>
             <button class="btn btn-danger" onclick="clearCart()"><i class="fas fa-trash"></i> فاتورة جديدة</button>
         </div>
 
@@ -129,7 +165,7 @@
                 <div class="info-item"><label for="invoice-date">التاريخ</label><input type="text" id="invoice-date" readonly></div>
                 <div class="info-item"><label for="customer-name">اسم العميل</label><input type="text" id="customer-name" placeholder="عميل نقدي"></div>
             </div>
-            <div class="scanner-area">
+            <div class="scanner-area no-print">
                 <label for="barcode-input"><i class="fas fa-barcode"></i> امسح الباركود أو ابحث بالاسم...</label>
                 <input type="text" id="barcode-input" autocomplete="off">
             </div>
@@ -141,8 +177,10 @@
             </div>
             <div class="total-section"><span>المبلغ الإجمالي: </span><span id="total-amount">0.00 IQD</span></div>
         </div>
+        <div class="footer-print no-print" style="display: none;">شكراً لزيارتكم - نظام أوسكار</div>
     </div>
 
+    <!-- نافذة إدارة المخزون -->
     <div id="inventoryModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeModal('inventoryModal')">&times;</span>
@@ -189,29 +227,76 @@
         </div>
     </div>
     
+    <!-- نافذة تقارير المنتجات -->
     <div id="reportsModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeModal('reportsModal')">&times;</span>
-            <h2><i class="fas fa-chart-line"></i> التقارير والتنبيهات</h2>
-            <div class="report-section">
-                <h3><i class="fas fa-exclamation-triangle" style="color: var(--danger-color);"></i> منتجات قاربت صلاحيتها على الانتهاء (90 يومًا)</h3>
-                <div style="max-height: 200px; overflow-y: auto;">
-                    <table class="data-table">
-                        <thead><tr><th>المنتج</th><th>الكمية</th><th>تاريخ الانتهاء</th></tr></thead>
-                        <tbody id="expiring-products-body"></tbody>
-                    </table>
+            <h2><i class="fas fa-chart-line"></i> تقارير المنتجات والتنبيهات</h2>
+            <div class="modal-tabs">
+                <div class="modal-tab active" onclick="switchTab(event, 'expiringTab')">منتجات قاربت على الانتهاء</div>
+                <div class="modal-tab" onclick="switchTab(event, 'lowStockTab')">منتجات قاربت على النفاذ</div>
+            </div>
+
+            <div id="expiringTab" class="tab-content active">
+                <div class="report-section">
+                    <h3><i class="fas fa-exclamation-triangle" style="color: var(--danger-color);"></i> منتجات قاربت صلاحيتها على الانتهاء (90 يومًا)</h3>
+                    <div style="max-height: 200px; overflow-y: auto;">
+                        <table class="data-table">
+                            <thead><tr><th>المنتج</th><th>الباركود</th><th>الكمية</th><th>تاريخ الانتهاء</th><th>الأيام المتبقية</th></tr></thead>
+                            <tbody id="expiring-products-body"></tbody>
+                        </table>
+                    </div>
+                    <button class="btn btn-primary print-btn no-print" onclick="printExpiringReport()"><i class="fas fa-print"></i> طباعة التقرير</button>
                 </div>
             </div>
-            <div class="report-section">
-                <h3><i class="fas fa-battery-empty" style="color: var(--warning-color);"></i> منتجات وصلت لحد المخزون المنخفض</h3>
-                <div style="max-height: 200px; overflow-y: auto;">
-                    <table class="data-table">
-                        <thead><tr><th>المنتج</th><th>الكمية المتبقية</th><th>الحد الأدنى</th></tr></thead>
-                        <tbody id="low-stock-products-body"></tbody>
-                    </table>
+
+            <div id="lowStockTab" class="tab-content">
+                <div class="report-section">
+                    <h3><i class="fas fa-battery-empty" style="color: var(--warning-color);"></i> منتجات وصلت لحد المخزون المنخفض</h3>
+                    <div style="max-height: 200px; overflow-y: auto;">
+                        <table class="data-table">
+                            <thead><tr><th>المنتج</th><th>الباركود</th><th>الكمية المتبقية</th><th>الحد الأدنى</th><th>الحالة</th></tr></thead>
+                            <tbody id="low-stock-products-body"></tbody>
+                        </table>
+                    </div>
+                    <button class="btn btn-primary print-btn no-print" onclick="printLowStockReport()"><i class="fas fa-print"></i> طباعة التقرير</button>
                 </div>
             </div>
         </div>
+    </div>
+    
+    <!-- نافذة إحصائيات البيع -->
+    <div id="salesStatsModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('salesStatsModal')">&times;</span>
+            <h2><i class="fas fa-chart-bar"></i> إحصائيات المبيعات</h2>
+            
+            <div class="report-section">
+                <h3><i class="fas fa-chart-bar" style="color: var(--accent-color);"></i> إحصائيات المبيعات</h3>
+                <div class="sales-stats">
+                    <p id="daily-sales-text"></p>
+                    <p id="monthly-sales-text"></p>
+                    <p id="yearly-sales-text"></p>
+                    <p id="total-sales-text"></p>
+                </div>
+                <button class="btn btn-primary print-btn no-print" onclick="printSalesStats()"><i class="fas fa-print"></i> طباعة الإحصائيات</button>
+                <button class="btn btn-danger no-print" onclick="deleteSalesStats()"><i class="fas fa-trash"></i> حذف جميع الإحصائيات</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- محتوى طباعة مخفي -->
+    <div id="print-content" class="print-content" style="display: none;">
+        <div class="header">
+            <h1><i class="fas fa-pills"></i> نظام أوسكار لإدارة الصيدليات</h1>
+        </div>
+        <div id="print-body"></div>
+        <div class="footer-print">شكراً لزيارتكم - نظام أوسكار</div>
+    </div>
+    
+    <!-- محتوى طباعة التقارير -->
+    <div id="print-report" class="print-report" style="display: none;">
+        <div id="print-report-body"></div>
     </div>
     
     <script>
@@ -219,9 +304,7 @@
     const DB_VERSION = 1;
     let db;
 
-    // =================================================================
     // تهيئة قاعدة البيانات والتطبيق
-    // =================================================================
     async function initDb() {
         return new Promise((resolve, reject) => {
             const request = indexedDB.open(DB_NAME, DB_VERSION);
@@ -248,15 +331,22 @@
             await initDb();
             setInvoiceInfo();
             document.getElementById('barcode-input').focus();
+            setupKeyboardShortcuts();
         } catch (error) {
             console.error("Failed to initialize:", error);
             alert("فشل تشغيل قاعدة البيانات.");
         }
     });
 
-    // =================================================================
+    function setupKeyboardShortcuts() {
+        document.addEventListener('keydown', (event) => {
+            if (event.key === '1' && event.target.tagName.toLowerCase() !== 'input' && event.target.tagName.toLowerCase() !== 'textarea') {
+                openSalesStatsModal();
+            }
+        });
+    }
+
     // إدارة نوافذ Modal وال Tabs
-    // =================================================================
     function closeModal(modalId) { document.getElementById(modalId).style.display = 'none'; }
     function switchTab(event, tabName) {
         const parent = event.target.closest('.modal-content');
@@ -266,23 +356,19 @@
         event.target.classList.add('active');
     }
 
-    // =================================================================
     // واجهة نقطة البيع (POS)
-    // =================================================================
     const barcodeInput = document.getElementById('barcode-input');
     const cartItemsContainer = document.getElementById('cart-items');
 
-    barcodeInput.addEventListener('change', async function() {
+    barcodeInput.addEventListener('change', async function(event) {
         const query = this.value.trim();
         if (query) {
             const transaction = db.transaction('products', 'readonly');
-            // Try searching by barcode first
             let request = transaction.objectStore('products').index('barcode').get(query);
             request.onsuccess = e => {
                 if (e.target.result) {
                     addProductToCart(e.target.result);
                 } else {
-                    // If not found by barcode, try by name
                     let nameRequest = transaction.objectStore('products').index('name_lower').get(query.toLowerCase());
                     nameRequest.onsuccess = ne => {
                         if (ne.target.result) {
@@ -290,22 +376,28 @@
                         } else {
                             alert(`المنتج غير موجود!`);
                         }
-                    }
+                    };
                 }
             };
-            this.value = ''; this.focus();
+            this.value = ''; 
+            this.focus();
         }
     });
 
-    function addProductToCart(product) {
-        const existingRow = document.querySelector(`tr[data-product-id='${product.id}']`);
+    async function addProductToCart(product) {
+        const existingRow = cartItemsContainer.querySelector(`tr[data-product-id='${product.id}']`);
         if (existingRow) {
             const quantityInput = existingRow.querySelector('.quantity-input');
             quantityInput.value = parseInt(quantityInput.value) + 1;
         } else {
+            const totalStock = await getTotalStock(product.id);
+            if (totalStock <= 0) {
+                alert(`المنتج ${product.name} غير متوفر في المخزون!`);
+                return;
+            }
             const row = cartItemsContainer.insertRow();
             row.dataset.productId = product.id;
-            row.innerHTML = `<td>${cartItemsContainer.rows.length}</td><td>${product.name}</td><td><input type="number" class="quantity-input" value="1" min="1"></td><td class="unit-price">${product.sellingPrice.toFixed(2)}</td><td class="total-price">${product.sellingPrice.toFixed(2)}</td><td class="no-print"><button class="delete-item-btn" onclick="deleteCartItem(this)"><i class="fas fa-times-circle"></i></button></td>`;
+            row.innerHTML = `<td>${cartItemsContainer.rows.length}</td><td>${product.name}</td><td><input type="number" class="quantity-input" value="1" min="1" max="${totalStock}"></td><td class="unit-price">${product.sellingPrice.toFixed(2)}</td><td class="total-price">${product.sellingPrice.toFixed(2)}</td><td class="no-print"><button class="delete-item-btn" onclick="deleteCartItem(this)"><i class="fas fa-times-circle"></i></button></td>`;
         }
         updateTotals();
     }
@@ -325,12 +417,14 @@
     cartItemsContainer.addEventListener('input', e => { if (e.target.classList.contains('quantity-input')) updateTotals(); });
     function deleteCartItem(button) { button.closest('tr').remove(); updateTotals(); }
     function clearCart() { cartItemsContainer.innerHTML = ''; document.getElementById('customer-name').value = ''; updateTotals(); setInvoiceInfo(); barcodeInput.focus(); }
-    function printReceipt() { window.print(); }
+    function printReceipt() { 
+        document.querySelector('.footer-print').style.display = 'block';
+        window.print(); 
+        document.querySelector('.footer-print').style.display = 'none';
+    }
     function setInvoiceInfo(){ document.getElementById('invoice-date').value = new Date().toLocaleDateString('ar-IQ'); document.getElementById('invoice-number').value = `INV-${Date.now()}`; }
 
-    // =================================================================
     // وظيفة إتمام البيع (المنطق الكامل)
-    // =================================================================
     async function completeSale() {
         const cartRows = cartItemsContainer.querySelectorAll('tr');
         if (cartRows.length === 0) return alert('سلة المبيعات فارغة!');
@@ -391,9 +485,13 @@
         });
     }
 
-    // =================================================================
+    async function getTotalStock(productId) {
+        const tx = db.transaction('inventory', 'readonly');
+        const inventory = await new Promise(res => tx.objectStore('inventory').index('productId').getAll(productId).onsuccess = e => res(e.target.result));
+        return inventory.reduce((sum, i) => sum + i.quantity, 0);
+    }
+
     // إدارة المخزون
-    // =================================================================
     async function openInventoryManager() {
         document.getElementById('inventoryModal').style.display = 'block';
         await renderProductList();
@@ -402,20 +500,32 @@
 
     async function renderProductList() {
         const tx = db.transaction(['products', 'inventory'], 'readonly');
-        const products = await tx.objectStore('products').getAll();
-        const inventory = await tx.objectStore('inventory').getAll();
+        const products = await new Promise((res) => tx.objectStore('products').getAll().onsuccess = e => res(e.target.result));
+        const inventory = await new Promise((res) => tx.objectStore('inventory').getAll().onsuccess = e => res(e.target.result));
         const productListBody = document.getElementById('product-list-body');
         productListBody.innerHTML = '';
         
         products.forEach(p => {
             const totalStock = inventory.filter(i => i.productId === p.id).reduce((sum, i) => sum + i.quantity, 0);
             const row = productListBody.insertRow();
-            row.innerHTML = `<td>${p.barcode}</td><td>${p.name}</td><td>${p.sellingPrice}</td><td>${totalStock}</td><td class="no-print">...</td>`;
+            row.innerHTML = `<td>${p.barcode}</td><td>${p.name}</td><td>${p.sellingPrice}</td><td>${totalStock}</td><td class="no-print actions-cell"><button class="btn btn-danger btn-sm" onclick="deleteProduct(${p.id})">حذف</button></td>`;
         });
     }
 
+    async function deleteProduct(productId) {
+        if (!confirm('هل أنت متأكد من حذف هذا المنتج؟')) return;
+        const tx = db.transaction(['products', 'inventory'], 'readwrite');
+        await tx.objectStore('products').delete(productId);
+        const inventoryCursor = tx.objectStore('inventory').index('productId').openCursor(productId);
+        inventoryCursor.onsuccess = e => {
+            const cursor = e.target.result;
+            if (cursor) { cursor.delete(); cursor.continue(); }
+        };
+        tx.oncomplete = () => renderProductList();
+    }
+
     async function populateProductSelect() {
-        const products = await db.transaction('products', 'readonly').objectStore('products').getAll();
+        const products = await new Promise((res) => db.transaction('products', 'readonly').objectStore('products').getAll().onsuccess = e => res(e.target.result));
         const select = document.getElementById('stock-product-select');
         select.innerHTML = '<option value="">اختر منتج...</option>';
         products.forEach(p => select.innerHTML += `<option value="${p.id}">${p.name}</option>`);
@@ -455,9 +565,7 @@
         tx.onerror = (e) => alert('فشل إضافة المخزون. ' + e.target.error);
     }
 
-    // =================================================================
-    // التقارير والتنبيهات
-    // =================================================================
+    // تقارير المنتجات
     async function openReportsModal() {
         document.getElementById('reportsModal').style.display = 'block';
         await generateExpiringSoonReport();
@@ -472,38 +580,168 @@
         expiringBody.innerHTML = '';
 
         const thresholdDate = new Date();
-        thresholdDate.setDate(thresholdDate.getDate() + 90); // 90 days from now
+        thresholdDate.setDate(thresholdDate.getDate() + 90);
         
-        inventoryStore.openCursor().onsuccess = async e => {
-            const cursor = e.target.result;
-            if (cursor) {
-                const entry = cursor.value;
-                if (new Date(entry.expiryDate) <= thresholdDate) {
-                    const product = await productsStore.get(entry.productId);
-                    if (product) {
-                        const row = expiringBody.insertRow();
-                        row.innerHTML = `<td>${product.name}</td><td>${entry.quantity}</td><td>${entry.expiryDate}</td>`;
-                    }
+        const entries = await new Promise((res) => {
+            let results = [];
+            inventoryStore.openCursor().onsuccess = e => {
+                const cursor = e.target.result;
+                if (cursor) {
+                    if (new Date(cursor.value.expiryDate) <= thresholdDate) results.push(cursor.value);
+                    cursor.continue();
+                } else {
+                    res(results);
                 }
-                cursor.continue();
+            };
+        });
+
+        for (const entry of entries) {
+            const product = await new Promise((res) => productsStore.get(entry.productId).onsuccess = e => res(e.target.result));
+            if (product) {
+                const daysRemaining = Math.ceil((new Date(entry.expiryDate) - new Date()) / (1000 * 60 * 60 * 24));
+                const row = expiringBody.insertRow();
+                row.innerHTML = `<td>${product.name}</td><td>${product.barcode}</td><td>${entry.quantity}</td><td>${entry.expiryDate}</td><td>${daysRemaining} يوم</td>`;
             }
-        };
+        }
     }
 
     async function generateLowStockReport() {
         const tx = db.transaction(['products', 'inventory'], 'readonly');
-        const products = await tx.objectStore('products').getAll();
-        const inventory = await tx.objectStore('inventory').getAll();
+        const products = await new Promise((res) => tx.objectStore('products').getAll().onsuccess = e => res(e.target.result));
+        const inventory = await new Promise((res) => tx.objectStore('inventory').getAll().onsuccess = e => res(e.target.result));
         const lowStockBody = document.getElementById('low-stock-products-body');
         lowStockBody.innerHTML = '';
         
         products.forEach(p => {
             const totalStock = inventory.filter(i => i.productId === p.id).reduce((sum, i) => sum + i.quantity, 0);
             if (totalStock <= p.lowStockThreshold) {
+                const status = totalStock === 0 ? '<span style="color: red;">منتهي</span>' : 
+                              totalStock <= Math.floor(p.lowStockThreshold / 2) ? '<span style="color: orange;">منخفض جداً</span>' : 
+                              '<span style="color: var(--warning-color);">منخفض</span>';
                 const row = lowStockBody.insertRow();
-                row.innerHTML = `<td>${p.name}</td><td>${totalStock}</td><td>${p.lowStockThreshold}</td>`;
+                row.innerHTML = `<td>${p.name}</td><td>${p.barcode}</td><td>${totalStock}</td><td>${p.lowStockThreshold}</td><td>${status}</td>`;
             }
         });
+    }
+
+    // إحصائيات البيع
+    async function openSalesStatsModal() {
+        document.getElementById('salesStatsModal').style.display = 'block';
+        await generateSalesStats();
+    }
+
+    async function generateSalesStats() {
+        const sales = await new Promise((res) => db.transaction('sales', 'readonly').objectStore('sales').getAll().onsuccess = e => res(e.target.result));
+        
+        const now = new Date();
+        const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+        const yearStart = new Date(now.getFullYear(), 0, 1);
+
+        const dailySales = sales.filter(s => new Date(s.date) >= todayStart).reduce((sum, s) => sum + s.totalAmount, 0);
+        const monthlySales = sales.filter(s => new Date(s.date) >= monthStart).reduce((sum, s) => sum + s.totalAmount, 0);
+        const yearlySales = sales.filter(s => new Date(s.date) >= yearStart).reduce((sum, s) => sum + s.totalAmount, 0);
+        const totalSales = sales.reduce((sum, s) => sum + s.totalAmount, 0);
+
+        document.getElementById('daily-sales-text').innerHTML = `إجمالي المبيعات اليوم (${now.toLocaleDateString('ar-IQ')}): <span style="color: var(--button-color);">${dailySales.toFixed(2)} IQD</span>`;
+        document.getElementById('monthly-sales-text').innerHTML = `إجمالي المبيعات الشهري (${now.toLocaleDateString('ar-IQ', { month: 'long', year: 'numeric' })}): <span style="color: var(--accent-color);">${monthlySales.toFixed(2)} IQD</span>`;
+        document.getElementById('yearly-sales-text').innerHTML = `إجمالي المبيعات السنوي (${now.getFullYear()}): <span style="color: var(--header-color);">${yearlySales.toFixed(2)} IQD</span>`;
+        document.getElementById('total-sales-text').innerHTML = `إجمالي المبيعات الكلي: <span style="color: var(--danger-color); font-size: 20px;">${totalSales.toFixed(2)} IQD</span>`;
+    }
+
+    async function deleteSalesStats() {
+        if (!confirm('هل أنت متأكد من حذف جميع إحصائيات المبيعات؟ هذا الإجراء لا يمكن التراجع عنه.')) return;
+        const tx = db.transaction('sales', 'readwrite');
+        tx.objectStore('sales').clear();
+        tx.oncomplete = () => {
+            alert('تم حذف جميع الإحصائيات بنجاح.');
+            generateSalesStats();
+        };
+        tx.onerror = (e) => alert('فشل حذف الإحصائيات: ' + e.target.error);
+    }
+
+    // وظائف الطباعة للتقارير
+    function printExpiringReport() {
+        const now = new Date();
+        const printBody = document.getElementById('print-report-body');
+        printBody.innerHTML = `
+            <div class="print-report-header">
+                <h2>تقرير المنتجات المقاربة على الانتهاء</h2>
+                <p>نظام أوسكار لإدارة الصيدليات</p>
+                <div class="report-info">
+                    <span>تاريخ التقرير: ${now.toLocaleDateString('ar-IQ')}</span>
+                    <span>الوقت: ${now.toLocaleTimeString('ar-IQ')}</span>
+                </div>
+            </div>
+            <table class="print-report-table">
+                <thead><tr><th>المنتج</th><th>الباركود</th><th>الكمية</th><th>تاريخ الانتهاء</th><th>الأيام المتبقية</th></tr></thead>
+                ${document.getElementById('expiring-products-body').innerHTML}
+            </table>
+            <div class="print-report-summary">
+                <p>إجمالي عدد المنتجات المقاربة على الانتهاء: <strong>${document.getElementById('expiring-products-body').rows.length}</strong></p>
+            </div>
+            <div class="print-report-footer">
+                <p>شكراً لاستخدامكم نظام أوسكار لإدارة الصيدليات</p>
+            </div>
+        `;
+        document.getElementById('print-report').style.display = 'block';
+        window.print();
+        document.getElementById('print-report').style.display = 'none';
+    }
+
+    function printLowStockReport() {
+        const now = new Date();
+        const printBody = document.getElementById('print-report-body');
+        printBody.innerHTML = `
+            <div class="print-report-header">
+                <h2>تقرير المنتجات منخفضة المخزون</h2>
+                <p>نظام أوسكار لإدارة الصيدليات</p>
+                <div class="report-info">
+                    <span>تاريخ التقرير: ${now.toLocaleDateString('ar-IQ')}</span>
+                    <span>الوقت: ${now.toLocaleTimeString('ar-IQ')}</span>
+                </div>
+            </div>
+            <table class="print-report-table">
+                <thead><tr><th>المنتج</th><th>الباركود</th><th>الكمية المتبقية</th><th>الحد الأدنى</th><th>الحالة</th></tr></thead>
+                ${document.getElementById('low-stock-products-body').innerHTML}
+            </table>
+            <div class="print-report-summary">
+                <p>إجمالي عدد المنتجات منخفضة المخزون: <strong>${document.getElementById('low-stock-products-body').rows.length}</strong></p>
+            </div>
+            <div class="print-report-footer">
+                <p>شكراً لاستخدامكم نظام أوسكار لإدارة الصيدليات</p>
+            </div>
+        `;
+        document.getElementById('print-report').style.display = 'block';
+        window.print();
+        document.getElementById('print-report').style.display = 'none';
+    }
+
+    function printSalesStats() {
+        const now = new Date();
+        const printBody = document.getElementById('print-report-body');
+        printBody.innerHTML = `
+            <div class="print-report-header">
+                <h2>تقرير إحصائيات المبيعات</h2>
+                <p>نظام أوسكار لإدارة الصيدليات</p>
+                <div class="report-info">
+                    <span>تاريخ التقرير: ${now.toLocaleDateString('ar-IQ')}</span>
+                    <span>الوقت: ${now.toLocaleTimeString('ar-IQ')}</span>
+                </div>
+            </div>
+            <div class="sales-stats">
+                ${document.getElementById('daily-sales-text').innerHTML}
+                ${document.getElementById('monthly-sales-text').innerHTML}
+                ${document.getElementById('yearly-sales-text').innerHTML}
+                ${document.getElementById('total-sales-text').innerHTML}
+            </div>
+            <div class="print-report-footer">
+                <p>شكراً لاستخدامكم نظام أوسكار لإدارة الصيدليات</p>
+            </div>
+        `;
+        document.getElementById('print-report').style.display = 'block';
+        window.print();
+        document.getElementById('print-report').style.display = 'none';
     }
 
     </script>
