@@ -106,35 +106,138 @@
 
         .sales-stats { text-align: center; font-size: 18px; }
         .sales-stats p { margin: 10px 0; font-weight: bold; }
+        
+        /* محتوى مخفي للطباعة فقط */
+        .print-only { display: none; }
 
-        /* تحسينات للطباعة */
+        /* === أنماط الطباعة المحسّنة === */
         @media print {
             .no-print { display: none !important; }
-            body, .container { padding: 0; margin: 0; box-shadow: none; background: white; }
-            .header { border-bottom: none; margin-bottom: 10px; }
-            .header h1 { font-size: 24px; }
-            .invoice-details { grid-template-columns: repeat(3, 1fr); padding: 10px; border: none; background: none; }
-            .info-item input { border: none; background: none; padding: 0; font-weight: bold; }
-            .scanner-area { display: none; }
-            .sales-cart table { border: 1px solid #000; }
-            .sales-cart th, .sales-cart td { border: 1px solid #000; padding: 8px; }
-            .sales-cart th { background: #f0f0f0; }
-            .total-section { border-top: 1px solid #000; padding-top: 10px; font-size: 18px; text-align: center; }
-            .footer-print { display: block; text-align: center; margin-top: 20px; font-size: 12px; color: #555; }
-            .container { max-width: 100%; border: 1px solid #000; padding: 20px; }
-            .modal { display: none; } /* إخفاء النوافذ أثناء الطباعة العامة */
-            .print-content { display: block !important; background: white; padding: 20px; border: 1px solid #000; }
-            .print-content h3 { text-align: center; font-size: 20px; margin-bottom: 15px; }
-            .print-content .report-date { text-align: center; font-size: 14px; margin-bottom: 20px; color: #555; }
-            .print-content table { border-collapse: collapse; width: 100%; margin: 0 auto; }
-            .print-content th, .print-content td { border: 1px solid #000; padding: 10px; text-align: center; }
-            .print-content th { background-color: #e9ecef; }
-            .print-content .sales-stats p { text-align: center; font-size: 16px; margin: 10px 0; }
+            body { background-color: #fff; font-family: 'Cairo', sans-serif; }
+            .container { box-shadow: none; border: none; padding: 0; margin: 0; }
+
+            /* --- أنماط طباعة الفاتورة (الإيصال) --- */
+            #print-invoice-content {
+                display: block !important;
+                margin: 0 auto;
+                max-width: 80mm; /* عرض إيصال الطابعة الحرارية القياسي */
+                font-size: 10pt;
+                color: #000;
+            }
+            .invoice-print-header {
+                text-align: center;
+                margin-bottom: 15px;
+            }
+            .invoice-print-header h2 {
+                margin: 0;
+                font-size: 16pt;
+            }
+            .invoice-print-header p {
+                margin: 2px 0;
+                font-size: 9pt;
+            }
+            .invoice-print-details {
+                margin-bottom: 15px;
+                font-size: 9pt;
+                border-top: 1px dashed #000;
+                border-bottom: 1px dashed #000;
+                padding: 5px 0;
+            }
+            .invoice-print-details div {
+                display: flex;
+                justify-content: space-between;
+            }
+            .invoice-print-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-bottom: 10px;
+            }
+            .invoice-print-table th, .invoice-print-table td {
+                padding: 4px 2px;
+                text-align: center;
+                font-size: 9pt;
+            }
+            .invoice-print-table th {
+                border-bottom: 1px solid #000;
+                font-weight: bold;
+            }
+            .invoice-print-table td.item-name { text-align: right; }
+            .invoice-print-table td.item-total, .invoice-print-table td.item-price { text-align: left; }
+
+            .invoice-print-summary {
+                margin-top: 15px;
+                padding-top: 10px;
+                border-top: 1px solid #000;
+                text-align: left;
+            }
+            .invoice-print-summary p {
+                margin: 5px 0;
+                font-size: 12pt;
+                font-weight: bold;
+            }
+            .invoice-print-footer {
+                text-align: center;
+                margin-top: 20px;
+                font-size: 9pt;
+                border-top: 1px dashed #000;
+                padding-top: 5px;
+            }
+
+            /* --- أنماط طباعة التقارير العامة --- */
+            #print-report-content {
+                display: block !important;
+            }
+            .report-print-header {
+                text-align: center;
+                padding-bottom: 15px;
+                border-bottom: 2px solid #000;
+                margin-bottom: 25px;
+            }
+            .report-print-header h2 { font-size: 22px; margin-bottom: 5px; }
+            .report-print-header p { font-size: 14px; margin: 0; }
+            .report-print-info {
+                display: flex;
+                justify-content: space-between;
+                margin-top: 15px;
+                font-size: 12px;
+            }
+            .report-print-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin: 20px 0;
+                font-size: 12pt;
+            }
+            .report-print-table th, .report-print-table td {
+                border: 1px solid #333;
+                padding: 8px;
+                text-align: center;
+            }
+            .report-print-table thead th {
+                background-color: #e9ecef;
+                font-weight: bold;
+            }
+            .report-print-table tbody tr:nth-child(even) {
+                background-color: #f8f9fa;
+            }
+            .report-print-summary {
+                margin-top: 20px;
+                padding-top: 15px;
+                border-top: 1px solid #666;
+                text-align: right;
+                font-size: 14pt;
+                font-weight: bold;
+            }
+            .report-print-footer {
+                text-align: center;
+                margin-top: 40px;
+                font-size: 11pt;
+                color: #555;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="container no-print">
         <div class="header">
             <h1><i class="fas fa-pills"></i> نظام أوسكار لإدارة الصيدليات</h1>
         </div>
@@ -143,8 +246,8 @@
             <button class="btn btn-success" onclick="completeSale()"><i class="fas fa-check-circle"></i> إتمام البيع</button>
             <button class="btn btn-primary" onclick="printReceipt()"><i class="fas fa-print"></i> طباعة الفاتورة</button>
             <button class="btn btn-info" onclick="openInventoryManager()"><i class="fas fa-boxes"></i> إدارة المخزون</button>
-            <button class="btn btn-warning" onclick="openReportsModal()"><i class="fas fa-chart-line"></i> التقارير والتنبيهات</button>
-            <button class="btn btn-primary" onclick="openReportsModal('salesStatsTab')"><i class="fas fa-chart-bar"></i> إحصائيات البيع</button>
+            <button class="btn btn-warning" onclick="openReportsModal()"><i class="fas fa-chart-line"></i> تقارير المنتجات</button>
+            <button class="btn btn-primary" onclick="openSalesStatsModal()"><i class="fas fa-chart-bar"></i> إحصائيات البيع</button>
             <button class="btn btn-danger" onclick="clearCart()"><i class="fas fa-trash"></i> فاتورة جديدة</button>
         </div>
 
@@ -166,10 +269,9 @@
             </div>
             <div class="total-section"><span>المبلغ الإجمالي: </span><span id="total-amount">0.00 IQD</span></div>
         </div>
-        <div class="footer-print no-print" style="display: none;">شكراً لزيارتكم - نظام أوسكار</div>
     </div>
 
-    <div id="inventoryModal" class="modal">
+    <div id="inventoryModal" class="modal no-print">
         <div class="modal-content">
             <span class="close" onclick="closeModal('inventoryModal')">&times;</span>
             <h2><i class="fas fa-boxes"></i> إدارة المنتجات والمخزون</h2>
@@ -215,14 +317,13 @@
         </div>
     </div>
     
-    <div id="reportsModal" class="modal">
+    <div id="reportsModal" class="modal no-print">
         <div class="modal-content">
             <span class="close" onclick="closeModal('reportsModal')">&times;</span>
-            <h2><i class="fas fa-chart-line"></i> التقارير والتنبيهات</h2>
+            <h2><i class="fas fa-chart-line"></i> تقارير المنتجات والتنبيهات</h2>
             <div class="modal-tabs">
                 <div class="modal-tab active" onclick="switchTab(event, 'expiringTab')">منتجات قاربت على الانتهاء</div>
                 <div class="modal-tab" onclick="switchTab(event, 'lowStockTab')">منتجات قاربت على النفاذ</div>
-                <div class="modal-tab" onclick="switchTab(event, 'salesStatsTab')">إحصائيات البيع</div>
             </div>
 
             <div id="expiringTab" class="tab-content active">
@@ -230,7 +331,7 @@
                     <h3><i class="fas fa-exclamation-triangle" style="color: var(--danger-color);"></i> منتجات قاربت صلاحيتها على الانتهاء (90 يومًا)</h3>
                     <div style="max-height: 200px; overflow-y: auto;">
                         <table class="data-table">
-                            <thead><tr><th>المنتج</th><th>الكمية</th><th>تاريخ الانتهاء</th></tr></thead>
+                            <thead><tr><th>المنتج</th><th>الباركود</th><th>الكمية</th><th>تاريخ الانتهاء</th><th>الأيام المتبقية</th></tr></thead>
                             <tbody id="expiring-products-body"></tbody>
                         </table>
                     </div>
@@ -243,37 +344,37 @@
                     <h3><i class="fas fa-battery-empty" style="color: var(--warning-color);"></i> منتجات وصلت لحد المخزون المنخفض</h3>
                     <div style="max-height: 200px; overflow-y: auto;">
                         <table class="data-table">
-                            <thead><tr><th>المنتج</th><th>الكمية المتبقية</th><th>الحد الأدنى</th></tr></thead>
+                            <thead><tr><th>المنتج</th><th>الباركود</th><th>الكمية المتبقية</th><th>الحد الأدنى</th><th>الحالة</th></tr></thead>
                             <tbody id="low-stock-products-body"></tbody>
                         </table>
                     </div>
                     <button class="btn btn-primary print-btn no-print" onclick="printLowStockReport()"><i class="fas fa-print"></i> طباعة التقرير</button>
                 </div>
             </div>
-
-            <div id="salesStatsTab" class="tab-content">
-                <div class="report-section">
-                    <h3><i class="fas fa-chart-bar" style="color: var(--accent-color);"></i> إحصائيات المبيعات</h3>
-                    <div class="sales-stats">
-                        <p id="daily-sales-text"></p>
-                        <p id="monthly-sales-text"></p>
-                        <p id="yearly-sales-text"></p>
-                    </div>
-                    <button class="btn btn-primary print-btn no-print" onclick="printSalesStats()"><i class="fas fa-print"></i> طباعة الإحصائيات</button>
-                    <button class="btn btn-danger no-print" onclick="deleteSalesStats()"><i class="fas fa-trash"></i> حذف جميع الإحصائيات</button>
+        </div>
+    </div>
+    
+    <div id="salesStatsModal" class="modal no-print">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('salesStatsModal')">&times;</span>
+            <h2><i class="fas fa-chart-bar"></i> إحصائيات المبيعات</h2>
+            
+            <div class="report-section">
+                <h3><i class="fas fa-chart-bar" style="color: var(--accent-color);"></i> إحصائيات المبيعات</h3>
+                <div class="sales-stats">
+                    <p id="daily-sales-text"></p>
+                    <p id="monthly-sales-text"></p>
+                    <p id="yearly-sales-text"></p>
+                    <p id="total-sales-text"></p>
                 </div>
+                <button class="btn btn-primary print-btn no-print" onclick="printSalesStats()"><i class="fas fa-print"></i> طباعة الإحصائيات</button>
+                <button class="btn btn-danger no-print" onclick="deleteSalesStats()"><i class="fas fa-trash"></i> حذف جميع الإحصائيات</button>
             </div>
         </div>
     </div>
 
-    <!-- محتوى طباعة مخفي -->
-    <div id="print-content" class="print-content" style="display: none;">
-        <div class="header">
-            <h1><i class="fas fa-pills"></i> نظام أوسكار لإدارة الصيدليات</h1>
-        </div>
-        <div id="print-body"></div>
-        <div class="footer-print">شكراً لزيارتكم - نظام أوسكار</div>
-    </div>
+    <div id="print-invoice-content" class="print-only"></div>
+    <div id="print-report-content" class="print-only"></div>
     
     <script>
     const DB_NAME = 'PharmacyDB_Full';
@@ -307,20 +408,11 @@
             await initDb();
             setInvoiceInfo();
             document.getElementById('barcode-input').focus();
-            setupKeyboardShortcuts();
         } catch (error) {
             console.error("Failed to initialize:", error);
             alert("فشل تشغيل قاعدة البيانات.");
         }
     });
-
-    function setupKeyboardShortcuts() {
-        document.addEventListener('keydown', (event) => {
-            if (event.key === '1' && event.target.tagName.toLowerCase() !== 'input' && event.target.tagName.toLowerCase() !== 'textarea') {
-                openReportsModal('salesStatsTab');
-            }
-        });
-    }
 
     // إدارة نوافذ Modal وال Tabs
     function closeModal(modalId) { document.getElementById(modalId).style.display = 'none'; }
@@ -373,14 +465,15 @@
             }
             const row = cartItemsContainer.insertRow();
             row.dataset.productId = product.id;
-            row.innerHTML = `<td>${cartItemsContainer.rows.length}</td><td>${product.name}</td><td><input type="number" class="quantity-input" value="1" min="1" max="${totalStock}"></td><td class="unit-price">${product.sellingPrice.toFixed(2)}</td><td class="total-price">${product.sellingPrice.toFixed(2)}</td><td class="no-print"><button class="delete-item-btn" onclick="deleteCartItem(this)"><i class="fas fa-times-circle"></i></button></td>`;
+            row.innerHTML = `<td>${cartItemsContainer.rows.length}</td><td class="item-name">${product.name}</td><td><input type="number" class="quantity-input" value="1" min="1" max="${totalStock}"></td><td class="unit-price">${product.sellingPrice.toFixed(2)}</td><td class="total-price">${product.sellingPrice.toFixed(2)}</td><td class="no-print"><button class="delete-item-btn" onclick="deleteCartItem(this)"><i class="fas fa-times-circle"></i></button></td>`;
         }
         updateTotals();
     }
     
     function updateTotals() {
         let total = 0;
-        cartItemsContainer.querySelectorAll('tr').forEach(row => {
+        cartItemsContainer.querySelectorAll('tr').forEach((row, index) => {
+            row.cells[0].textContent = index + 1; // Re-number rows
             const quantity = parseInt(row.querySelector('.quantity-input').value) || 0;
             const unitPrice = parseFloat(row.querySelector('.unit-price').textContent) || 0;
             const rowTotal = quantity * unitPrice;
@@ -393,14 +486,9 @@
     cartItemsContainer.addEventListener('input', e => { if (e.target.classList.contains('quantity-input')) updateTotals(); });
     function deleteCartItem(button) { button.closest('tr').remove(); updateTotals(); }
     function clearCart() { cartItemsContainer.innerHTML = ''; document.getElementById('customer-name').value = ''; updateTotals(); setInvoiceInfo(); barcodeInput.focus(); }
-    function printReceipt() { 
-        document.querySelector('.footer-print').style.display = 'block';
-        window.print(); 
-        document.querySelector('.footer-print').style.display = 'none';
-    }
     function setInvoiceInfo(){ document.getElementById('invoice-date').value = new Date().toLocaleDateString('ar-IQ'); document.getElementById('invoice-number').value = `INV-${Date.now()}`; }
 
-    // وظيفة إتمام البيع (المنطق الكامل)
+    // وظيفة إتمام البيع
     async function completeSale() {
         const cartRows = cartItemsContainer.querySelectorAll('tr');
         if (cartRows.length === 0) return alert('سلة المبيعات فارغة!');
@@ -434,7 +522,6 @@
                     }
                 }
             }
-            // All stock checks passed and updated, now save the sale
             const saleRecord = {
                 date: new Date(),
                 invoiceNumber: document.getElementById('invoice-number').value,
@@ -444,7 +531,7 @@
             };
             salesStore.add(saleRecord);
 
-            transaction.oncomplete = () => { alert('تمت عملية البيع بنجاح!'); clearCart(); };
+            transaction.oncomplete = () => { alert('تمت عملية البيع بنجاخ!'); printReceipt(); clearCart(); };
             transaction.onerror = (e) => { alert('فشل حفظ الفاتورة! ' + e.target.error); };
 
         } catch (error) {
@@ -452,7 +539,7 @@
             transaction.abort();
         }
     }
-
+    
     function getProductStock(store, productId) {
         return new Promise((resolve, reject) => {
             const request = store.index('productId').getAll(productId);
@@ -466,7 +553,7 @@
         const inventory = await new Promise(res => tx.objectStore('inventory').index('productId').getAll(productId).onsuccess = e => res(e.target.result));
         return inventory.reduce((sum, i) => sum + i.quantity, 0);
     }
-
+    
     // إدارة المخزون
     async function openInventoryManager() {
         document.getElementById('inventoryModal').style.display = 'block';
@@ -489,22 +576,22 @@
     }
 
     async function deleteProduct(productId) {
-        if (!confirm('هل أنت متأكد من حذف هذا المنتج؟')) return;
+        if (!confirm('هل أنت متأكد من حذف هذا المنتج؟ سيتم حذف كل المخزون المرتبط به.')) return;
         const tx = db.transaction(['products', 'inventory'], 'readwrite');
-        await tx.objectStore('products').delete(productId);
-        const inventoryCursor = tx.objectStore('inventory').index('productId').openCursor(productId);
+        tx.objectStore('products').delete(productId);
+        const inventoryCursor = await tx.objectStore('inventory').index('productId').openCursor(productId);
         inventoryCursor.onsuccess = e => {
             const cursor = e.target.result;
             if (cursor) { cursor.delete(); cursor.continue(); }
         };
-        tx.oncomplete = () => renderProductList();
+        tx.oncomplete = () => { alert('تم الحذف بنجاح'); renderProductList(); };
     }
 
     async function populateProductSelect() {
         const products = await new Promise((res) => db.transaction('products', 'readonly').objectStore('products').getAll().onsuccess = e => res(e.target.result));
         const select = document.getElementById('stock-product-select');
         select.innerHTML = '<option value="">اختر منتج...</option>';
-        products.forEach(p => select.innerHTML += `<option value="${p.id}">${p.name}</option>`);
+        products.sort((a, b) => a.name.localeCompare(b.name)).forEach(p => select.innerHTML += `<option value="${p.id}">${p.name}</option>`);
     }
 
     async function saveNewProduct() {
@@ -541,16 +628,11 @@
         tx.onerror = (e) => alert('فشل إضافة المخزون. ' + e.target.error);
     }
 
-    // التقارير والتنبيهات
-    async function openReportsModal(defaultTab = 'expiringTab') {
+    // تقارير المنتجات
+    async function openReportsModal() {
         document.getElementById('reportsModal').style.display = 'block';
         await generateExpiringSoonReport();
         await generateLowStockReport();
-        await generateSalesStats();
-        const tabElement = document.querySelector(`.modal-tab[onclick="switchTab(event, '${defaultTab}')"]`);
-        if (tabElement) {
-            tabElement.click();
-        }
     }
 
     async function generateExpiringSoonReport() {
@@ -570,17 +652,16 @@
                 if (cursor) {
                     if (new Date(cursor.value.expiryDate) <= thresholdDate) results.push(cursor.value);
                     cursor.continue();
-                } else {
-                    res(results);
-                }
+                } else { res(results); }
             };
         });
 
         for (const entry of entries) {
             const product = await new Promise((res) => productsStore.get(entry.productId).onsuccess = e => res(e.target.result));
             if (product) {
+                const daysRemaining = Math.ceil((new Date(entry.expiryDate) - new Date()) / (1000 * 60 * 60 * 24));
                 const row = expiringBody.insertRow();
-                row.innerHTML = `<td>${product.name}</td><td>${entry.quantity}</td><td>${entry.expiryDate}</td>`;
+                row.innerHTML = `<td>${product.name}</td><td>${product.barcode}</td><td>${entry.quantity}</td><td>${entry.expiryDate}</td><td>${daysRemaining > 0 ? daysRemaining + ' يوم' : 'منتهي الصلاحية'}</td>`;
             }
         }
     }
@@ -595,10 +676,17 @@
         products.forEach(p => {
             const totalStock = inventory.filter(i => i.productId === p.id).reduce((sum, i) => sum + i.quantity, 0);
             if (totalStock <= p.lowStockThreshold) {
+                const status = totalStock === 0 ? '<span style="color: red;">نفذ</span>' : '<span style="color: var(--warning-color);">منخفض</span>';
                 const row = lowStockBody.insertRow();
-                row.innerHTML = `<td>${p.name}</td><td>${totalStock}</td><td>${p.lowStockThreshold}</td>`;
+                row.innerHTML = `<td>${p.name}</td><td>${p.barcode}</td><td>${totalStock}</td><td>${p.lowStockThreshold}</td><td>${status}</td>`;
             }
         });
+    }
+    
+    // إحصائيات البيع
+    async function openSalesStatsModal() {
+        document.getElementById('salesStatsModal').style.display = 'block';
+        await generateSalesStats();
     }
 
     async function generateSalesStats() {
@@ -612,71 +700,124 @@
         const dailySales = sales.filter(s => new Date(s.date) >= todayStart).reduce((sum, s) => sum + s.totalAmount, 0);
         const monthlySales = sales.filter(s => new Date(s.date) >= monthStart).reduce((sum, s) => sum + s.totalAmount, 0);
         const yearlySales = sales.filter(s => new Date(s.date) >= yearStart).reduce((sum, s) => sum + s.totalAmount, 0);
+        const totalSales = sales.reduce((sum, s) => sum + s.totalAmount, 0);
 
-        document.getElementById('daily-sales-text').innerHTML = `إجمالي المبيعات اليوم (${now.toLocaleDateString('ar-IQ')}): <span>${dailySales.toFixed(2)} IQD</span>`;
-        document.getElementById('monthly-sales-text').innerHTML = `إجمالي المبيعات الشهري (${now.toLocaleDateString('ar-IQ', { month: 'long', year: 'numeric' })}): <span>${monthlySales.toFixed(2)} IQD</span>`;
-        document.getElementById('yearly-sales-text').innerHTML = `إجمالي المبيعات السنوي (${now.getFullYear()}): <span>${yearlySales.toFixed(2)} IQD</span>`;
+        document.getElementById('daily-sales-text').innerHTML = `إجمالي المبيعات اليوم (${now.toLocaleDateString('ar-IQ')}): <span style="color: var(--button-color);">${dailySales.toFixed(2)} IQD</span>`;
+        document.getElementById('monthly-sales-text').innerHTML = `إجمالي المبيعات الشهري (${now.toLocaleDateString('ar-IQ', { month: 'long', year: 'numeric' })}): <span style="color: var(--accent-color);">${monthlySales.toFixed(2)} IQD</span>`;
+        document.getElementById('yearly-sales-text').innerHTML = `إجمالي المبيعات السنوي (${now.getFullYear()}): <span style="color: var(--header-color);">${yearlySales.toFixed(2)} IQD</span>`;
+        document.getElementById('total-sales-text').innerHTML = `إجمالي المبيعات الكلي: <span style="color: var(--danger-color); font-size: 20px;">${totalSales.toFixed(2)} IQD</span>`;
     }
 
     async function deleteSalesStats() {
-        if (!confirm('هل أنت متأكد من حذف جميع إحصائيات المبيعات؟ هذا الإجراء لا يمكن التراجع عنه.')) return;
+        if (!confirm('هل أنت متأكد من حذف جميع سجلات المبيعات؟ هذا الإجراء لا يمكن التراجع عنه.')) return;
         const tx = db.transaction('sales', 'readwrite');
         tx.objectStore('sales').clear();
         tx.oncomplete = () => {
-            alert('تم حذف جميع الإحصائيات بنجاح.');
+            alert('تم حذف جميع سجلات المبيعات بنجاح.');
             generateSalesStats();
         };
-        tx.onerror = (e) => alert('فشل حذف الإحصائيات: ' + e.target.error);
+        tx.onerror = (e) => alert('فشل حذف السجلات: ' + e.target.error);
     }
 
-    // وظائف الطباعة للتقارير
-    function printExpiringReport() {
-        const now = new Date();
-        const printBody = document.getElementById('print-body');
-        printBody.innerHTML = `
-            <h3>منتجات قاربت صلاحيتها على الانتهاء (90 يومًا)</h3>
-            <p class="report-date">تاريخ التقرير: ${now.toLocaleDateString('ar-IQ')} ${now.toLocaleTimeString('ar-IQ')}</p>
-            <table class="data-table">
-                <thead><tr><th>المنتج</th><th>الكمية</th><th>تاريخ الانتهاء</th></tr></thead>
-                ${document.getElementById('expiring-products-body').innerHTML}
+    // === وظائف الطباعة المحسّنة ===
+    function printReceipt() {
+        const cartRows = cartItemsContainer.querySelectorAll('tr');
+        if (cartRows.length === 0) return alert('لا يمكن طباعة فاتورة فارغة!');
+
+        const printContainer = document.getElementById('print-invoice-content');
+        let tableRowsHTML = '';
+        cartRows.forEach(row => {
+            const cells = row.cells;
+            const name = cells[1].textContent;
+            const quantity = cells[2].querySelector('input').value;
+            const unitPrice = cells[3].textContent;
+            const total = cells[4].textContent;
+            tableRowsHTML += `<tr><td class="item-name">${name}</td><td>${quantity}</td><td class="item-price">${unitPrice}</td><td class="item-total">${total}</td></tr>`;
+        });
+        
+        const invoiceHTML = `
+            <div class="invoice-print-header">
+                <h2>صيدلية أوسكار</h2>
+                <p>العنوان: الموصل، المجموعة الثقافية</p>
+                <p>هاتف: 1234567-0770</p>
+            </div>
+            <div class="invoice-print-details">
+                <div><span>الرقم:</span><span>${document.getElementById('invoice-number').value}</span></div>
+                <div><span>التاريخ:</span><span>${document.getElementById('invoice-date').value}</span></div>
+                <div><span>العميل:</span><span>${document.getElementById('customer-name').value || 'عميل نقدي'}</span></div>
+            </div>
+            <table class="invoice-print-table">
+                <thead><tr><th style="text-align: right;">المنتج</th><th>كمية</th><th style="text-align: left;">سعر</th><th style="text-align: left;">إجمالي</th></tr></thead>
+                <tbody>${tableRowsHTML}</tbody>
             </table>
+            <div class="invoice-print-summary">
+                <p>الإجمالي: ${document.getElementById('total-amount').textContent}</p>
+            </div>
+            <div class="invoice-print-footer">
+                <p>شكراً لزيارتكم!</p>
+                <p>برمجة وتصميم: Oscar</p>
+            </div>
         `;
-        document.getElementById('print-content').style.display = 'block';
+        
+        printContainer.innerHTML = invoiceHTML;
         window.print();
-        document.getElementById('print-content').style.display = 'none';
+    }
+
+    function printReport(title, tableHeaderHTML, tableBodyHTML, summaryText) {
+        const now = new Date();
+        const printContainer = document.getElementById('print-report-content');
+        
+        const reportHTML = `
+            <div class="report-print-header">
+                <h2>${title}</h2>
+                <p>نظام أوسكار لإدارة الصيدليات</p>
+                <div class="report-print-info">
+                    <span>تاريخ التقرير: ${now.toLocaleDateString('ar-IQ')}</span>
+                    <span>وقت التقرير: ${now.toLocaleTimeString('ar-IQ')}</span>
+                </div>
+            </div>
+            <table class="report-print-table">
+                <thead>${tableHeaderHTML}</thead>
+                <tbody>${tableBodyHTML}</tbody>
+            </table>
+            <div class="report-print-summary">
+                <p>${summaryText}</p>
+            </div>
+            <div class="report-print-footer">
+                <p>هذا التقرير تم إنشاؤه بواسطة نظام أوسكار.</p>
+            </div>
+        `;
+        printContainer.innerHTML = reportHTML;
+        window.print();
+    }
+
+    function printExpiringReport() {
+        const tableBody = document.getElementById('expiring-products-body');
+        const header = `<tr><th>المنتج</th><th>الباركود</th><th>الكمية</th><th>تاريخ الانتهاء</th><th>الأيام المتبقية</th></tr>`;
+        const summary = `إجمالي عدد الأصناف: ${tableBody.rows.length}`;
+        printReport('تقرير المنتجات المقاربة على الانتهاء', header, tableBody.innerHTML, summary);
     }
 
     function printLowStockReport() {
-        const now = new Date();
-        const printBody = document.getElementById('print-body');
-        printBody.innerHTML = `
-            <h3>منتجات وصلت لحد المخزون المنخفض</h3>
-            <p class="report-date">تاريخ التقرير: ${now.toLocaleDateString('ar-IQ')} ${now.toLocaleTimeString('ar-IQ')}</p>
-            <table class="data-table">
-                <thead><tr><th>المنتج</th><th>الكمية المتبقية</th><th>الحد الأدنى</th></tr></thead>
-                ${document.getElementById('low-stock-products-body').innerHTML}
-            </table>
-        `;
-        document.getElementById('print-content').style.display = 'block';
-        window.print();
-        document.getElementById('print-content').style.display = 'none';
+        const tableBody = document.getElementById('low-stock-products-body');
+        const header = `<tr><th>المنتج</th><th>الباركود</th><th>الكمية المتبقية</th><th>الحد الأدنى</th><th>الحالة</th></tr>`;
+        const summary = `إجمالي عدد الأصناف: ${tableBody.rows.length}`;
+        printReport('تقرير المنتجات منخفضة المخزون', header, tableBody.innerHTML, summary);
     }
 
     function printSalesStats() {
         const now = new Date();
-        const printBody = document.getElementById('print-body');
-        printBody.innerHTML = `
-            <h3>إحصائيات المبيعات</h3>
-            <p class="report-date">تاريخ التقرير: ${now.toLocaleDateString('ar-IQ')} ${now.toLocaleTimeString('ar-IQ')}</p>
-            <div class="sales-stats">
-                ${document.getElementById('daily-sales-text').innerHTML}
-                ${document.getElementById('monthly-sales-text').innerHTML}
-                ${document.getElementById('yearly-sales-text').innerHTML}
-            </div>
-        `;
-        document.getElementById('print-content').style.display = 'block';
-        window.print();
-        document.getElementById('print-content').style.display = 'none';
+        const printContainer = document.getElementById('print-report-content');
+        const statsContent = `
+            <div style="font-size: 14pt; padding: 20px; text-align: right; border: 1px solid #ccc; border-radius: 10px;">
+                ${document.getElementById('daily-sales-text').outerHTML}
+                ${document.getElementById('monthly-sales-text').outerHTML}
+                ${document.getElementById('yearly-sales-text').outerHTML}
+                <hr style="margin: 15px 0;">
+                ${document.getElementById('total-sales-text').outerHTML}
+            </div>`;
+        const summary = `الإحصائيات حتى تاريخ: ${now.toLocaleDateString('ar-IQ')}`;
+        printReport('تقرير إحصائيات المبيعات', '', statsContent, summary); // No table for this report
     }
 
     </script>
