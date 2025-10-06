@@ -1,825 +1,750 @@
+-- Create the database
+CREATE DATABASE clinic_db CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+
+-- Use the database
+USE clinic_db;
+
+-- Create the patients table
+CREATE TABLE patients (
+    id INT(11) PRIMARY KEY AUTO_INCREMENT,
+    patient_name VARCHAR(255) NOT NULL,
+    patient_age INT(3) NOT NULL,
+    registration_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create the visits table
+CREATE TABLE visits (
+    id INT(11) PRIMARY KEY AUTO_INCREMENT,
+    patient_id INT(11) NOT NULL,
+    ticket_price DECIMAL(10, 2) NOT NULL,
+    prescription TEXT,
+    notes TEXT,
+    image_path VARCHAR(255),
+    visit_date DATE NOT NULL,
+    FOREIGN KEY (patient_id) REFERENCES patients(id) ON DELETE CASCADE
+);
+
+  هذا الكود الثاني
+  <?php
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "clinic_db";
+
+// Create connection
+$conn = new mysqli($servername, $username, $password, $dbname);
+
+// Check connection
+if ($conn->connect_error) {
+  die("Connection failed: " . $conn->connect_error);
+}
+
+// Set charset to utf8mb4 to support Arabic language
+$conn->set_charset("utf8mb4");
+?>
+الثالث
+/* General Body Styles */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f4f4f9;
+    color: #333;
+    margin: 0;
+    padding: 20px;
+}
+
+/* Main Container */
+.container {
+    max-width: 900px;
+    margin: auto;
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+h1, h2, h3 {
+    color: #0056b3;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 10px;
+    margin-top: 0;
+}
+
+/* Navigation Bar */
+.navbar {
+    background-color: #0056b3;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap; /* For responsiveness */
+}
+.navbar a {
+    color: white;
+    text-decoration: none;
+    padding: 10px 20px;
+    margin: 5px;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+.navbar a:hover, .navbar a.active {
+    background-color: #007bff;
+}
+
+/* Forms: Inputs, Textareas, Buttons */
+input[type="text"], input[type="number"], textarea, button {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    box-sizing: border-box; /* Important for padding */
+    font-size: 16px;
+}
+
+textarea {
+    resize: vertical;
+}
+
+button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+button:hover {
+    background-color: #0056b3;
+}
+
+/* Patient Card (Doctor's view) */
+.patient-card {
+    background-color: #e9ecef;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.patient-card small {
+    color: #6c757d;
+}
+
+/* Action Buttons */
+.add-details-btn {
+    background-color: #17a2b8;
+}
+.add-details-btn:hover {
+    background-color: #138496;
+}
+.print-btn {
+    background-color: #28a745;
+}
+.print-btn:hover {
+    background-color: #218838;
+}
+
+/* Modal for Doctor's Details */
+.modal {
+    display: none; 
+    position: fixed;
+    z-index: 1000;
+    left: 0; top: 0;
+    width: 100%; height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.5);
+}
+.modal-content {
+    background-color: #fefefe;
+    margin: 10% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 90%;
+    max-width: 600px;
+    border-radius: 8px;
+    position: relative;
+}
+.close-button {
+    color: #aaa;
+    position: absolute;
+    left: 15px;
+    top: 10px;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+/* History & Search Page */
+#searchResults ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+#searchResults li {
+    padding: 10px;
+    cursor: pointer;
+    border-bottom: 1px solid #ddd;
+}
+#searchResults li:last-child {
+    border-bottom: none;
+}
+#searchResults li:hover {
+    background-color: #f0f0f0;
+}
+#history-details {
+    margin-top: 20px;
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 5px;
+}
+.visit-record {
+    border-bottom: 1px solid #e9ecef;
+    padding-bottom: 15px;
+    margin-bottom: 15px;
+}
+.visit-record:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+.visit-record h4 {
+    color: #007bff;
+}
+
+/* Statistics Cards */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+.stat-card {
+    background-color: #f8f9fa;
+    padding: 25px;
+    text-align: center;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}
+.stat-card h3 {
+    margin: 0 0 10px;
+    font-size: 18px;
+    color: #0056b3;
+    border-bottom: none;
+}
+.stat-card p {
+    font-size: 28px;
+    font-weight: bold;
+    margin: 0;
+    color: #343a40;
+}
+الرابع
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام أوسكار لإدارة الصيدليات - نسخة متكاملة</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <title><?php echo isset($pageTitle) ? $pageTitle : "نظام العيادة"; ?></title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="secretary.php">واجهة السكرتير</a>
+        <a href="doctor.php">واجهة الطبيب</a>
+        <a href="history.php">سجل المرضى</a>
+        <a href="stats.php">الإحصائيات</a>
+    </nav>
+    <div class="container">
+الخامس 
+            </div> </body>
+</html>
+السادس 
+<?php $pageTitle = "واجهة السكرتير"; include 'header.php'; ?>
+
+<h1>تسجيل مريض جديد</h1>
+<form id="patientForm">
+    <input type="text" id="patientName" placeholder="اسم المريض" required>
+    <input type="number" id="patientAge" placeholder="العمر" required>
+    <input type="number" id="ticketPrice" placeholder="سعر الكشفية" step="any" required>
+    <button type="submit">إضافة المريض لقائمة الانتظار</button>
+</form>
+<hr>
+<h2>المرضى المنتظرون اليوم</h2>
+<div id="waitingList">
+    </div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function() {
+    // Function to add patient
+    $("#patientForm").on("submit", function(e) {
+        e.preventDefault();
+        $.ajax({
+            url: 'api.php?action=add_patient',
+            type: 'POST',
+            data: {
+                name: $("#patientName").val(),
+                age: $("#patientAge").val(),
+                price: $("#ticketPrice").val()
+            },
+            success: function(response) {
+                alert("تمت إضافة المريض بنجاح!");
+                $("#patientForm")[0].reset();
+                loadWaitingList(); // Refresh list immediately
+            },
+            error: function() {
+                alert("حدث خطأ، يرجى المحاولة مرة أخرى.");
+            }
+        });
+    });
+
+    // Function to load waiting list
+    function loadWaitingList() {
+        $.get("api.php?action=get_waiting", function(data) {
+            $("#waitingList").html(data);
+        });
+    }
+
+    // Load list on page load and refresh every 10 seconds
+    loadWaitingList();
+    setInterval(loadWaitingList, 10000); // 10 seconds
+});
+</script>
+
+<?php include 'footer.php'; ?>
+السابع 
+<?php $pageTitle = "واجهة الطبيب"; include 'header.php'; ?>
+
+<h1>قائمة المرضى</h1>
+<div id="doctorPatientList">
+    </div>
+
+<div id="detailsModal" class="modal">
+    <div class="modal-content">
+        <span class="close-button">&times;</span>
+        <h2>تفاصيل المريض: <span id="modalPatientName"></span></h2>
+        <form id="detailsForm" enctype="multipart/form-data">
+            <input type="hidden" id="visitId" name="visit_id">
+            <textarea name="prescription" placeholder="الوصفة الطبية..." rows="6" required></textarea>
+            <textarea name="notes" placeholder="ملاحظات..." rows="4"></textarea>
+            <label for="image">إرفاق صورة (اختياري):</label>
+            <input type="file" name="image" accept="image/*">
+            <button type="submit">حفظ البيانات</button>
+        </form>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="doctor.js"></script>
+
+<?php include 'footer.php'; ?>
+الثامن
+$(document).ready(function() {
+    const modal = $("#detailsModal");
+    const modalPatientName = $("#modalPatientName");
+    const visitIdInput = $("#visitId");
+
+    // Function to load patient list for doctor
+    function loadDoctorList() {
+        $.get("api.php?action=get_doctor_list", function(data) {
+            $("#doctorPatientList").html(data);
+        }).fail(function() {
+            $("#doctorPatientList").html("<p>خطأ في تحميل البيانات.</p>");
+        });
+    }
+
+    // Open modal to add details
+    $(document).on("click", ".add-details-btn", function() {
+        const visitId = $(this).data("id");
+        const patientName = $(this).data("name");
+        
+        // Reset form before showing
+        $("#detailsForm")[0].reset();
+        
+        visitIdInput.val(visitId);
+        modalPatientName.text(patientName);
+        modal.show();
+    });
+
+    // Close modal
+    $(".close-button").click(() => modal.hide());
+    $(window).click(function(event) {
+        if ($(event.target).is(modal)) {
+            modal.hide();
+        }
+    });
+
+    // Submit details form using AJAX
+    $("#detailsForm").on("submit", function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+
+        $.ajax({
+            url: 'api.php?action=update_visit',
+            type: 'POST',
+            data: formData,
+            contentType: false, // Important
+            processData: false, // Important
+            success: function(response) {
+                alert("تم تحديث بيانات الزيارة بنجاح!");
+                modal.hide();
+                loadDoctorList(); // Refresh the list
+            },
+            error: function() {
+                alert("حدث خطأ أثناء حفظ البيانات.");
+            }
+        });
+    });
+
+    // Initial load and auto-refresh every 10 seconds
+    loadDoctorList();
+    setInterval(loadDoctorList, 10000); // 10 seconds
+});
+التاسع
+<?php $pageTitle = "سجل المرضى"; include 'header.php'; ?>
+
+<h1>البحث في سجلات المرضى</h1>
+<input type="text" id="searchInput" placeholder="اكتب اسم المريض للبحث...">
+<div id="searchResults"></div>
+<hr>
+<div id="history-details">
+    <h3>تفاصيل الزيارات</h3>
+    <div id="visit-list">
+        <p>ابحث عن مريض لعرض سجل زياراته.</p>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function() {
+    // Search patients as user types (debounced for performance)
+    let searchTimeout;
+    $("#searchInput").on("keyup", function() {
+        clearTimeout(searchTimeout);
+        let query = $(this).val();
+        
+        if (query.length > 1) {
+            searchTimeout = setTimeout(function() {
+                $.get(`api.php?action=search_patients&query=${query}`, function(data) {
+                    $("#searchResults").html(data).show();
+                });
+            }, 300); // Wait 300ms after user stops typing
+        } else {
+            $("#searchResults").html("").hide();
+        }
+    });
+
+    // Get history for a selected patient
+    $(document).on("click", ".patient-result", function() {
+        let patientId = $(this).data("id");
+        let patientName = $(this).text();
+        $("#searchInput").val(patientName);
+        $("#searchResults").hide();
+        
+        $("#visit-list").html("<p>جاري تحميل السجل...</p>");
+        $.get(`api.php?action=get_patient_history&id=${patientId}`, function(data) {
+            $("#visit-list").html(data);
+        });
+    });
+});
+</script>
+
+<?php include 'footer.php'; ?>
+العاشر 
+<?php $pageTitle = "الإحصائيات"; include 'header.php'; ?>
+
+<h1>لوحة الإحصائيات</h1>
+<div class="stats-grid">
+    <div class="stat-card">
+        <h3>الدخل (هذا الشهر)</h3>
+        <p id="monthlyIncome">0</p>
+    </div>
+    <div class="stat-card">
+        <h3>الدخل (اليوم)</h3>
+        <p id="dailyIncome">0</p>
+    </div>
+    <div class="stat-card">
+        <h3>عدد المراجعين (اليوم)</h3>
+        <p id="dailyVisits">0</p>
+    </div>
+    <div class="stat-card">
+        <h3>إجمالي عدد الزيارات</h3>
+        <p id="totalVisits">0</p>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function() {
+    function loadStats() {
+        $.getJSON("api.php?action=get_stats", function(data) {
+            $("#monthlyIncome").text(data.monthly_income + " د.ع");
+            $("#dailyIncome").text(data.daily_income + " د.ع");
+            $("#dailyVisits").text(data.daily_visits);
+            $("#totalVisits").text(data.total_visits);
+        });
+    }
+    loadStats(); // Load stats on page load
+});
+</script>
+
+<?php include 'footer.php'; ?>
+ال11
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>طباعة وصفة طبية</title>
     <style>
-        :root {
-            --header-color: #007bff;
-            --background-color: #f4f6f9;
-            --button-color: #28a745;
-            --accent-color: #17a2b8;
-            --danger-color: #dc3545;
-            --warning-color: #ffc107;
-            --main-font: 'Cairo', sans-serif;
-            --shadow-light: 0 2px 10px rgba(0, 0, 0, 0.07);
-            --shadow-medium: 0 4px 20px rgba(0, 0, 0, 0.1);
-            --border-radius-medium: 12px;
-            --transition-fast: 0.2s ease;
-        }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-
-        body {
-            font-family: var(--main-font);
-            background-color: var(--background-color);
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background-color: white;
-            padding: 30px;
-            border-radius: var(--border-radius-medium);
-            box-shadow: var(--shadow-medium);
-        }
-
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 2px solid var(--button-color);
-        }
-        .header h1 { color: var(--header-color); font-size: 28px; font-weight: 700; }
-
-        .action-buttons { display: flex; justify-content: center; gap: 15px; margin: 25px 0; flex-wrap: wrap; }
-
-        .btn {
-            padding: 12px 24px; border: none; border-radius: 30px; font-size: 15px; font-weight: 600;
-            cursor: pointer; display: flex; align-items: center; gap: 10px; transition: all var(--transition-fast);
-            box-shadow: var(--shadow-light);
-        }
-        .btn:hover { transform: translateY(-3px); box-shadow: var(--shadow-medium); }
-        .btn-success { background: linear-gradient(135deg, var(--button-color) 0%, #2E7D32 100%); color: white; }
-        .btn-info { background: linear-gradient(135deg, var(--accent-color) 0%, #117a8b 100%); color: white; }
-        .btn-danger { background: linear-gradient(135deg, var(--danger-color) 0%, #b71c1c 100%); color: white; }
-        .btn-primary { background: linear-gradient(135deg, var(--header-color) 0%, #0056b3 100%); color: white; }
-        .btn-warning { background: linear-gradient(135deg, var(--warning-color) 0%, #ff8f00 100%); color: #212529;}
-
-        .pos-interface { display: grid; grid-template-columns: 1fr; gap: 30px; }
-        .invoice-details { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; padding: 20px; background-color: #f8f9fa; border-radius: var(--border-radius-medium); border: 1px solid #dee2e6; }
-        .info-item { display: flex; flex-direction: column; }
-        .info-item label { font-weight: 600; color: #555; margin-bottom: 5px; }
-        .info-item input { padding: 8px 12px; border: 1px solid #ccc; border-radius: 8px; font-family: var(--main-font); }
-
-        .scanner-area { margin: 20px 0; }
-        .scanner-area label { font-size: 18px; font-weight: 600; margin-bottom: 10px; display: block; text-align: center; }
-        #barcode-input { width: 100%; padding: 15px 20px; font-size: 20px; text-align: center; border: 2px dashed var(--button-color); border-radius: var(--border-radius-medium); transition: all var(--transition-fast); }
-        #barcode-input:focus { outline: none; border-style: solid; box-shadow: 0 0 10px rgba(40, 167, 69, 0.3); }
-
-        .sales-cart table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        .sales-cart th, .sales-cart td { padding: 12px; text-align: center; border-bottom: 1px solid #dee2e6; }
-        .sales-cart th { background-color: #e9ecef; font-weight: 700; }
-        .sales-cart .quantity-input { width: 70px; text-align: center; padding: 5px; border-radius: 5px; border: 1px solid #ccc; }
-        .sales-cart .delete-item-btn { color: var(--danger-color); cursor: pointer; background: none; border: none; font-size: 18px; }
-
-        .total-section { margin-top: 20px; padding-top: 20px; border-top: 2px solid #333; text-align: left; font-size: 22px; font-weight: 700; }
-        #total-amount { color: var(--button-color); }
-
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5); padding-top: 60px; }
-        .modal-content { background-color: #fefefe; margin: 5% auto; padding: 25px; border: 1px solid #888; width: 90%; max-width: 900px; border-radius: var(--border-radius-medium); }
-        .close { color: #aaa; float: left; font-size: 30px; font-weight: bold; cursor: pointer; }
-        
-        .modal-tabs { display: flex; border-bottom: 1px solid #ccc; margin-bottom: 20px; }
-        .modal-tab { padding: 10px 20px; cursor: pointer; border-bottom: 3px solid transparent; }
-        .modal-tab.active { border-bottom-color: var(--header-color); font-weight: 700; }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-        
-        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
-        .form-group { display: flex; flex-direction: column; }
-        .form-group label { margin-bottom: 5px; font-weight: 600; }
-        .form-group input, .form-group select { padding: 10px; border: 1px solid #ccc; border-radius: 8px; }
-
-        .data-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        .data-table th, .data-table td { padding: 10px; text-align: center; border: 1px solid #dee2e6; }
-        .data-table th { background-color: #e9ecef; }
-        .data-table .actions-cell .btn { padding: 5px 10px; font-size: 14px; border-radius: 8px; }
-
-        .report-section { margin-bottom: 30px; }
-        .report-section h3 { border-bottom: 2px solid var(--accent-color); padding-bottom: 10px; margin-bottom: 15px; }
-        .report-section .print-btn { margin-top: 10px; display: block; width: fit-content; margin-right: auto; margin-left: auto; }
-
-        .sales-stats { text-align: center; font-size: 18px; }
-        .sales-stats p { margin: 10px 0; font-weight: bold; }
-        
-        /* محتوى مخفي للطباعة فقط */
-        .print-only { display: none; }
-
-        /* === أنماط الطباعة المحسّنة === */
-        @media print {
-            .no-print { display: none !important; }
-            body { background-color: #fff; font-family: 'Cairo', sans-serif; }
-            .container { box-shadow: none; border: none; padding: 0; margin: 0; }
-
-            /* --- أنماط طباعة الفاتورة (الإيصال) --- */
-            #print-invoice-content {
-                display: block !important;
-                margin: 0 auto;
-                max-width: 80mm; /* عرض إيصال الطابعة الحرارية القياسي */
-                font-size: 10pt;
-                color: #000;
-            }
-            .invoice-print-header {
-                text-align: center;
-                margin-bottom: 15px;
-            }
-            .invoice-print-header h2 {
-                margin: 0;
-                font-size: 16pt;
-            }
-            .invoice-print-header p {
-                margin: 2px 0;
-                font-size: 9pt;
-            }
-            .invoice-print-details {
-                margin-bottom: 15px;
-                font-size: 9pt;
-                border-top: 1px dashed #000;
-                border-bottom: 1px dashed #000;
-                padding: 5px 0;
-            }
-            .invoice-print-details div {
-                display: flex;
-                justify-content: space-between;
-            }
-            .invoice-print-table {
-                width: 100%;
-                border-collapse: collapse;
-                margin-bottom: 10px;
-            }
-            .invoice-print-table th, .invoice-print-table td {
-                padding: 4px 2px;
-                text-align: center;
-                font-size: 9pt;
-            }
-            .invoice-print-table th {
-                border-bottom: 1px solid #000;
-                font-weight: bold;
-            }
-            .invoice-print-table td.item-name { text-align: right; }
-            .invoice-print-table td.item-total, .invoice-print-table td.item-price { text-align: left; }
-
-            .invoice-print-summary {
-                margin-top: 15px;
-                padding-top: 10px;
-                border-top: 1px solid #000;
-                text-align: left;
-            }
-            .invoice-print-summary p {
-                margin: 5px 0;
-                font-size: 12pt;
-                font-weight: bold;
-            }
-            .invoice-print-footer {
-                text-align: center;
-                margin-top: 20px;
-                font-size: 9pt;
-                border-top: 1px dashed #000;
-                padding-top: 5px;
-            }
-
-            /* --- أنماط طباعة التقارير العامة --- */
-            #print-report-content {
-                display: block !important;
-            }
-            .report-print-header {
-                text-align: center;
-                padding-bottom: 15px;
-                border-bottom: 2px solid #000;
-                margin-bottom: 25px;
-            }
-            .report-print-header h2 { font-size: 22px; margin-bottom: 5px; }
-            .report-print-header p { font-size: 14px; margin: 0; }
-            .report-print-info {
-                display: flex;
-                justify-content: space-between;
-                margin-top: 15px;
-                font-size: 12px;
-            }
-            .report-print-table {
-                width: 100%;
-                border-collapse: collapse;
-                margin: 20px 0;
-                font-size: 12pt;
-            }
-            .report-print-table th, .report-print-table td {
-                border: 1px solid #333;
-                padding: 8px;
-                text-align: center;
-            }
-            .report-print-table thead th {
-                background-color: #e9ecef;
-                font-weight: bold;
-            }
-            .report-print-table tbody tr:nth-child(even) {
-                background-color: #f8f9fa;
-            }
-            .report-print-summary {
-                margin-top: 20px;
-                padding-top: 15px;
-                border-top: 1px solid #666;
-                text-align: right;
-                font-size: 14pt;
-                font-weight: bold;
-            }
-            .report-print-footer {
-                text-align: center;
-                margin-top: 40px;
-                font-size: 11pt;
-                color: #555;
-            }
-        }
+        body { font-family: Arial, sans-serif; margin: 25px; }
+        .prescription { border: 1px solid #000; padding: 20px; width: 100%; box-sizing: border-box; }
+        h1 { text-align: center; color: #333; margin-top: 0; }
+        .header, .footer { text-align: center; margin-bottom: 20px; }
+        .details { margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px dashed #ccc; }
+        .details p { margin: 5px 0; }
+        .section { margin-top: 25px; }
+        .section h3 { border-bottom: 1px solid #ccc; padding-bottom: 5px; margin-top: 0; }
+        p { white-space: pre-wrap; line-height: 1.6; }
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="prescription">
         <div class="header">
-            <h1><i class="fas fa-pills"></i> نظام أوسكار لإدارة الصيدليات</h1>
+            <h2>عيادة الدكتور/ة [اكتب اسمك هنا]</h2>
+            <p>[تخصصك هنا] | [رقم الهاتف]</p>
         </div>
-        
-        <div class="action-buttons no-print">
-            <button class="btn btn-success" onclick="completeSale()"><i class="fas fa-check-circle"></i> إتمام البيع</button>
-            <button class="btn btn-primary" onclick="printReceipt()"><i class="fas fa-print"></i> طباعة الفاتورة</button>
-            <button class="btn btn-info" onclick="openInventoryManager()"><i class="fas fa-boxes"></i> إدارة المخزون</button>
-            <button class="btn btn-warning" onclick="openReportsModal()"><i class="fas fa-chart-line"></i> تقارير المنتجات</button>
-            <button class="btn btn-primary" onclick="openSalesStatsModal()"><i class="fas fa-chart-bar"></i> إحصائيات البيع</button>
-            <button class="btn btn-danger" onclick="clearCart()"><i class="fas fa-trash"></i> فاتورة جديدة</button>
+        <h1>وصفة طبية</h1>
+        <div class="details">
+            <p><strong>اسم المريض:</strong> <span id="pName"></span></p>
+            <p><strong>التاريخ:</strong> <span id="pDate"></span></p>
         </div>
-
-        <div class="pos-interface">
-            <div class="invoice-details">
-                <div class="info-item"><label for="invoice-number">رقم الفاتورة</label><input type="text" id="invoice-number" readonly></div>
-                <div class="info-item"><label for="invoice-date">التاريخ</label><input type="text" id="invoice-date" readonly></div>
-                <div class="info-item"><label for="customer-name">اسم العميل</label><input type="text" id="customer-name" placeholder="عميل نقدي"></div>
-            </div>
-            <div class="scanner-area no-print">
-                <label for="barcode-input"><i class="fas fa-barcode"></i> امسح الباركود أو ابحث بالاسم...</label>
-                <input type="text" id="barcode-input" autocomplete="off">
-            </div>
-            <div class="sales-cart">
-                <table>
-                    <thead><tr><th>م.</th><th>اسم المنتج</th><th>الكمية</th><th>سعر الوحدة</th><th>الإجمالي</th><th class="no-print">حذف</th></tr></thead>
-                    <tbody id="cart-items"></tbody>
-                </table>
-            </div>
-            <div class="total-section"><span>المبلغ الإجمالي: </span><span id="total-amount">0.00 IQD</span></div>
+        <div class="section">
+            <h3>Rx (الوصفة)</h3>
+            <p id="pPrescription"></p>
+        </div>
+        <div class="section">
+            <h3>ملاحظات الطبيب</h3>
+            <p id="pNotes"></p>
+        </div>
+         <div class="section" style="text-align: left; margin-top: 60px;">
+            <p><strong>توقيع الطبيب</strong></p>
+            <br>
+            <p>___________________</p>
         </div>
     </div>
-
-    <div id="inventoryModal" class="modal no-print">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal('inventoryModal')">&times;</span>
-            <h2><i class="fas fa-boxes"></i> إدارة المنتجات والمخزون</h2>
-            <div class="modal-tabs">
-                <div class="modal-tab active" onclick="switchTab(event, 'productListTab')">قائمة المنتجات</div>
-                <div class="modal-tab" onclick="switchTab(event, 'addProductTab')">إضافة منتج جديد</div>
-                <div class="modal-tab" onclick="switchTab(event, 'addStockTab')">إضافة مخزون</div>
-            </div>
-            
-            <div id="productListTab" class="tab-content active">
-                <h3>قائمة جميع المنتجات</h3>
-                <div style="max-height: 400px; overflow-y: auto;">
-                    <table class="data-table">
-                        <thead><tr><th>الباركود</th><th>الاسم</th><th>سعر البيع</th><th>الكمية الإجمالية</th><th class="no-print">إجراءات</th></tr></thead>
-                        <tbody id="product-list-body"></tbody>
-                    </table>
-                </div>
-            </div>
-            
-            <div id="addProductTab" class="tab-content">
-                <h3>إضافة منتج جديد</h3>
-                <form id="add-product-form" class="form-grid">
-                    <div class="form-group"><label>اسم المنتج</label><input type="text" id="product-name" required></div>
-                    <div class="form-group"><label>الباركود</label><input type="text" id="product-barcode" required></div>
-                    <div class="form-group"><label>سعر البيع (دينار)</label><input type="number" id="product-selling-price" required></div>
-                    <div class="form-group"><label>سعر الشراء (دينار)</label><input type="number" id="product-cost-price"></div>
-                    <div class="form-group"><label>حد التنبيه للمخزون المنخفض</label><input type="number" id="product-low-stock" value="10"></div>
-                </form>
-                <br>
-                <button class="btn btn-success" onclick="saveNewProduct()">حفظ المنتج</button>
-            </div>
-            
-            <div id="addStockTab" class="tab-content">
-                <h3>إضافة مخزون لمنتج موجود</h3>
-                <form id="add-stock-form" class="form-grid">
-                    <div class="form-group"><label>اختر المنتج</label><select id="stock-product-select" required></select></div>
-                    <div class="form-group"><label>الكمية المضافة</label><input type="number" id="stock-quantity" required></div>
-                    <div class="form-group"><label>تاريخ انتهاء الصلاحية</label><input type="date" id="stock-expiry" required></div>
-                </form>
-                <br>
-                <button class="btn btn-success" onclick="saveStock()">إضافة للمخزون</button>
-            </div>
-        </div>
-    </div>
-    
-    <div id="reportsModal" class="modal no-print">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal('reportsModal')">&times;</span>
-            <h2><i class="fas fa-chart-line"></i> تقارير المنتجات والتنبيهات</h2>
-            <div class="modal-tabs">
-                <div class="modal-tab active" onclick="switchTab(event, 'expiringTab')">منتجات قاربت على الانتهاء</div>
-                <div class="modal-tab" onclick="switchTab(event, 'lowStockTab')">منتجات قاربت على النفاذ</div>
-            </div>
-
-            <div id="expiringTab" class="tab-content active">
-                <div class="report-section">
-                    <h3><i class="fas fa-exclamation-triangle" style="color: var(--danger-color);"></i> منتجات قاربت صلاحيتها على الانتهاء (90 يومًا)</h3>
-                    <div style="max-height: 200px; overflow-y: auto;">
-                        <table class="data-table">
-                            <thead><tr><th>المنتج</th><th>الباركود</th><th>الكمية</th><th>تاريخ الانتهاء</th><th>الأيام المتبقية</th></tr></thead>
-                            <tbody id="expiring-products-body"></tbody>
-                        </table>
-                    </div>
-                    <button class="btn btn-primary print-btn no-print" onclick="printExpiringReport()"><i class="fas fa-print"></i> طباعة التقرير</button>
-                </div>
-            </div>
-
-            <div id="lowStockTab" class="tab-content">
-                <div class="report-section">
-                    <h3><i class="fas fa-battery-empty" style="color: var(--warning-color);"></i> منتجات وصلت لحد المخزون المنخفض</h3>
-                    <div style="max-height: 200px; overflow-y: auto;">
-                        <table class="data-table">
-                            <thead><tr><th>المنتج</th><th>الباركود</th><th>الكمية المتبقية</th><th>الحد الأدنى</th><th>الحالة</th></tr></thead>
-                            <tbody id="low-stock-products-body"></tbody>
-                        </table>
-                    </div>
-                    <button class="btn btn-primary print-btn no-print" onclick="printLowStockReport()"><i class="fas fa-print"></i> طباعة التقرير</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <div id="salesStatsModal" class="modal no-print">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal('salesStatsModal')">&times;</span>
-            <h2><i class="fas fa-chart-bar"></i> إحصائيات المبيعات</h2>
-            
-            <div class="report-section">
-                <h3><i class="fas fa-chart-bar" style="color: var(--accent-color);"></i> إحصائيات المبيعات</h3>
-                <div class="sales-stats">
-                    <p id="daily-sales-text"></p>
-                    <p id="monthly-sales-text"></p>
-                    <p id="yearly-sales-text"></p>
-                    <p id="total-sales-text"></p>
-                </div>
-                <button class="btn btn-primary print-btn no-print" onclick="printSalesStats()"><i class="fas fa-print"></i> طباعة الإحصائيات</button>
-                <button class="btn btn-danger no-print" onclick="deleteSalesStats()"><i class="fas fa-trash"></i> حذف جميع الإحصائيات</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="print-invoice-content" class="print-only"></div>
-    <div id="print-report-content" class="print-only"></div>
-    
     <script>
-    const DB_NAME = 'PharmacyDB_Full';
-    const DB_VERSION = 1;
-    let db;
-
-    // تهيئة قاعدة البيانات والتطبيق
-    async function initDb() {
-        return new Promise((resolve, reject) => {
-            const request = indexedDB.open(DB_NAME, DB_VERSION);
-            request.onerror = e => reject("Database error: " + e.target.errorCode);
-            request.onupgradeneeded = e => {
-                db = e.target.result;
-                const productsStore = db.createObjectStore('products', { keyPath: 'id', autoIncrement: true });
-                productsStore.createIndex('barcode', 'barcode', { unique: true });
-                productsStore.createIndex('name_lower', 'name_lower', { unique: false });
-                
-                const inventoryStore = db.createObjectStore('inventory', { keyPath: 'id', autoIncrement: true });
-                inventoryStore.createIndex('productId', 'productId', { unique: false });
-                inventoryStore.createIndex('expiryDate', 'expiryDate', { unique: false });
-                
-                const salesStore = db.createObjectStore('sales', { keyPath: 'id', autoIncrement: true });
-                salesStore.createIndex('date', 'date', { unique: false });
-            };
-            request.onsuccess = e => { db = e.target.result; resolve(db); };
-        });
-    }
-
-    document.addEventListener('DOMContentLoaded', async () => {
-        try {
-            await initDb();
-            setInvoiceInfo();
-            document.getElementById('barcode-input').focus();
-        } catch (error) {
-            console.error("Failed to initialize:", error);
-            alert("فشل تشغيل قاعدة البيانات.");
-        }
-    });
-
-    // إدارة نوافذ Modal وال Tabs
-    function closeModal(modalId) { document.getElementById(modalId).style.display = 'none'; }
-    function switchTab(event, tabName) {
-        const parent = event.target.closest('.modal-content');
-        parent.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
-        parent.querySelectorAll('.modal-tab').forEach(mt => mt.classList.remove('active'));
-        parent.querySelector('#' + tabName).classList.add('active');
-        event.target.classList.add('active');
-    }
-
-    // واجهة نقطة البيع (POS)
-    const barcodeInput = document.getElementById('barcode-input');
-    const cartItemsContainer = document.getElementById('cart-items');
-
-    barcodeInput.addEventListener('change', async function(event) {
-        const query = this.value.trim();
-        if (query) {
-            const transaction = db.transaction('products', 'readonly');
-            let request = transaction.objectStore('products').index('barcode').get(query);
-            request.onsuccess = e => {
-                if (e.target.result) {
-                    addProductToCart(e.target.result);
-                } else {
-                    let nameRequest = transaction.objectStore('products').index('name_lower').get(query.toLowerCase());
-                    nameRequest.onsuccess = ne => {
-                        if (ne.target.result) {
-                            addProductToCart(ne.target.result);
-                        } else {
-                            alert(`المنتج غير موجود!`);
-                        }
-                    };
-                }
-            };
-            this.value = ''; 
-            this.focus();
-        }
-    });
-
-    async function addProductToCart(product) {
-        const existingRow = cartItemsContainer.querySelector(`tr[data-product-id='${product.id}']`);
-        if (existingRow) {
-            const quantityInput = existingRow.querySelector('.quantity-input');
-            quantityInput.value = parseInt(quantityInput.value) + 1;
-        } else {
-            const totalStock = await getTotalStock(product.id);
-            if (totalStock <= 0) {
-                alert(`المنتج ${product.name} غير متوفر في المخزون!`);
-                return;
-            }
-            const row = cartItemsContainer.insertRow();
-            row.dataset.productId = product.id;
-            row.innerHTML = `<td>${cartItemsContainer.rows.length}</td><td class="item-name">${product.name}</td><td><input type="number" class="quantity-input" value="1" min="1" max="${totalStock}"></td><td class="unit-price">${product.sellingPrice.toFixed(2)}</td><td class="total-price">${product.sellingPrice.toFixed(2)}</td><td class="no-print"><button class="delete-item-btn" onclick="deleteCartItem(this)"><i class="fas fa-times-circle"></i></button></td>`;
-        }
-        updateTotals();
-    }
-    
-    function updateTotals() {
-        let total = 0;
-        cartItemsContainer.querySelectorAll('tr').forEach((row, index) => {
-            row.cells[0].textContent = index + 1; // Re-number rows
-            const quantity = parseInt(row.querySelector('.quantity-input').value) || 0;
-            const unitPrice = parseFloat(row.querySelector('.unit-price').textContent) || 0;
-            const rowTotal = quantity * unitPrice;
-            row.querySelector('.total-price').textContent = rowTotal.toFixed(2);
-            total += rowTotal;
-        });
-        document.getElementById('total-amount').textContent = `${total.toFixed(2)} IQD`;
-    }
-
-    cartItemsContainer.addEventListener('input', e => { if (e.target.classList.contains('quantity-input')) updateTotals(); });
-    function deleteCartItem(button) { button.closest('tr').remove(); updateTotals(); }
-    function clearCart() { cartItemsContainer.innerHTML = ''; document.getElementById('customer-name').value = ''; updateTotals(); setInvoiceInfo(); barcodeInput.focus(); }
-    function setInvoiceInfo(){ document.getElementById('invoice-date').value = new Date().toLocaleDateString('ar-IQ'); document.getElementById('invoice-number').value = `INV-${Date.now()}`; }
-
-    // وظيفة إتمام البيع
-    async function completeSale() {
-        const cartRows = cartItemsContainer.querySelectorAll('tr');
-        if (cartRows.length === 0) return alert('سلة المبيعات فارغة!');
-
-        const transaction = db.transaction(['inventory', 'sales'], 'readwrite');
-        const inventoryStore = transaction.objectStore('inventory');
-        const salesStore = transaction.objectStore('sales');
-        const itemsToProcess = Array.from(cartRows).map(row => ({
-            productId: parseInt(row.dataset.productId),
-            quantity: parseInt(row.querySelector('.quantity-input').value),
-            name: row.cells[1].textContent,
-            priceAtSale: parseFloat(row.querySelector('.unit-price').textContent)
-        }));
-
-        try {
-            for (const item of itemsToProcess) {
-                const stockEntries = await getProductStock(inventoryStore, item.productId);
-                let totalStock = stockEntries.reduce((sum, entry) => sum + entry.quantity, 0);
-                if (totalStock < item.quantity) throw new Error(`كمية غير كافية للمنتج: ${item.name}. المتوفر: ${totalStock}`);
-
-                let remainingQtyToDeduct = item.quantity;
-                for (const entry of stockEntries) {
-                    if (remainingQtyToDeduct <= 0) break;
-                    const deductAmount = Math.min(remainingQtyToDeduct, entry.quantity);
-                    entry.quantity -= deductAmount;
-                    remainingQtyToDeduct -= deductAmount;
-                    if (entry.quantity > 0) {
-                        inventoryStore.put(entry);
-                    } else {
-                        inventoryStore.delete(entry.id);
-                    }
-                }
-            }
-            const saleRecord = {
-                date: new Date(),
-                invoiceNumber: document.getElementById('invoice-number').value,
-                customerName: document.getElementById('customer-name').value || 'عميل نقدي',
-                totalAmount: parseFloat(document.getElementById('total-amount').textContent),
-                itemsSold: itemsToProcess
-            };
-            salesStore.add(saleRecord);
-
-            transaction.oncomplete = () => { alert('تمت عملية البيع بنجاخ!'); printReceipt(); clearCart(); };
-            transaction.onerror = (e) => { alert('فشل حفظ الفاتورة! ' + e.target.error); };
-
-        } catch (error) {
-            alert('خطأ في إتمام البيع: ' + error.message);
-            transaction.abort();
-        }
-    }
-    
-    function getProductStock(store, productId) {
-        return new Promise((resolve, reject) => {
-            const request = store.index('productId').getAll(productId);
-            request.onsuccess = e => resolve(e.target.result.sort((a, b) => new Date(a.expiryDate) - new Date(b.expiryDate))); // FEFO
-            request.onerror = e => reject(e.target.error);
-        });
-    }
-
-    async function getTotalStock(productId) {
-        const tx = db.transaction('inventory', 'readonly');
-        const inventory = await new Promise(res => tx.objectStore('inventory').index('productId').getAll(productId).onsuccess = e => res(e.target.result));
-        return inventory.reduce((sum, i) => sum + i.quantity, 0);
-    }
-    
-    // إدارة المخزون
-    async function openInventoryManager() {
-        document.getElementById('inventoryModal').style.display = 'block';
-        await renderProductList();
-        await populateProductSelect();
-    }
-
-    async function renderProductList() {
-        const tx = db.transaction(['products', 'inventory'], 'readonly');
-        const products = await new Promise((res) => tx.objectStore('products').getAll().onsuccess = e => res(e.target.result));
-        const inventory = await new Promise((res) => tx.objectStore('inventory').getAll().onsuccess = e => res(e.target.result));
-        const productListBody = document.getElementById('product-list-body');
-        productListBody.innerHTML = '';
-        
-        products.forEach(p => {
-            const totalStock = inventory.filter(i => i.productId === p.id).reduce((sum, i) => sum + i.quantity, 0);
-            const row = productListBody.insertRow();
-            row.innerHTML = `<td>${p.barcode}</td><td>${p.name}</td><td>${p.sellingPrice}</td><td>${totalStock}</td><td class="no-print actions-cell"><button class="btn btn-danger btn-sm" onclick="deleteProduct(${p.id})">حذف</button></td>`;
-        });
-    }
-
-    async function deleteProduct(productId) {
-        if (!confirm('هل أنت متأكد من حذف هذا المنتج؟ سيتم حذف كل المخزون المرتبط به.')) return;
-        const tx = db.transaction(['products', 'inventory'], 'readwrite');
-        tx.objectStore('products').delete(productId);
-        const inventoryCursor = await tx.objectStore('inventory').index('productId').openCursor(productId);
-        inventoryCursor.onsuccess = e => {
-            const cursor = e.target.result;
-            if (cursor) { cursor.delete(); cursor.continue(); }
+        window.onload = function() {
+            const params = new URLSearchParams(window.location.search);
+            document.getElementById('pName').textContent = params.get('patient_name') || 'غير محدد';
+            document.getElementById('pDate').textContent = new Date().toLocaleDateString('ar-IQ', {
+                year: 'numeric', month: 'long', day: 'numeric'
+            });
+            document.getElementById('pPrescription').textContent = params.get('prescription') || 'لا يوجد';
+            document.getElementById('pNotes').textContent = params.get('notes') || 'لا يوجد';
+            
+            setTimeout(() => {
+                window.print();
+                window.onafterprint = () => window.close();
+            }, 500);
         };
-        tx.oncomplete = () => { alert('تم الحذف بنجاح'); renderProductList(); };
-    }
-
-    async function populateProductSelect() {
-        const products = await new Promise((res) => db.transaction('products', 'readonly').objectStore('products').getAll().onsuccess = e => res(e.target.result));
-        const select = document.getElementById('stock-product-select');
-        select.innerHTML = '<option value="">اختر منتج...</option>';
-        products.sort((a, b) => a.name.localeCompare(b.name)).forEach(p => select.innerHTML += `<option value="${p.id}">${p.name}</option>`);
-    }
-
-    async function saveNewProduct() {
-        const name = document.getElementById('product-name').value.trim();
-        const barcode = document.getElementById('product-barcode').value.trim();
-        if (!name || !barcode) return alert('الاسم والباركود حقول إلزامية!');
-
-        const newProduct = {
-            name: name,
-            name_lower: name.toLowerCase(),
-            barcode: barcode,
-            sellingPrice: parseFloat(document.getElementById('product-selling-price').value) || 0,
-            costPrice: parseFloat(document.getElementById('product-cost-price').value) || 0,
-            lowStockThreshold: parseInt(document.getElementById('product-low-stock').value) || 10
-        };
-
-        const tx = db.transaction('products', 'readwrite');
-        tx.objectStore('products').add(newProduct);
-        tx.oncomplete = () => { alert('تم حفظ المنتج بنجاح'); document.getElementById('add-product-form').reset(); openInventoryManager(); };
-        tx.onerror = (e) => alert('فشل حفظ المنتج! قد يكون الباركود مكرر. ' + e.target.error);
-    }
-
-    async function saveStock() {
-        const newStock = {
-            productId: parseInt(document.getElementById('stock-product-select').value),
-            quantity: parseInt(document.getElementById('stock-quantity').value),
-            expiryDate: document.getElementById('stock-expiry').value
-        };
-        if (!newStock.productId || !newStock.quantity || !newStock.expiryDate) return alert('جميع الحقول مطلوبة!');
-
-        const tx = db.transaction('inventory', 'readwrite');
-        tx.objectStore('inventory').add(newStock);
-        tx.oncomplete = () => { alert('تمت إضافة المخزون بنجاح'); document.getElementById('add-stock-form').reset(); openInventoryManager(); };
-        tx.onerror = (e) => alert('فشل إضافة المخزون. ' + e.target.error);
-    }
-
-    // تقارير المنتجات
-    async function openReportsModal() {
-        document.getElementById('reportsModal').style.display = 'block';
-        await generateExpiringSoonReport();
-        await generateLowStockReport();
-    }
-
-    async function generateExpiringSoonReport() {
-        const tx = db.transaction(['inventory', 'products'], 'readonly');
-        const inventoryStore = tx.objectStore('inventory');
-        const productsStore = tx.objectStore('products');
-        const expiringBody = document.getElementById('expiring-products-body');
-        expiringBody.innerHTML = '';
-
-        const thresholdDate = new Date();
-        thresholdDate.setDate(thresholdDate.getDate() + 90);
-        
-        const entries = await new Promise((res) => {
-            let results = [];
-            inventoryStore.openCursor().onsuccess = e => {
-                const cursor = e.target.result;
-                if (cursor) {
-                    if (new Date(cursor.value.expiryDate) <= thresholdDate) results.push(cursor.value);
-                    cursor.continue();
-                } else { res(results); }
-            };
-        });
-
-        for (const entry of entries) {
-            const product = await new Promise((res) => productsStore.get(entry.productId).onsuccess = e => res(e.target.result));
-            if (product) {
-                const daysRemaining = Math.ceil((new Date(entry.expiryDate) - new Date()) / (1000 * 60 * 60 * 24));
-                const row = expiringBody.insertRow();
-                row.innerHTML = `<td>${product.name}</td><td>${product.barcode}</td><td>${entry.quantity}</td><td>${entry.expiryDate}</td><td>${daysRemaining > 0 ? daysRemaining + ' يوم' : 'منتهي الصلاحية'}</td>`;
-            }
-        }
-    }
-
-    async function generateLowStockReport() {
-        const tx = db.transaction(['products', 'inventory'], 'readonly');
-        const products = await new Promise((res) => tx.objectStore('products').getAll().onsuccess = e => res(e.target.result));
-        const inventory = await new Promise((res) => tx.objectStore('inventory').getAll().onsuccess = e => res(e.target.result));
-        const lowStockBody = document.getElementById('low-stock-products-body');
-        lowStockBody.innerHTML = '';
-        
-        products.forEach(p => {
-            const totalStock = inventory.filter(i => i.productId === p.id).reduce((sum, i) => sum + i.quantity, 0);
-            if (totalStock <= p.lowStockThreshold) {
-                const status = totalStock === 0 ? '<span style="color: red;">نفذ</span>' : '<span style="color: var(--warning-color);">منخفض</span>';
-                const row = lowStockBody.insertRow();
-                row.innerHTML = `<td>${p.name}</td><td>${p.barcode}</td><td>${totalStock}</td><td>${p.lowStockThreshold}</td><td>${status}</td>`;
-            }
-        });
-    }
-    
-    // إحصائيات البيع
-    async function openSalesStatsModal() {
-        document.getElementById('salesStatsModal').style.display = 'block';
-        await generateSalesStats();
-    }
-
-    async function generateSalesStats() {
-        const sales = await new Promise((res) => db.transaction('sales', 'readonly').objectStore('sales').getAll().onsuccess = e => res(e.target.result));
-        
-        const now = new Date();
-        const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-        const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-        const yearStart = new Date(now.getFullYear(), 0, 1);
-
-        const dailySales = sales.filter(s => new Date(s.date) >= todayStart).reduce((sum, s) => sum + s.totalAmount, 0);
-        const monthlySales = sales.filter(s => new Date(s.date) >= monthStart).reduce((sum, s) => sum + s.totalAmount, 0);
-        const yearlySales = sales.filter(s => new Date(s.date) >= yearStart).reduce((sum, s) => sum + s.totalAmount, 0);
-        const totalSales = sales.reduce((sum, s) => sum + s.totalAmount, 0);
-
-        document.getElementById('daily-sales-text').innerHTML = `إجمالي المبيعات اليوم (${now.toLocaleDateString('ar-IQ')}): <span style="color: var(--button-color);">${dailySales.toFixed(2)} IQD</span>`;
-        document.getElementById('monthly-sales-text').innerHTML = `إجمالي المبيعات الشهري (${now.toLocaleDateString('ar-IQ', { month: 'long', year: 'numeric' })}): <span style="color: var(--accent-color);">${monthlySales.toFixed(2)} IQD</span>`;
-        document.getElementById('yearly-sales-text').innerHTML = `إجمالي المبيعات السنوي (${now.getFullYear()}): <span style="color: var(--header-color);">${yearlySales.toFixed(2)} IQD</span>`;
-        document.getElementById('total-sales-text').innerHTML = `إجمالي المبيعات الكلي: <span style="color: var(--danger-color); font-size: 20px;">${totalSales.toFixed(2)} IQD</span>`;
-    }
-
-    async function deleteSalesStats() {
-        if (!confirm('هل أنت متأكد من حذف جميع سجلات المبيعات؟ هذا الإجراء لا يمكن التراجع عنه.')) return;
-        const tx = db.transaction('sales', 'readwrite');
-        tx.objectStore('sales').clear();
-        tx.oncomplete = () => {
-            alert('تم حذف جميع سجلات المبيعات بنجاح.');
-            generateSalesStats();
-        };
-        tx.onerror = (e) => alert('فشل حذف السجلات: ' + e.target.error);
-    }
-
-    // === وظائف الطباعة المحسّنة ===
-    function printReceipt() {
-        const cartRows = cartItemsContainer.querySelectorAll('tr');
-        if (cartRows.length === 0) return alert('لا يمكن طباعة فاتورة فارغة!');
-
-        const printContainer = document.getElementById('print-invoice-content');
-        let tableRowsHTML = '';
-        cartRows.forEach(row => {
-            const cells = row.cells;
-            const name = cells[1].textContent;
-            const quantity = cells[2].querySelector('input').value;
-            const unitPrice = cells[3].textContent;
-            const total = cells[4].textContent;
-            tableRowsHTML += `<tr><td class="item-name">${name}</td><td>${quantity}</td><td class="item-price">${unitPrice}</td><td class="item-total">${total}</td></tr>`;
-        });
-        
-        const invoiceHTML = `
-            <div class="invoice-print-header">
-                <h2>صيدلية أوسكار</h2>
-                <p>العنوان: الموصل، المجموعة الثقافية</p>
-                <p>هاتف: 1234567-0770</p>
-            </div>
-            <div class="invoice-print-details">
-                <div><span>الرقم:</span><span>${document.getElementById('invoice-number').value}</span></div>
-                <div><span>التاريخ:</span><span>${document.getElementById('invoice-date').value}</span></div>
-                <div><span>العميل:</span><span>${document.getElementById('customer-name').value || 'عميل نقدي'}</span></div>
-            </div>
-            <table class="invoice-print-table">
-                <thead><tr><th style="text-align: right;">المنتج</th><th>كمية</th><th style="text-align: left;">سعر</th><th style="text-align: left;">إجمالي</th></tr></thead>
-                <tbody>${tableRowsHTML}</tbody>
-            </table>
-            <div class="invoice-print-summary">
-                <p>الإجمالي: ${document.getElementById('total-amount').textContent}</p>
-            </div>
-            <div class="invoice-print-footer">
-                <p>شكراً لزيارتكم!</p>
-                <p>برمجة وتصميم: Oscar</p>
-            </div>
-        `;
-        
-        printContainer.innerHTML = invoiceHTML;
-        window.print();
-    }
-
-    function printReport(title, tableHeaderHTML, tableBodyHTML, summaryText) {
-        const now = new Date();
-        const printContainer = document.getElementById('print-report-content');
-        
-        const reportHTML = `
-            <div class="report-print-header">
-                <h2>${title}</h2>
-                <p>نظام أوسكار لإدارة الصيدليات</p>
-                <div class="report-print-info">
-                    <span>تاريخ التقرير: ${now.toLocaleDateString('ar-IQ')}</span>
-                    <span>وقت التقرير: ${now.toLocaleTimeString('ar-IQ')}</span>
-                </div>
-            </div>
-            <table class="report-print-table">
-                <thead>${tableHeaderHTML}</thead>
-                <tbody>${tableBodyHTML}</tbody>
-            </table>
-            <div class="report-print-summary">
-                <p>${summaryText}</p>
-            </div>
-            <div class="report-print-footer">
-                <p>هذا التقرير تم إنشاؤه بواسطة نظام أوسكار.</p>
-            </div>
-        `;
-        printContainer.innerHTML = reportHTML;
-        window.print();
-    }
-
-    function printExpiringReport() {
-        const tableBody = document.getElementById('expiring-products-body');
-        const header = `<tr><th>المنتج</th><th>الباركود</th><th>الكمية</th><th>تاريخ الانتهاء</th><th>الأيام المتبقية</th></tr>`;
-        const summary = `إجمالي عدد الأصناف: ${tableBody.rows.length}`;
-        printReport('تقرير المنتجات المقاربة على الانتهاء', header, tableBody.innerHTML, summary);
-    }
-
-    function printLowStockReport() {
-        const tableBody = document.getElementById('low-stock-products-body');
-        const header = `<tr><th>المنتج</th><th>الباركود</th><th>الكمية المتبقية</th><th>الحد الأدنى</th><th>الحالة</th></tr>`;
-        const summary = `إجمالي عدد الأصناف: ${tableBody.rows.length}`;
-        printReport('تقرير المنتجات منخفضة المخزون', header, tableBody.innerHTML, summary);
-    }
-
-    function printSalesStats() {
-        const now = new Date();
-        const printContainer = document.getElementById('print-report-content');
-        const statsContent = `
-            <div style="font-size: 14pt; padding: 20px; text-align: right; border: 1px solid #ccc; border-radius: 10px;">
-                ${document.getElementById('daily-sales-text').outerHTML}
-                ${document.getElementById('monthly-sales-text').outerHTML}
-                ${document.getElementById('yearly-sales-text').outerHTML}
-                <hr style="margin: 15px 0;">
-                ${document.getElementById('total-sales-text').outerHTML}
-            </div>`;
-        const summary = `الإحصائيات حتى تاريخ: ${now.toLocaleDateString('ar-IQ')}`;
-        printReport('تقرير إحصائيات المبيعات', '', statsContent, summary); // No table for this report
-    }
-
     </script>
 </body>
 </html>
+ال12
+<?php
+header('Content-Type: text/html; charset=utf-8');
+include 'db.php';
+
+$action = $_GET['action'] ?? '';
+
+switch ($action) {
+    case 'add_patient':
+        add_patient($conn);
+        break;
+    case 'get_waiting':
+        get_waiting_list($conn);
+        break;
+    case 'get_doctor_list':
+        get_doctor_list($conn);
+        break;
+    case 'update_visit':
+        update_visit($conn);
+        break;
+    case 'search_patients':
+        search_patients($conn);
+        break;
+    case 'get_patient_history':
+        get_patient_history($conn);
+        break;
+    case 'get_stats':
+        get_stats($conn);
+        break;
+    default:
+        echo "Invalid Action";
+}
+
+function add_patient($conn) {
+    $name = $_POST['name'];
+    $age = $_POST['age'];
+    $price = $_POST['price'];
+    $today = date("Y-m-d");
+
+    // Check if patient exists, if not, create
+    $stmt = $conn->prepare("SELECT id FROM patients WHERE patient_name = ? AND patient_age = ?");
+    $stmt->bind_param("si", $name, $age);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($result->num_rows > 0) {
+        $patient = $result->fetch_assoc();
+        $patient_id = $patient['id'];
+    } else {
+        $stmt_insert = $conn->prepare("INSERT INTO patients (patient_name, patient_age) VALUES (?, ?)");
+        $stmt_insert->bind_param("si", $name, $age);
+        $stmt_insert->execute();
+        $patient_id = $stmt_insert->insert_id;
+    }
+
+    // Insert into visits table
+    $stmt = $conn->prepare("INSERT INTO visits (patient_id, ticket_price, visit_date) VALUES (?, ?, ?)");
+    $stmt->bind_param("ids", $patient_id, $price, $today);
+    $stmt->execute();
+
+    echo "Success";
+}
+
+function get_waiting_list($conn) {
+    $today = date("Y-m-d");
+    $result = $conn->query("SELECT p.patient_name, p.patient_age FROM patients p JOIN visits v ON p.id = v.patient_id WHERE v.visit_date = '$today' ORDER BY v.id ASC");
+    $output = "<ul>";
+    if ($result->num_rows > 0) {
+        while ($row = $result->fetch_assoc()) {
+            $output .= "<li>{$row['patient_name']} ({$row['patient_age']} سنة)</li>";
+        }
+    } else {
+        $output .= "<li>لا يوجد مرضى في قائمة الانتظار.</li>";
+    }
+    $output .= "</ul>";
+    echo $output;
+}
+
+function get_doctor_list($conn) {
+    $today = date("Y-m-d");
+    $result = $conn->query("SELECT p.patient_name, p.patient_age, v.id as visit_id, v.prescription, v.notes FROM patients p JOIN visits v ON p.id = v.patient_id WHERE v.visit_date = '$today' ORDER BY v.id ASC");
+    if ($result->num_rows === 0) {
+        echo "<p>لا يوجد مرضى اليوم.</p>";
+        return;
+    }
+    while ($row = $result->fetch_assoc()) {
+        $status = empty($row['prescription']) ? "بانتظار التشخيص" : "تم التشخيص";
+        $buttons = "";
+        if (empty($row['prescription'])) {
+            $buttons = "<button class='add-details-btn' data-id='{$row['visit_id']}' data-name='{$row['patient_name']}'>إضافة تفاصيل</button>";
+        } else {
+            $print_data = http_build_query([
+                'patient_name' => $row['patient_name'],
+                'prescription' => $row['prescription'],
+                'notes' => $row['notes']
+            ]);
+            $buttons = "<button onclick=\"window.open('print.html?{$print_data}', '_blank', 'width=800,height=600')\" class='print-btn'>طباعة</button>";
+        }
+
+        echo "<div class='patient-card'>
+                <span><strong>{$row['patient_name']}</strong> ({$row['patient_age']} سنة) - <small>$status</small></span>
+                <div>{$buttons}</div>
+              </div>";
+    }
+}
+
+function update_visit($conn) {
+    $visit_id = $_POST['visit_id'];
+    $prescription = $_POST['prescription'];
+    $notes = $_POST['notes'];
+    $image_path = null;
+
+    if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) {
+        $target_dir = "uploads/";
+        if (!is_dir($target_dir)) {
+            mkdir($target_dir, 0777, true);
+        }
+        $filename = time() . '_' . basename($_FILES["image"]["name"]);
+        $target_file = $target_dir . $filename;
+        if (move_uploaded_file($_FILES["image"]["tmp_name"], $target_file)) {
+            $image_path = $target_file;
+        }
+    }
+    
+    $stmt = $conn->prepare("UPDATE visits SET prescription = ?, notes = ?, image_path = ? WHERE id = ?");
+    $stmt->bind_param("sssi", $prescription, $notes, $image_path, $visit_id);
+    if ($stmt->execute()) {
+        echo "Success";
+    } else {
+        echo "Error";
+    }
+}
+
+function search_patients($conn) {
+    $query = "%" . ($_GET['query'] ?? '') . "%";
+    $stmt = $conn->prepare("SELECT id, patient_name, patient_age FROM patients WHERE patient_name LIKE ? ORDER BY patient_name LIMIT 10");
+    $stmt->bind_param("s", $query);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $output = "<ul>";
+    if ($result->num_rows > 0) {
+        while ($row = $result->fetch_assoc()) {
+            $output .= "<li class='patient-result' data-id='{$row['id']}'>{$row['patient_name']} ({$row['patient_age']} سنة)</li>";
+        }
+    } else {
+        $output .= "<li>لا توجد نتائج.</li>";
+    }
+    $output .= "</ul>";
+    echo $output;
+}
+
+function get_patient_history($conn) {
+    $patient_id = $_GET['id'] ?? 0;
+    $stmt = $conn->prepare("SELECT * FROM visits WHERE patient_id = ? ORDER BY visit_date DESC");
+    $stmt->bind_param("i", $patient_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $output = "";
+    if ($result->num_rows > 0) {
+        while ($row = $result->fetch_assoc()) {
+            $image_tag = !empty($row['image_path']) ? "<p><a href='{$row['image_path']}' target='_blank'>عرض الصورة المرفقة</a></p>" : "";
+            $output .= "<div class='visit-record'>
+                <h4>تاريخ الزيارة: {$row['visit_date']}</h4>
+                <p><strong>الوصفة:</strong><br>" . nl2br(htmlspecialchars($row['prescription'])) . "</p>
+                <p><strong>ملاحظات:</strong><br>" . nl2br(htmlspecialchars($row['notes'])) . "</p>
+                {$image_tag}
+            </div>";
+        }
+    } else {
+        $output = "<p>لا يوجد سجل زيارات لهذا المريض.</p>";
+    }
+    echo $output;
+}
+
+function get_stats($conn) {
+    header('Content-Type: application/json; charset=utf-8');
+    
+    $today = date("Y-m-d");
+    $month = date("m");
+    $year = date("Y");
+
+    $monthly = $conn->query("SELECT SUM(ticket_price) as total FROM visits WHERE MONTH(visit_date) = $month AND YEAR(visit_date) = $year")->fetch_assoc();
+    $daily_income = $conn->query("SELECT SUM(ticket_price) as total FROM visits WHERE visit_date = '$today'")->fetch_assoc();
+    $daily_visits = $conn->query("SELECT COUNT(id) as total FROM visits WHERE visit_date = '$today'")->fetch_assoc();
+    $total_visits = $conn->query("SELECT COUNT(id) as total FROM visits")->fetch_assoc();
+
+    $stats = [
+        'monthly_income' => number_format($monthly['total'] ?? 0),
+        'daily_income' => number_format($daily_income['total'] ?? 0),
+        'daily_visits' => $daily_visits['total'] ?? 0,
+        'total_visits' => $total_visits['total'] ?? 0,
+    ];
+
+    echo json_encode($stats);
+}
+
+$conn->close();
+?>
