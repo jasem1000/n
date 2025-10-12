@@ -1,67 +1,76 @@
-using MedicalLabManager.Models; // تم تصحيح هذا السطر
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.IO;
+using MedicalLabManager.Data;
+using MedicalLabManager.Models;
+using MedicalLabManager.ViewModels.Base;
+using System; // مهم لإضافة هذا السطر
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Windows;
 
-namespace MedicalLabManager.Data // تم تصحيح هذا السطر
+namespace MedicalLabManager.ViewModels
 {
-    public class ApplicationDbContext : DbContext
+    public class PatientViewModel : ViewModelBase
     {
-        public DbSet<Patient> Patients { get; set; }
-        public DbSet<LabTest> LabTests { get; set; }
+        private readonly ApplicationDbContext _context = new ApplicationDbContext();
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        private ObservableCollection<Patient> _patients;
+        public ObservableCollection<Patient> Patients
         {
-            string dbPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "MedicalLab.db");
-            optionsBuilder.UseSqlite($"Data Source={dbPath}");
+            get { return _patients; }
+            set { _patients = value; OnPropertyChanged(); }
+        }
+
+        private string _medicalId;
+        public string MedicalId { get => _medicalId; set { _medicalId = value; OnPropertyChanged(); } }
+
+        private string _fullName;
+        public string FullName { get => _fullName; set { _fullName = value; OnPropertyChanged(); } }
+
+        public RelayCommand AddPatientCommand { get; }
+
+        public PatientViewModel()
+        {
+            // تم وضع هذا السطر داخل دالة منفصلة لجعل الكود أنظف
+            LoadData(); 
+            AddPatientCommand = new RelayCommand(AddPatient, CanAddPatient);
+        }
+
+        private void LoadData()
+        {
+            try // <-- بداية الكود المضاف
+            {
+                // سيحاول تحميل المرضى من قاعدة البيانات
+                var patientList = _context.Patients.ToList();
+                Patients = new ObservableCollection<Patient>(patientList);
+            }
+            catch (Exception ex) // <-- إذا حدث خطأ
+            {
+                // سيعرض رسالة بالخطأ بدلًا من إيقاف الواجهة
+                MessageBox.Show($"حدث خطأ أثناء تحميل البيانات: {ex.Message}");
+                // سيقوم بإنشاء قائمة فارغة لتجنب المشاكل
+                Patients = new ObservableCollection<Patient>();
+            } // <-- نهاية الكود المضاف
+        }
+
+        private void AddPatient(object? parameter)
+        {
+            var newPatient = new Patient
+            {
+                MedicalId = this.MedicalId,
+                FullName = this.FullName,
+                DateOfBirth = System.DateTime.Now,
+                Gender = "N/A"
+            };
+
+            _context.Patients.Add(newPatient);
+            _context.SaveChanges();
+
+            Patients.Add(newPatient);
+            MessageBox.Show("تمت إضافة المريض بنجاح!");
+        }
+
+        private bool CanAddPatient(object? parameter)
+        {
+            return !string.IsNullOrWhiteSpace(MedicalId) && !string.IsNullOrWhiteSpace(FullName);
         }
     }
 }
-ر لتر اتتار
-    using System;
-using System.ComponentModel.DataAnnotations;
-
-namespace MedicalLabManager.Models // تم تصحيح هذا السطر
-{
-    public class Patient
-    {
-        [Key]
-        public int Id { get; set; }
-
-        [Required]
-        public string MedicalId { get; set; }
-
-        [Required]
-        public string FullName { get; set; }
-
-        public DateTime DateOfBirth { get; set; }
-
-        public string Gender { get; set; }
-
-        public string PhoneNumber { get; set; }
-    }
-}
-بنمممعغقصصير
-            using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-
-namespace MedicalLabManager.Models // تم تصحيح هذا السطر
-{
-    public class LabTest
-    {
-        [Key]
-        public int Id { get; set; }
-
-        [Required]
-        public string TestName { get; set; }
-
-        public string Category { get; set; }
-
-        [Column(TypeName = "decimal(18, 2)")]
-        public decimal Price { get; set; }
-
-        public string NormalRange { get; set; }
-    }
-}
-لاعموابلتتلفغ
-            Add-Migration InitialCreate
