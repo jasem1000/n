@@ -1,7 +1,7 @@
 using MedicalLabManager.Data;
 using MedicalLabManager.Models;
 using MedicalLabManager.ViewModels.Base;
-using System; // مهم لإضافة هذا السطر
+using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
@@ -29,26 +29,25 @@ namespace MedicalLabManager.ViewModels
 
         public PatientViewModel()
         {
-            // تم وضع هذا السطر داخل دالة منفصلة لجعل الكود أنظف
             LoadData(); 
             AddPatientCommand = new RelayCommand(AddPatient, CanAddPatient);
         }
 
         private void LoadData()
         {
-            try // <-- بداية الكود المضاف
+            try
             {
-                // سيحاول تحميل المرضى من قاعدة البيانات
+                // يحاول تحميل المرضى من قاعدة البيانات
                 var patientList = _context.Patients.ToList();
                 Patients = new ObservableCollection<Patient>(patientList);
             }
-            catch (Exception ex) // <-- إذا حدث خطأ
+            catch (Exception ex)
             {
-                // سيعرض رسالة بالخطأ بدلًا من إيقاف الواجهة
+                // يعرض رسالة بالخطأ بدلًا من إيقاف الواجهة
                 MessageBox.Show($"حدث خطأ أثناء تحميل البيانات: {ex.Message}");
-                // سيقوم بإنشاء قائمة فارغة لتجنب المشاكل
+                // ينشئ قائمة فارغة لتجنب المشاكل
                 Patients = new ObservableCollection<Patient>();
-            } // <-- نهاية الكود المضاف
+            }
         }
 
         private void AddPatient(object? parameter)
@@ -74,3 +73,41 @@ namespace MedicalLabManager.ViewModels
         }
     }
 }
+ااانننمكظمن ثم قم رد لم رام اللهت مرتبه بلع ما لا ت
+                    using System.Windows.Controls;
+
+namespace MedicalLabManager.Views
+{
+    /// <summary>
+    /// Interaction logic for PatientView.xaml
+    /// </summary>
+    public partial class PatientView : UserControl
+    {
+        public PatientView()
+        {
+            InitializeComponent();
+        }
+    }
+}
+تننتتننن
+                    <Window x:Class="MedicalLabManager.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:MedicalLabManager"
+        xmlns:views="clr-namespace:MedicalLabManager.Views"
+        mc:Ignorable="d"
+        Title="برنامج إدارة المختبر الطبي" Height="600" Width="900" WindowStartupLocation="CenterScreen">
+    <Grid>
+        <TabControl>
+            <TabItem Header="إدارة المرضى">
+                <views:PatientView/>
+            </TabItem>
+            <TabItem Header="إدارة الفحوصات">
+                <TextBlock Text="واجهة إدارة الفحوصات ستكون هنا." HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="20"/>
+            </TabItem>
+            <TabItem Header="التقارير"/>
+        </TabControl>
+    </Grid>
+</Window>
