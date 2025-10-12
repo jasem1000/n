@@ -1,750 +1,244 @@
--- Create the database
-CREATE DATABASE clinic_db CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+1
+// Models/Patient.cs
+using System;
+using System.ComponentModel.DataAnnotations;
 
--- Use the database
-USE clinic_db;
+public class Patient
+{
+    [Key] // يحدد هذا الحقل كمفتاح أساسي للجدول
+    public int Id { get; set; }
 
--- Create the patients table
-CREATE TABLE patients (
-    id INT(11) PRIMARY KEY AUTO_INCREMENT,
-    patient_name VARCHAR(255) NOT NULL,
-    patient_age INT(3) NOT NULL,
-    registration_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+    [Required] // الحقل مطلوب
+    public string MedicalId { get; set; } // الرقم الطبي
 
--- Create the visits table
-CREATE TABLE visits (
-    id INT(11) PRIMARY KEY AUTO_INCREMENT,
-    patient_id INT(11) NOT NULL,
-    ticket_price DECIMAL(10, 2) NOT NULL,
-    prescription TEXT,
-    notes TEXT,
-    image_path VARCHAR(255),
-    visit_date DATE NOT NULL,
-    FOREIGN KEY (patient_id) REFERENCES patients(id) ON DELETE CASCADE
-);
+    [Required]
+    public string FullName { get; set; } // الاسم الكامل
 
-  هذا الكود الثاني
-  <?php
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "clinic_db";
+    public DateTime DateOfBirth { get; set; } // تاريخ الميلاد
 
-// Create connection
-$conn = new mysqli($servername, $username, $password, $dbname);
+    public string Gender { get; set; } // الجنس (ذكر/أنثى)
 
-// Check connection
-if ($conn->connect_error) {
-  die("Connection failed: " . $conn->connect_error);
+    public string PhoneNumber { get; set; } // رقم الهاتف
 }
+2LabTest.cs
+// Models/LabTest.cs
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
-// Set charset to utf8mb4 to support Arabic language
-$conn->set_charset("utf8mb4");
-?>
-الثالث
-/* General Body Styles */
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f4f4f9;
-    color: #333;
-    margin: 0;
-    padding: 20px;
+public class LabTest
+{
+    [Key]
+    public int Id { get; set; }
+
+    [Required]
+    public string TestName { get; set; } // اسم الفحص
+
+    public string Category { get; set; } // فئة الفحص (e.g., كيمياء, هرمونات)
+
+    [Column(TypeName = "decimal(18, 2)")] // تحديد نوع البيانات في قاعدة البيانات
+    public decimal Price { get; set; } // سعر الفحص
+
+    public string NormalRange { get; set; } // القيم المرجعية
 }
 
-/* Main Container */
-.container {
-    max-width: 900px;
-    margin: auto;
-    background: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+3ApplicationDbContext.cs
+// Data/ApplicationDbContext.cs
+using Microsoft.EntityFrameworkCore;
+using System.IO;
+using System;
+
+public class ApplicationDbContext : DbContext
+{
+    // تحديد الجداول في قاعدة البيانات
+    public DbSet<Patient> Patients { get; set; }
+    public DbSet<LabTest> LabTests { get; set; }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        // تحديد مسار قاعدة البيانات ليكون في نفس مجلد البرنامج
+        string dbPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "MedicalLab.db");
+        // استخدام SQLite وتحديد مسار الملف
+        optionsBuilder.UseSqlite($"Data Source={dbPath}");
+    }
 }
 
-h1, h2, h3 {
-    color: #0056b3;
-    border-bottom: 2px solid #f0f0f0;
-    padding-bottom: 10px;
-    margin-top: 0;
-}
+        4Add-Migration InitialCreate
+Update-Database
+ViewModelBase.cs
+   // ViewModels/Base/ViewModelBase.cs
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 
-/* Navigation Bar */
-.navbar {
-    background-color: #0056b3;
-    padding: 15px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap; /* For responsiveness */
-}
-.navbar a {
-    color: white;
-    text-decoration: none;
-    padding: 10px 20px;
-    margin: 5px;
-    border-radius: 5px;
-    transition: background-color 0.3s;
-}
-.navbar a:hover, .navbar a.active {
-    background-color: #007bff;
-}
+public abstract class ViewModelBase : INotifyPropertyChanged
+{
+    public event PropertyChangedEventHandler PropertyChanged;
 
-/* Forms: Inputs, Textareas, Buttons */
-input[type="text"], input[type="number"], textarea, button {
-    width: 100%;
-    padding: 12px;
-    margin-bottom: 15px;
-    border-radius: 5px;
-    border: 1px solid #ddd;
-    box-sizing: border-box; /* Important for padding */
-    font-size: 16px;
+    protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
 }
+     RelayCommand.cs
+        // ViewModels/Base/RelayCommand.cs
+using System;
+using System.Windows.Input;
 
-textarea {
-    resize: vertical;
-}
+public class RelayCommand : ICommand
+{
+    private readonly Action<object> _execute;
+    private readonly Func<object, bool> _canExecute;
 
-button {
-    background-color: #007bff;
-    color: white;
-    border: none;
-    cursor: pointer;
-    font-weight: bold;
-    transition: background-color 0.3s;
-}
-button:hover {
-    background-color: #0056b3;
-}
-
-/* Patient Card (Doctor's view) */
-.patient-card {
-    background-color: #e9ecef;
-    padding: 15px;
-    margin-bottom: 10px;
-    border-radius: 5px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-.patient-card small {
-    color: #6c757d;
-}
-
-/* Action Buttons */
-.add-details-btn {
-    background-color: #17a2b8;
-}
-.add-details-btn:hover {
-    background-color: #138496;
-}
-.print-btn {
-    background-color: #28a745;
-}
-.print-btn:hover {
-    background-color: #218838;
-}
-
-/* Modal for Doctor's Details */
-.modal {
-    display: none; 
-    position: fixed;
-    z-index: 1000;
-    left: 0; top: 0;
-    width: 100%; height: 100%;
-    overflow: auto;
-    background-color: rgba(0,0,0,0.5);
-}
-.modal-content {
-    background-color: #fefefe;
-    margin: 10% auto;
-    padding: 20px;
-    border: 1px solid #888;
-    width: 90%;
-    max-width: 600px;
-    border-radius: 8px;
-    position: relative;
-}
-.close-button {
-    color: #aaa;
-    position: absolute;
-    left: 15px;
-    top: 10px;
-    font-size: 28px;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-/* History & Search Page */
-#searchResults ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-}
-#searchResults li {
-    padding: 10px;
-    cursor: pointer;
-    border-bottom: 1px solid #ddd;
-}
-#searchResults li:last-child {
-    border-bottom: none;
-}
-#searchResults li:hover {
-    background-color: #f0f0f0;
-}
-#history-details {
-    margin-top: 20px;
-    background-color: #f8f9fa;
-    padding: 15px;
-    border-radius: 5px;
-}
-.visit-record {
-    border-bottom: 1px solid #e9ecef;
-    padding-bottom: 15px;
-    margin-bottom: 15px;
-}
-.visit-record:last-child {
-    border-bottom: none;
-    margin-bottom: 0;
-}
-.visit-record h4 {
-    color: #007bff;
-}
-
-/* Statistics Cards */
-.stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 20px;
-}
-.stat-card {
-    background-color: #f8f9fa;
-    padding: 25px;
-    text-align: center;
-    border-radius: 8px;
-    border: 1px solid #e9ecef;
-}
-.stat-card h3 {
-    margin: 0 0 10px;
-    font-size: 18px;
-    color: #0056b3;
-    border-bottom: none;
-}
-.stat-card p {
-    font-size: 28px;
-    font-weight: bold;
-    margin: 0;
-    color: #343a40;
-}
-الرابع
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo isset($pageTitle) ? $pageTitle : "نظام العيادة"; ?></title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <nav class="navbar">
-        <a href="secretary.php">واجهة السكرتير</a>
-        <a href="doctor.php">واجهة الطبيب</a>
-        <a href="history.php">سجل المرضى</a>
-        <a href="stats.php">الإحصائيات</a>
-    </nav>
-    <div class="container">
-الخامس 
-            </div> </body>
-</html>
-السادس 
-<?php $pageTitle = "واجهة السكرتير"; include 'header.php'; ?>
-
-<h1>تسجيل مريض جديد</h1>
-<form id="patientForm">
-    <input type="text" id="patientName" placeholder="اسم المريض" required>
-    <input type="number" id="patientAge" placeholder="العمر" required>
-    <input type="number" id="ticketPrice" placeholder="سعر الكشفية" step="any" required>
-    <button type="submit">إضافة المريض لقائمة الانتظار</button>
-</form>
-<hr>
-<h2>المرضى المنتظرون اليوم</h2>
-<div id="waitingList">
-    </div>
-
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script>
-$(document).ready(function() {
-    // Function to add patient
-    $("#patientForm").on("submit", function(e) {
-        e.preventDefault();
-        $.ajax({
-            url: 'api.php?action=add_patient',
-            type: 'POST',
-            data: {
-                name: $("#patientName").val(),
-                age: $("#patientAge").val(),
-                price: $("#ticketPrice").val()
-            },
-            success: function(response) {
-                alert("تمت إضافة المريض بنجاح!");
-                $("#patientForm")[0].reset();
-                loadWaitingList(); // Refresh list immediately
-            },
-            error: function() {
-                alert("حدث خطأ، يرجى المحاولة مرة أخرى.");
-            }
-        });
-    });
-
-    // Function to load waiting list
-    function loadWaitingList() {
-        $.get("api.php?action=get_waiting", function(data) {
-            $("#waitingList").html(data);
-        });
+    public event EventHandler CanExecuteChanged
+    {
+        add { CommandManager.RequerySuggested += value; }
+        remove { CommandManager.RequerySuggested -= value; }
     }
 
-    // Load list on page load and refresh every 10 seconds
-    loadWaitingList();
-    setInterval(loadWaitingList, 10000); // 10 seconds
-});
-</script>
-
-<?php include 'footer.php'; ?>
-السابع 
-<?php $pageTitle = "واجهة الطبيب"; include 'header.php'; ?>
-
-<h1>قائمة المرضى</h1>
-<div id="doctorPatientList">
-    </div>
-
-<div id="detailsModal" class="modal">
-    <div class="modal-content">
-        <span class="close-button">&times;</span>
-        <h2>تفاصيل المريض: <span id="modalPatientName"></span></h2>
-        <form id="detailsForm" enctype="multipart/form-data">
-            <input type="hidden" id="visitId" name="visit_id">
-            <textarea name="prescription" placeholder="الوصفة الطبية..." rows="6" required></textarea>
-            <textarea name="notes" placeholder="ملاحظات..." rows="4"></textarea>
-            <label for="image">إرفاق صورة (اختياري):</label>
-            <input type="file" name="image" accept="image/*">
-            <button type="submit">حفظ البيانات</button>
-        </form>
-    </div>
-</div>
-
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="doctor.js"></script>
-
-<?php include 'footer.php'; ?>
-الثامن
-$(document).ready(function() {
-    const modal = $("#detailsModal");
-    const modalPatientName = $("#modalPatientName");
-    const visitIdInput = $("#visitId");
-
-    // Function to load patient list for doctor
-    function loadDoctorList() {
-        $.get("api.php?action=get_doctor_list", function(data) {
-            $("#doctorPatientList").html(data);
-        }).fail(function() {
-            $("#doctorPatientList").html("<p>خطأ في تحميل البيانات.</p>");
-        });
+    public RelayCommand(Action<object> execute, Func<object, bool> canExecute = null)
+    {
+        _execute = execute ?? throw new ArgumentNullException(nameof(execute));
+        _canExecute = canExecute;
     }
 
-    // Open modal to add details
-    $(document).on("click", ".add-details-btn", function() {
-        const visitId = $(this).data("id");
-        const patientName = $(this).data("name");
-        
-        // Reset form before showing
-        $("#detailsForm")[0].reset();
-        
-        visitIdInput.val(visitId);
-        modalPatientName.text(patientName);
-        modal.show();
-    });
+    public bool CanExecute(object parameter) => _canExecute == null || _canExecute(parameter);
 
-    // Close modal
-    $(".close-button").click(() => modal.hide());
-    $(window).click(function(event) {
-        if ($(event.target).is(modal)) {
-            modal.hide();
-        }
-    });
+    public void Execute(object parameter) => _execute(parameter);
+}
+PatientViewModel.cs
+        // ViewModels/PatientViewModel.cs
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Windows;
+using ViewModels.Base; // استدعاء المجلد الأساسي
 
-    // Submit details form using AJAX
-    $("#detailsForm").on("submit", function(e) {
-        e.preventDefault();
-        const formData = new FormData(this);
+public class PatientViewModel : ViewModelBase
+{
+    private readonly ApplicationDbContext _context = new ApplicationDbContext();
 
-        $.ajax({
-            url: 'api.php?action=update_visit',
-            type: 'POST',
-            data: formData,
-            contentType: false, // Important
-            processData: false, // Important
-            success: function(response) {
-                alert("تم تحديث بيانات الزيارة بنجاح!");
-                modal.hide();
-                loadDoctorList(); // Refresh the list
-            },
-            error: function() {
-                alert("حدث خطأ أثناء حفظ البيانات.");
-            }
-        });
-    });
-
-    // Initial load and auto-refresh every 10 seconds
-    loadDoctorList();
-    setInterval(loadDoctorList, 10000); // 10 seconds
-});
-التاسع
-<?php $pageTitle = "سجل المرضى"; include 'header.php'; ?>
-
-<h1>البحث في سجلات المرضى</h1>
-<input type="text" id="searchInput" placeholder="اكتب اسم المريض للبحث...">
-<div id="searchResults"></div>
-<hr>
-<div id="history-details">
-    <h3>تفاصيل الزيارات</h3>
-    <div id="visit-list">
-        <p>ابحث عن مريض لعرض سجل زياراته.</p>
-    </div>
-</div>
-
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script>
-$(document).ready(function() {
-    // Search patients as user types (debounced for performance)
-    let searchTimeout;
-    $("#searchInput").on("keyup", function() {
-        clearTimeout(searchTimeout);
-        let query = $(this).val();
-        
-        if (query.length > 1) {
-            searchTimeout = setTimeout(function() {
-                $.get(`api.php?action=search_patients&query=${query}`, function(data) {
-                    $("#searchResults").html(data).show();
-                });
-            }, 300); // Wait 300ms after user stops typing
-        } else {
-            $("#searchResults").html("").hide();
-        }
-    });
-
-    // Get history for a selected patient
-    $(document).on("click", ".patient-result", function() {
-        let patientId = $(this).data("id");
-        let patientName = $(this).text();
-        $("#searchInput").val(patientName);
-        $("#searchResults").hide();
-        
-        $("#visit-list").html("<p>جاري تحميل السجل...</p>");
-        $.get(`api.php?action=get_patient_history&id=${patientId}`, function(data) {
-            $("#visit-list").html(data);
-        });
-    });
-});
-</script>
-
-<?php include 'footer.php'; ?>
-العاشر 
-<?php $pageTitle = "الإحصائيات"; include 'header.php'; ?>
-
-<h1>لوحة الإحصائيات</h1>
-<div class="stats-grid">
-    <div class="stat-card">
-        <h3>الدخل (هذا الشهر)</h3>
-        <p id="monthlyIncome">0</p>
-    </div>
-    <div class="stat-card">
-        <h3>الدخل (اليوم)</h3>
-        <p id="dailyIncome">0</p>
-    </div>
-    <div class="stat-card">
-        <h3>عدد المراجعين (اليوم)</h3>
-        <p id="dailyVisits">0</p>
-    </div>
-    <div class="stat-card">
-        <h3>إجمالي عدد الزيارات</h3>
-        <p id="totalVisits">0</p>
-    </div>
-</div>
-
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script>
-$(document).ready(function() {
-    function loadStats() {
-        $.getJSON("api.php?action=get_stats", function(data) {
-            $("#monthlyIncome").text(data.monthly_income + " د.ع");
-            $("#dailyIncome").text(data.daily_income + " د.ع");
-            $("#dailyVisits").text(data.daily_visits);
-            $("#totalVisits").text(data.total_visits);
-        });
+    // خاصية لتخزين قائمة المرضى وعرضها في الواجهة
+    private ObservableCollection<Patient> _patients;
+    public ObservableCollection<Patient> Patients
+    {
+        get { return _patients; }
+        set { _patients = value; OnPropertyChanged(); }
     }
-    loadStats(); // Load stats on page load
-});
-</script>
 
-<?php include 'footer.php'; ?>
-ال11
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <title>طباعة وصفة طبية</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 25px; }
-        .prescription { border: 1px solid #000; padding: 20px; width: 100%; box-sizing: border-box; }
-        h1 { text-align: center; color: #333; margin-top: 0; }
-        .header, .footer { text-align: center; margin-bottom: 20px; }
-        .details { margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px dashed #ccc; }
-        .details p { margin: 5px 0; }
-        .section { margin-top: 25px; }
-        .section h3 { border-bottom: 1px solid #ccc; padding-bottom: 5px; margin-top: 0; }
-        p { white-space: pre-wrap; line-height: 1.6; }
-    </style>
-</head>
-<body>
-    <div class="prescription">
-        <div class="header">
-            <h2>عيادة الدكتور/ة [اكتب اسمك هنا]</h2>
-            <p>[تخصصك هنا] | [رقم الهاتف]</p>
-        </div>
-        <h1>وصفة طبية</h1>
-        <div class="details">
-            <p><strong>اسم المريض:</strong> <span id="pName"></span></p>
-            <p><strong>التاريخ:</strong> <span id="pDate"></span></p>
-        </div>
-        <div class="section">
-            <h3>Rx (الوصفة)</h3>
-            <p id="pPrescription"></p>
-        </div>
-        <div class="section">
-            <h3>ملاحظات الطبيب</h3>
-            <p id="pNotes"></p>
-        </div>
-         <div class="section" style="text-align: left; margin-top: 60px;">
-            <p><strong>توقيع الطبيب</strong></p>
-            <br>
-            <p>___________________</p>
-        </div>
-    </div>
-    <script>
-        window.onload = function() {
-            const params = new URLSearchParams(window.location.search);
-            document.getElementById('pName').textContent = params.get('patient_name') || 'غير محدد';
-            document.getElementById('pDate').textContent = new Date().toLocaleDateString('ar-IQ', {
-                year: 'numeric', month: 'long', day: 'numeric'
-            });
-            document.getElementById('pPrescription').textContent = params.get('prescription') || 'لا يوجد';
-            document.getElementById('pNotes').textContent = params.get('notes') || 'لا يوجد';
-            
-            setTimeout(() => {
-                window.print();
-                window.onafterprint = () => window.close();
-            }, 500);
+    // خصائص لربطها بحقول إدخال بيانات المريض الجديد
+    private string _medicalId;
+    public string MedicalId { get => _medicalId; set { _medicalId = value; OnPropertyChanged(); } }
+
+    private string _fullName;
+    public string FullName { get => _fullName; set { _fullName = value; OnPropertyChanged(); } }
+
+    // الأوامر التي سيتم ربطها بالأزرار
+    public RelayCommand AddPatientCommand { get; }
+
+    public PatientViewModel()
+    {
+        // تحميل المرضى عند بدء التشغيل
+        LoadPatients();
+        // ربط الأمر بالدالة التي ستنفذه
+        AddPatientCommand = new RelayCommand(AddPatient, CanAddPatient);
+    }
+
+    private void LoadPatients()
+    {
+        var patientList = _context.Patients.ToList();
+        Patients = new ObservableCollection<Patient>(patientList);
+    }
+
+    private void AddPatient(object parameter)
+    {
+        var newPatient = new Patient
+        {
+            MedicalId = this.MedicalId,
+            FullName = this.FullName,
+            DateOfBirth = System.DateTime.Now, // للتسهيل، يمكن استبدالها بـ DatePicker
+            Gender = "N/A"
         };
-    </script>
-</body>
-</html>
-ال12
-<?php
-header('Content-Type: text/html; charset=utf-8');
-include 'db.php';
 
-$action = $_GET['action'] ?? '';
+        _context.Patients.Add(newPatient);
+        _context.SaveChanges();
 
-switch ($action) {
-    case 'add_patient':
-        add_patient($conn);
-        break;
-    case 'get_waiting':
-        get_waiting_list($conn);
-        break;
-    case 'get_doctor_list':
-        get_doctor_list($conn);
-        break;
-    case 'update_visit':
-        update_visit($conn);
-        break;
-    case 'search_patients':
-        search_patients($conn);
-        break;
-    case 'get_patient_history':
-        get_patient_history($conn);
-        break;
-    case 'get_stats':
-        get_stats($conn);
-        break;
-    default:
-        echo "Invalid Action";
-}
-
-function add_patient($conn) {
-    $name = $_POST['name'];
-    $age = $_POST['age'];
-    $price = $_POST['price'];
-    $today = date("Y-m-d");
-
-    // Check if patient exists, if not, create
-    $stmt = $conn->prepare("SELECT id FROM patients WHERE patient_name = ? AND patient_age = ?");
-    $stmt->bind_param("si", $name, $age);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    if ($result->num_rows > 0) {
-        $patient = $result->fetch_assoc();
-        $patient_id = $patient['id'];
-    } else {
-        $stmt_insert = $conn->prepare("INSERT INTO patients (patient_name, patient_age) VALUES (?, ?)");
-        $stmt_insert->bind_param("si", $name, $age);
-        $stmt_insert->execute();
-        $patient_id = $stmt_insert->insert_id;
+        // تحديث القائمة في الواجهة
+        Patients.Add(newPatient);
+        MessageBox.Show("تمت إضافة المريض بنجاح!");
     }
 
-    // Insert into visits table
-    $stmt = $conn->prepare("INSERT INTO visits (patient_id, ticket_price, visit_date) VALUES (?, ?, ?)");
-    $stmt->bind_param("ids", $patient_id, $price, $today);
-    $stmt->execute();
-
-    echo "Success";
-}
-
-function get_waiting_list($conn) {
-    $today = date("Y-m-d");
-    $result = $conn->query("SELECT p.patient_name, p.patient_age FROM patients p JOIN visits v ON p.id = v.patient_id WHERE v.visit_date = '$today' ORDER BY v.id ASC");
-    $output = "<ul>";
-    if ($result->num_rows > 0) {
-        while ($row = $result->fetch_assoc()) {
-            $output .= "<li>{$row['patient_name']} ({$row['patient_age']} سنة)</li>";
-        }
-    } else {
-        $output .= "<li>لا يوجد مرضى في قائمة الانتظار.</li>";
-    }
-    $output .= "</ul>";
-    echo $output;
-}
-
-function get_doctor_list($conn) {
-    $today = date("Y-m-d");
-    $result = $conn->query("SELECT p.patient_name, p.patient_age, v.id as visit_id, v.prescription, v.notes FROM patients p JOIN visits v ON p.id = v.patient_id WHERE v.visit_date = '$today' ORDER BY v.id ASC");
-    if ($result->num_rows === 0) {
-        echo "<p>لا يوجد مرضى اليوم.</p>";
-        return;
-    }
-    while ($row = $result->fetch_assoc()) {
-        $status = empty($row['prescription']) ? "بانتظار التشخيص" : "تم التشخيص";
-        $buttons = "";
-        if (empty($row['prescription'])) {
-            $buttons = "<button class='add-details-btn' data-id='{$row['visit_id']}' data-name='{$row['patient_name']}'>إضافة تفاصيل</button>";
-        } else {
-            $print_data = http_build_query([
-                'patient_name' => $row['patient_name'],
-                'prescription' => $row['prescription'],
-                'notes' => $row['notes']
-            ]);
-            $buttons = "<button onclick=\"window.open('print.html?{$print_data}', '_blank', 'width=800,height=600')\" class='print-btn'>طباعة</button>";
-        }
-
-        echo "<div class='patient-card'>
-                <span><strong>{$row['patient_name']}</strong> ({$row['patient_age']} سنة) - <small>$status</small></span>
-                <div>{$buttons}</div>
-              </div>";
+    // دالة لتحديد ما إذا كان يمكن تنفيذ الأمر (مثلاً، الحقول ليست فارغة)
+    private bool CanAddPatient(object parameter)
+    {
+        return !string.IsNullOrWhiteSpace(MedicalId) && !string.IsNullOrWhiteSpace(FullName);
     }
 }
-
-function update_visit($conn) {
-    $visit_id = $_POST['visit_id'];
-    $prescription = $_POST['prescription'];
-    $notes = $_POST['notes'];
-    $image_path = null;
-
-    if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) {
-        $target_dir = "uploads/";
-        if (!is_dir($target_dir)) {
-            mkdir($target_dir, 0777, true);
-        }
-        $filename = time() . '_' . basename($_FILES["image"]["name"]);
-        $target_file = $target_dir . $filename;
-        if (move_uploaded_file($_FILES["image"]["tmp_name"], $target_file)) {
-            $image_path = $target_file;
-        }
-    }
+PatientView.xaml
+            <UserControl x:Class="MedicalLabManager.Views.PatientView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:MedicalLabManager.Views"
+             xmlns:vm="clr-namespace:MedicalLabManager.ViewModels"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800"
+             FontFamily="Segoe UI">
     
-    $stmt = $conn->prepare("UPDATE visits SET prescription = ?, notes = ?, image_path = ? WHERE id = ?");
-    $stmt->bind_param("sssi", $prescription, $notes, $image_path, $visit_id);
-    if ($stmt->execute()) {
-        echo "Success";
-    } else {
-        echo "Error";
-    }
-}
-
-function search_patients($conn) {
-    $query = "%" . ($_GET['query'] ?? '') . "%";
-    $stmt = $conn->prepare("SELECT id, patient_name, patient_age FROM patients WHERE patient_name LIKE ? ORDER BY patient_name LIMIT 10");
-    $stmt->bind_param("s", $query);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $output = "<ul>";
-    if ($result->num_rows > 0) {
-        while ($row = $result->fetch_assoc()) {
-            $output .= "<li class='patient-result' data-id='{$row['id']}'>{$row['patient_name']} ({$row['patient_age']} سنة)</li>";
-        }
-    } else {
-        $output .= "<li>لا توجد نتائج.</li>";
-    }
-    $output .= "</ul>";
-    echo $output;
-}
-
-function get_patient_history($conn) {
-    $patient_id = $_GET['id'] ?? 0;
-    $stmt = $conn->prepare("SELECT * FROM visits WHERE patient_id = ? ORDER BY visit_date DESC");
-    $stmt->bind_param("i", $patient_id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $output = "";
-    if ($result->num_rows > 0) {
-        while ($row = $result->fetch_assoc()) {
-            $image_tag = !empty($row['image_path']) ? "<p><a href='{$row['image_path']}' target='_blank'>عرض الصورة المرفقة</a></p>" : "";
-            $output .= "<div class='visit-record'>
-                <h4>تاريخ الزيارة: {$row['visit_date']}</h4>
-                <p><strong>الوصفة:</strong><br>" . nl2br(htmlspecialchars($row['prescription'])) . "</p>
-                <p><strong>ملاحظات:</strong><br>" . nl2br(htmlspecialchars($row['notes'])) . "</p>
-                {$image_tag}
-            </div>";
-        }
-    } else {
-        $output = "<p>لا يوجد سجل زيارات لهذا المريض.</p>";
-    }
-    echo $output;
-}
-
-function get_stats($conn) {
-    header('Content-Type: application/json; charset=utf-8');
+    <UserControl.DataContext>
+        <vm:PatientViewModel/>
+    </UserControl.DataContext>
     
-    $today = date("Y-m-d");
-    $month = date("m");
-    $year = date("Y");
+    <Grid Margin="10">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="2*"/>
+            <ColumnDefinition Width="1*"/>
+        </Grid.ColumnDefinitions>
 
-    $monthly = $conn->query("SELECT SUM(ticket_price) as total FROM visits WHERE MONTH(visit_date) = $month AND YEAR(visit_date) = $year")->fetch_assoc();
-    $daily_income = $conn->query("SELECT SUM(ticket_price) as total FROM visits WHERE visit_date = '$today'")->fetch_assoc();
-    $daily_visits = $conn->query("SELECT COUNT(id) as total FROM visits WHERE visit_date = '$today'")->fetch_assoc();
-    $total_visits = $conn->query("SELECT COUNT(id) as total FROM visits")->fetch_assoc();
+        <Border Grid.Column="0" BorderBrush="LightGray" BorderThickness="1" CornerRadius="5">
+            <DataGrid ItemsSource="{Binding Patients}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="الرقم الطبي" Binding="{Binding MedicalId}" Width="*"/>
+                    <DataGridTextColumn Header="اسم المريض" Binding="{Binding FullName}" Width="2*"/>
+                    <DataGridTextColumn Header="تاريخ الميلاد" Binding="{Binding DateOfBirth, StringFormat='dd/MM/yyyy'}" Width="*"/>
+                    <DataGridTextColumn Header="الجنس" Binding="{Binding Gender}" Width="*"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Border>
 
-    $stats = [
-        'monthly_income' => number_format($monthly['total'] ?? 0),
-        'daily_income' => number_format($daily_income['total'] ?? 0),
-        'daily_visits' => $daily_visits['total'] ?? 0,
-        'total_visits' => $total_visits['total'] ?? 0,
-    ];
+        <StackPanel Grid.Column="1" Margin="10,0,0,0">
+            <TextBlock Text="إضافة مريض جديد" FontSize="18" FontWeight="Bold" Margin="0,0,0,10"/>
 
-    echo json_encode($stats);
-}
+            <TextBlock Text="الرقم الطبي:" Margin="0,5,0,2"/>
+            <TextBox Text="{Binding MedicalId, UpdateSourceTrigger=PropertyChanged}" Padding="5"/>
 
-$conn->close();
-?>
+            <TextBlock Text="الاسم الكامل:" Margin="0,10,0,2"/>
+            <TextBox Text="{Binding FullName, UpdateSourceTrigger=PropertyChanged}" Padding="5"/>
+
+            <Button Content="إضافة المريض" Command="{Binding AddPatientCommand}" Margin="0,20,0,0" Padding="10,5" Background="DodgerBlue" Foreground="White"/>
+        </StackPanel>
+    </Grid>
+</UserControl>
+MainWindow.xaml
+                <Window x:Class="MedicalLabManager.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:MedicalLabManager"
+        xmlns:views="clr-namespace:MedicalLabManager.Views"
+        mc:Ignorable="d"
+        Title="برنامج إدارة المختبر الطبي" Height="600" Width="900" WindowStartupLocation="CenterScreen">
+    <Grid>
+        <TabControl>
+            <TabItem Header="إدارة المرضى">
+                <views:PatientView/>
+            </TabItem>
+            <TabItem Header="إدارة الفحوصات">
+                <TextBlock Text="واجهة إدارة الفحوصات ستكون هنا." HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="20"/>
+            </TabItem>
+            <TabItem Header="التقارير">
+                </TabItem>
+        </TabControl>
+    </Grid>
+</Window>
+
+                
