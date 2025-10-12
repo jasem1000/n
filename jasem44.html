@@ -1,10 +1,9 @@
-using MedicalLabManager.Models; // تم التعديل هنا
+using MedicalLabManager.Models; // تم تصحيح هذا السطر
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.IO;
 
-// تم التعديل هنا
-namespace MedicalLabManager.Data 
+namespace MedicalLabManager.Data // تم تصحيح هذا السطر
 {
     public class ApplicationDbContext : DbContext
     {
@@ -18,114 +17,51 @@ namespace MedicalLabManager.Data
         }
     }
 }
-قلجططم
-            using System.ComponentModel;
-using System.Runtime.CompilerServices;
+ر لتر اتتار
+    using System;
+using System.ComponentModel.DataAnnotations;
 
-// تم التعديل هنا
-namespace MedicalLabManager.ViewModels.Base 
+namespace MedicalLabManager.Models // تم تصحيح هذا السطر
 {
-    public abstract class ViewModelBase : INotifyPropertyChanged
+    public class Patient
     {
-        public event PropertyChangedEventHandler? PropertyChanged;
+        [Key]
+        public int Id { get; set; }
 
-        protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
+        [Required]
+        public string MedicalId { get; set; }
+
+        [Required]
+        public string FullName { get; set; }
+
+        public DateTime DateOfBirth { get; set; }
+
+        public string Gender { get; set; }
+
+        public string PhoneNumber { get; set; }
     }
 }
-ثبانةتنتتزززززز
-            using System;
-using System.Windows.Input;
+بنمممعغقصصير
+            using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
-// تم التعديل هنا
-namespace MedicalLabManager.ViewModels.Base 
+namespace MedicalLabManager.Models // تم تصحيح هذا السطر
 {
-    public class RelayCommand : ICommand
+    public class LabTest
     {
-        private readonly Action<object?> _execute;
-        private readonly Func<object?, bool>? _canExecute;
+        [Key]
+        public int Id { get; set; }
 
-        public event EventHandler? CanExecuteChanged
-        {
-            add { CommandManager.RequerySuggested += value; }
-            remove { CommandManager.RequerySuggested -= value; }
-        }
+        [Required]
+        public string TestName { get; set; }
 
-        public RelayCommand(Action<object?> execute, Func<object?, bool>? canExecute = null)
-        {
-            _execute = execute ?? throw new ArgumentNullException(nameof(execute));
-            _canExecute = canExecute;
-        }
+        public string Category { get; set; }
 
-        public bool CanExecute(object? parameter) => _canExecute == null || _canExecute(parameter);
+        [Column(TypeName = "decimal(18, 2)")]
+        public decimal Price { get; set; }
 
-        public void Execute(object? parameter) => _execute(parameter);
+        public string NormalRange { get; set; }
     }
 }
-صصثصصصثثثثثث
-            using MedicalLabManager.Data;
-using MedicalLabManager.Models;
-using MedicalLabManager.ViewModels.Base; // تم التعديل هنا
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Windows;
-
-// تم التعديل هنا
-namespace MedicalLabManager.ViewModels 
-{
-    public class PatientViewModel : ViewModelBase
-    {
-        private readonly ApplicationDbContext _context = new ApplicationDbContext();
-
-        private ObservableCollection<Patient> _patients;
-        public ObservableCollection<Patient> Patients
-        {
-            get { return _patients; }
-            set { _patients = value; OnPropertyChanged(); }
-        }
-
-        private string _medicalId;
-        public string MedicalId { get => _medicalId; set { _medicalId = value; OnPropertyChanged(); } }
-
-        private string _fullName;
-        public string FullName { get => _fullName; set { _fullName = value; OnPropertyChanged(); } }
-
-        public RelayCommand AddPatientCommand { get; }
-
-        public PatientViewModel()
-        {
-            LoadPatients();
-            AddPatientCommand = new RelayCommand(AddPatient, CanAddPatient);
-        }
-
-        private void LoadPatients()
-        {
-            var patientList = _context.Patients.ToList();
-            Patients = new ObservableCollection<Patient>(patientList);
-        }
-
-        private void AddPatient(object? parameter)
-        {
-            var newPatient = new Patient
-            {
-                MedicalId = this.MedicalId,
-                FullName = this.FullName,
-                DateOfBirth = System.DateTime.Now,
-                Gender = "N/A"
-            };
-
-            _context.Patients.Add(newPatient);
-            _context.SaveChanges();
-
-            Patients.Add(newPatient);
-            MessageBox.Show("تمت إضافة المريض بنجاح!");
-        }
-
-        private bool CanAddPatient(object? parameter)
-        {
-            return !string.IsNullOrWhiteSpace(MedicalId) && !string.IsNullOrWhiteSpace(FullName);
-        }
-    }
-}
+لاعموابلتتلفغ
+            Add-Migration InitialCreate
