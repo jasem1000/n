@@ -1,4 +1,6 @@
+سأرسل لك الكود الكامل المحدث مع جميع التحسينات:
 
+```python
 import sqlite3
 import tkinter as tk
 from tkinter import messagebox, ttk, filedialog
@@ -41,7 +43,9 @@ def create_database():
         conn.commit()
 
 create_database()
+
 def print_pdf(title, details, filename=None):
+    """طباعة ملف PDF مع دعم محسن للغة العربية"""
     if not filename:
         filename = f"{title.lower().replace(' ', '_')}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
     
@@ -49,18 +53,11 @@ def print_pdf(title, details, filename=None):
         doc = SimpleDocTemplate(filename, pagesize=A4, rightMargin=50, leftMargin=50, 
                                 topMargin=50, bottomMargin=50)
         
-        # محاولة تسجيل خط عربي (إذا كان متوفراً)
-        try:
-            # يمكن استخدام خطوط عربية مثل Arial أو Traditional Arabic
-            # يجب تحميل ملف الخط أولاً
-            # pdfmetrics.registerFont(TTFont('Arabic', 'Arial.ttf'))
-            arabic_font = 'Helvetica'  # استخدام خط افتراضي
-        except:
-            arabic_font = 'Helvetica'
+        # استخدام خط يدعم Unicode
+        arabic_font = 'Helvetica'
         
         styles = getSampleStyleSheet()
         
-        # نمط العنوان مع محاذاة للعربية
         title_style = ParagraphStyle(
             'ArabicTitle',
             parent=styles['Heading1'],
@@ -72,7 +69,6 @@ def print_pdf(title, details, filename=None):
             leading=24
         )
         
-        # نمط النص العادي
         normal_style = ParagraphStyle(
             'ArabicNormal',
             parent=styles['Normal'],
@@ -86,7 +82,7 @@ def print_pdf(title, details, filename=None):
         
         content = []
         
-        # إضافة شعار أو عنوان رئيسي
+        # العنوان
         header = Paragraph(f"<b>{title}</b>", title_style)
         content.append(header)
         content.append(Spacer(1, 20))
@@ -100,16 +96,14 @@ def print_pdf(title, details, filename=None):
         content.append(separator_table)
         content.append(Spacer(1, 15))
         
-        # تحويل التفاصيل إلى جدول
-        data = [['القيمة', 'البيان']]  # عكس الترتيب للعربية
+        # جدول البيانات - عكس الترتيب للعربية
+        data = [['Value / القيمة', 'Field / البيان']]
         for key, value in details.items():
-            # تحويل القيم للنص لضمان التوافق
             data.append([str(value), str(key)])
         
         # إنشاء الجدول
-        table = Table(data, colWidths=[200, 200])
+        table = Table(data, colWidths=[250, 250])
         table.setStyle(TableStyle([
-            # تنسيق الرأس
             ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#3498db')),
             ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
             ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
@@ -117,8 +111,6 @@ def print_pdf(title, details, filename=None):
             ('FONTSIZE', (0, 0), (-1, 0), 12),
             ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
             ('TOPPADDING', (0, 0), (-1, 0), 12),
-            
-            # تنسيق البيانات
             ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
             ('FONTNAME', (0, 1), (-1, -1), arabic_font),
             ('FONTSIZE', (0, 1), (-1, -1), 10),
@@ -132,10 +124,10 @@ def print_pdf(title, details, filename=None):
         
         content.append(Spacer(1, 30))
         
-        # إضافة التاريخ والوقت
+        # التذييل
         date_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        footer_text = f"<i>تاريخ الطباعة: {date_time}</i>"
-        footer = Paragraph(footer_text, normal_style)
+        footer_text = f"Print Date / تاريخ الطباعة: {date_time}"
+        footer = Paragraph(f"<i>{footer_text}</i>", normal_style)
         content.append(footer)
         
         # بناء المستند
@@ -153,7 +145,6 @@ def print_pdf(title, details, filename=None):
         messagebox.showerror("خطأ", f"خطأ في الطباعة: {str(e)}")
         logging.error(f"خطأ في الطباعة: {str(e)}")
 
-# تشفير كلمة المرور
 def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
 
@@ -232,7 +223,7 @@ class ModernWorkshopApp:
                  bg=self.colors['dark'], 
                  fg='white').pack()
         
-        tk.Label(title_frame, text="الإصدار الاحترافي v2.0", 
+        tk.Label(title_frame, text="الإصدار الاحترافي v2.1", 
                  font=('Arial', 12), 
                  bg=self.colors['dark'], 
                  fg=self.colors['primary']).pack()
@@ -294,7 +285,7 @@ class ModernWorkshopApp:
                  bg=self.colors['dark'], 
                  fg=self.colors['primary']).pack()
         
-        self.create_dashboard()
+        # إزالة الإحصائيات السريعة - مباشرة إلى الإجراءات
         self.create_quick_actions()
 
     def create_menubar(self):
@@ -328,54 +319,6 @@ class ModernWorkshopApp:
         menubar.add_cascade(label="الإعدادات", menu=settings_menu)
         
         self.root.config(menu=menubar)
-
-    def create_dashboard(self):
-        dashboard_frame = tk.Frame(self.root, bg='white', relief='raised', bd=2)
-        dashboard_frame.pack(fill=tk.X, padx=20, pady=10)
-        
-        tk.Label(dashboard_frame, text="الإحصائيات السريعة", 
-                 font=('Arial', 14, 'bold'), 
-                 bg='white').pack(pady=10)
-        
-        stats_frame = tk.Frame(dashboard_frame, bg='white')
-        stats_frame.pack(fill=tk.X, padx=20, pady=10)
-        
-        with sqlite3.connect('workshop.db') as conn:
-            c = conn.cursor()
-            
-            c.execute("SELECT COUNT(*) FROM repairs WHERE status='قيد الإصلاح'")
-            pending_repairs = c.fetchone()[0]
-            
-            c.execute("SELECT COUNT(*) FROM sales WHERE sale_type='أقساط' AND installments_remaining > 0")
-            pending_installments = c.fetchone()[0]
-            
-            c.execute("SELECT SUM(amount) FROM sales WHERE strftime('%Y-%m', sale_date)=strftime('%Y-%m', 'now')")
-            monthly_sales = c.fetchone()[0] or 0
-            
-            c.execute("SELECT COUNT(*) FROM products WHERE quantity > 0")
-            available_products = c.fetchone()[0]
-            
-            c.execute("SELECT SUM(final_cost) FROM repairs WHERE exit_date IS NOT NULL AND strftime('%Y-%m', exit_date)=strftime('%Y-%m', 'now')")
-            monthly_repairs_revenue = c.fetchone()[0] or 0
-        
-        stats_data = [
-            ("الصيانات المعلقة", pending_repairs, self.colors['warning']),
-            ("الأقساط المستحقة", pending_installments, self.colors['danger']),
-            ("المبيعات الشهرية", f"{monthly_sales:.2f} $", self.colors['success']),
-            ("إيرادات الصيانات", f"{monthly_repairs_revenue:.2f} $", self.colors['info']),
-            ("المنتجات المتاحة", available_products, self.colors['primary'])
-        ]
-        
-        for i, (title, value, color) in enumerate(stats_data):
-            stat_card = tk.Frame(stats_frame, bg=color, relief='raised', bd=2)
-            stat_card.grid(row=0, column=i, padx=10, pady=5, sticky='ew')
-            
-            tk.Label(stat_card, text=title, font=('Arial', 10, 'bold'), 
-                     bg=color, fg='white').pack(pady=(10, 0))
-            tk.Label(stat_card, text=str(value), font=('Arial', 16, 'bold'), 
-                     bg=color, fg='white').pack(pady=(0, 10))
-            
-            stats_frame.columnconfigure(i, weight=1)
 
     def create_quick_actions(self):
         actions_frame = tk.Frame(self.root, bg='white', relief='raised', bd=2)
@@ -630,7 +573,6 @@ class ModernWorkshopApp:
             selected = tree.selection()
             if not selected:
                 messagebox.showwarning("تحذير", "يرجى اختيار منتج للحذف")
-
                 return
             
             if messagebox.askyesno("تأكيد", "هل أنت متأكد من حذف هذا المنتج؟"):
@@ -659,7 +601,8 @@ class ModernWorkshopApp:
     def add_sale(self):
         window = tk.Toplevel(self.root)
         window.title("إضافة بيع جديد")
-        window.geometry("600x500")
+        ```python
+        window.geometry("600x650")
         window.configure(bg='white')
         self.center_window(window)
         
@@ -670,7 +613,21 @@ class ModernWorkshopApp:
         form_frame = tk.Frame(window, bg='white')
         form_frame.pack(fill=tk.BOTH, expand=True, padx=30)
         
-        tk.Label(form_frame, text="اختر المنتج:", font=('Arial', 11), bg='white').grid(row=0, column=0, sticky='e', pady=8)
+        # قسم البحث عن المنتج
+        search_frame = tk.Frame(form_frame, bg='#e8f4f8', relief='ridge', bd=2)
+        search_frame.grid(row=0, column=0, columnspan=2, sticky='ew', pady=10, padx=5)
+        
+        tk.Label(search_frame, text="🔍 بحث عن المنتج:", font=('Arial', 11, 'bold'), 
+                 bg='#e8f4f8').pack(anchor='w', padx=10, pady=5)
+        
+        search_input_frame = tk.Frame(search_frame, bg='#e8f4f8')
+        search_input_frame.pack(fill=tk.X, padx=10, pady=5)
+        
+        product_search_entry = tk.Entry(search_input_frame, font=('Arial', 11), width=30, bg='white')
+        product_search_entry.pack(side=tk.LEFT, padx=5)
+        
+        # قائمة المنتجات
+        tk.Label(form_frame, text="اختر المنتج:", font=('Arial', 11), bg='white').grid(row=1, column=0, sticky='e', pady=8)
         
         with sqlite3.connect('workshop.db') as conn:
             c = conn.cursor()
@@ -678,9 +635,26 @@ class ModernWorkshopApp:
             products = c.fetchall()
         
         product_var = tk.StringVar()
-        product_combo = ttk.Combobox(form_frame, textvariable=product_var, font=('Arial', 11))
-        product_combo['values'] = [f"{p[0]} - {p[1]} (${p[2]}) - متوفر: {p[3]}" for p in products]
-        product_combo.grid(row=0, column=1, sticky='ew', pady=8, padx=10)
+        product_combo = ttk.Combobox(form_frame, textvariable=product_var, font=('Arial', 11), width=35)
+        product_combo['values'] = [f"{p[0]} - {p[1]} (${p[2]:.2f}) - متوفر: {p[3]}" for p in products]
+        product_combo.grid(row=1, column=1, sticky='ew', pady=8, padx=10)
+        
+        def search_product():
+            search_text = product_search_entry.get().strip().lower()
+            if not search_text:
+                product_combo['values'] = [f"{p[0]} - {p[1]} (${p[2]:.2f}) - متوفر: {p[3]}" for p in products]
+                return
+            
+            filtered = [p for p in products if search_text in p[1].lower()]
+            product_combo['values'] = [f"{p[0]} - {p[1]} (${p[2]:.2f}) - متوفر: {p[3]}" for p in filtered]
+            
+            if filtered:
+                product_combo.current(0)
+        
+        tk.Button(search_input_frame, text="بحث", bg=self.colors['primary'], fg='white',
+                  font=('Arial', 9, 'bold'), command=search_product).pack(side=tk.LEFT, padx=5)
+        
+        product_search_entry.bind('<Return>', lambda e: search_product())
         
         fields = [
             ("اسم الزبون:", "entry"),
@@ -690,7 +664,7 @@ class ModernWorkshopApp:
         ]
         
         entries = {}
-        for i, (label, field_type) in enumerate(fields, 1):
+        for i, (label, field_type) in enumerate(fields, 2):
             tk.Label(form_frame, text=label, font=('Arial', 11), 
                      bg='white').grid(row=i, column=0, sticky='e', pady=8, padx=10)
             
@@ -703,16 +677,16 @@ class ModernWorkshopApp:
             
             entries[label] = entry
         
-        tk.Label(form_frame, text="نوع البيع:", font=('Arial', 11), bg='white').grid(row=5, column=0, sticky='e', pady=8)
+        tk.Label(form_frame, text="نوع البيع:", font=('Arial', 11), bg='white').grid(row=6, column=0, sticky='e', pady=8)
         sale_type_var = tk.StringVar(value="نقدي")
         sale_type_frame = tk.Frame(form_frame, bg='white')
-        sale_type_frame.grid(row=5, column=1, sticky='w', pady=8, padx=10)
+        sale_type_frame.grid(row=6, column=1, sticky='w', pady=8, padx=10)
         ttk.Radiobutton(sale_type_frame, text="نقدي", variable=sale_type_var, value="نقدي").pack(side=tk.LEFT)
         ttk.Radiobutton(sale_type_frame, text="أقساط", variable=sale_type_var, value="أقساط").pack(side=tk.LEFT)
         
-        tk.Label(form_frame, text="الأقساط المتبقية:", font=('Arial', 11), bg='white').grid(row=6, column=0, sticky='e', pady=8)
+        tk.Label(form_frame, text="عدد الأقساط:", font=('Arial', 11), bg='white').grid(row=7, column=0, sticky='e', pady=8)
         installments_entry = tk.Entry(form_frame, font=('Arial', 11), bg='#f8f9fa')
-        installments_entry.grid(row=6, column=1, sticky='ew', pady=8, padx=10)
+        installments_entry.grid(row=7, column=1, sticky='ew', pady=8, padx=10)
         installments_entry.insert(0, "0")
         
         form_frame.columnconfigure(1, weight=1)
@@ -727,6 +701,10 @@ class ModernWorkshopApp:
                 
                 if quantity <= 0:
                     raise ValueError("يرجى إدخال كمية صحيحة")
+                
+                customer_name = entries["اسم الزبون:"].get().strip()
+                if not customer_name:
+                    raise ValueError("يرجى إدخال اسم الزبون")
                 
                 with sqlite3.connect('workshop.db') as conn:
                     c = conn.cursor()
@@ -748,30 +726,31 @@ class ModernWorkshopApp:
                     
                     c.execute('''INSERT INTO sales 
                               (product_id, device_name, customer_name, customer_phone, sale_type, 
-                              installments_remaining, sale_date, amount, notes) 
-                              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)''',
+                              installments_remaining, sale_date, amount, paid_amount, notes) 
+                              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''',
                              (product_id,
                               product[2],
-                              entries["اسم الزبون:"].get().strip(),
+                              customer_name,
                               entries["رقم الهاتف:"].get().strip(),
                               sale_type_var.get(),
                               installments,
                               datetime.now().date(),
                               total_amount,
+                              0 if sale_type_var.get() == "أقساط" else total_amount,
                               entries["ملاحظات:"].get("1.0", tk.END).strip()))
                     conn.commit()
                 
                 details = {
-                    "المنتج": product[2],
-                    "الزبون": entries["اسم الزبون:"].get(),
-                    "الهاتف": entries["رقم الهاتف:"].get(),
-                    "الكمية": quantity,
-                    "سعر الوحدة": f"${product[1]:.2f}",
-                    "المبلغ الإجمالي": f"${total_amount:.2f}",
-                    "نوع البيع": sale_type_var.get(),
-                    "الأقساط المتبقية": installments
+                    "Product / المنتج": product[2],
+                    "Customer / الزبون": customer_name,
+                    "Phone / الهاتف": entries["رقم الهاتف:"].get() or "N/A",
+                    "Quantity / الكمية": quantity,
+                    "Unit Price / سعر الوحدة": f"${product[1]:.2f}",
+                    "Total Amount / المبلغ الإجمالي": f"${total_amount:.2f}",
+                    "Sale Type / نوع البيع": sale_type_var.get(),
+                    "Installments / الأقساط": installments if sale_type_var.get() == "أقساط" else "Cash Payment"
                 }
-                print_pdf("ايصال بيع", details)
+                print_pdf("Sales Receipt - ايصال بيع", details)
                 
                 messagebox.showinfo("نجاح", "تم إضافة البيع بنجاح!")
                 logging.info(f"تم إضافة بيع جديد للمنتج ID: {product_id}")
@@ -998,16 +977,16 @@ class ModernWorkshopApp:
                         conn.commit()
                     
                     details = {
-                        "رقم الصيانة": values[0],
-                        "اسم الجهاز": values[1],
-                        "اسم المالك": values[2],
-                        "رقم الهاتف": values[3],
-                        "الحالة": "مكتملة",
-                        "التكلفة النهائية": f"${final_cost:.2f}",
-                        "تاريخ الدخول": values[7],
-                        "تاريخ الخروج": datetime.now().date()
+                        "Repair ID / رقم الصيانة": values[0],
+                        "Device / اسم الجهاز": values[1],
+                        "Owner / اسم المالك": values[2],
+                        "Phone / رقم الهاتف": values[3] or "N/A",
+                        "Status / الحالة": "Completed / مكتملة",
+                        "Final Cost / التكلفة النهائية": f"${final_cost:.2f}",
+                        "Entry Date / تاريخ الدخول": values[7],
+                        "Exit Date / تاريخ الخروج": datetime.now().date()
                     }
-                    print_pdf("ايصال خروج صيانة", details)
+                    print_pdf("Repair Receipt - ايصال خروج صيانة", details)
                     
                     messagebox.showinfo("نجاح", "تم إكمال الصيانة بنجاح!")
                     logging.info(f"تم إكمال صيانة ID: {values[0]}")
@@ -1061,18 +1040,18 @@ class ModernWorkshopApp:
                 full_data = c.fetchone()
             
             details = {
-                "رقم الصيانة": full_data[0],
-                "اسم الجهاز": full_data[1],
-                "اسم المالك": full_data[2],
-                "رقم الهاتف": full_data[3] or "غير محدد",
-                "الحالة": full_data[4],
-                "التكلفة المتوقعة": f"${full_data[8]:.2f}" if full_data[8] else "$0.00",
-                "التكلفة النهائية": f"${full_data[9]:.2f}" if full_data[9] else "$0.00",
-                "تاريخ الدخول": full_data[5],
-                "تاريخ الخروج": full_data[6] or "غير محدد",
-                "وصف المشكلة": full_data[7] or "لا يوجد"
+                "Repair ID / رقم الصيانة": full_data[0],
+                "Device / اسم الجهاز": full_data[1],
+                "Owner / اسم المالك": full_data[2],
+                "Phone / رقم الهاتف": full_data[3] or "N/A",
+                "Status / الحالة": full_data[4],
+                "Est. Cost / التكلفة المتوقعة": f"${full_data[8]:.2f}" if full_data[8] else "$0.00",
+                "Final Cost / التكلفة النهائية": f"${full_data[9]:.2f}" if full_data[9] else "$0.00",
+                "Entry Date / تاريخ الدخول": full_data[5],
+                "Exit Date / تاريخ الخروج": full_data[6] or "N/A",
+                "Description / وصف المشكلة": full_data[7] or "N/A"
             }
-            print_pdf("ايصال صيانة", details)
+            print_pdf("Repair Receipt - ايصال صيانة", details)
         
         btn_frame = tk.Frame(window, bg='white')
         btn_frame.pack(pady=10)
@@ -1147,7 +1126,7 @@ class ModernWorkshopApp:
             with sqlite3.connect('workshop.db') as conn:
                 c = conn.cursor()
                 
-                if search_text:
+                if search_text:```python
                     c.execute('''SELECT id, device_name, customer_name, customer_phone, sale_type, 
                               installments_remaining, amount, paid_amount, sale_date FROM sales 
                               WHERE device_name LIKE ? OR customer_name LIKE ? OR customer_phone LIKE ?''',
@@ -1168,8 +1147,7 @@ class ModernWorkshopApp:
                 messagebox.showwarning("تحذير", "يرجى اختيار عملية بيع للحذف")
                 return
             
-            if messagebox.askyesno("تأكيد الحذف", " من حذف هذه العملية؟\nلا يمكن التراجع عن هذا الإجراء!"):
-
+            if messagebox.askyesno("تأكيد الحذف", "هل أنت متأكد من حذف هذه العملية؟\nلا يمكن التراجع عن هذا الإجراء!"):
                 item = tree.item(selected[0])
                 sale_id = item['values'][0]
                 
@@ -1197,7 +1175,6 @@ class ModernWorkshopApp:
         window.configure(bg='white')
         self.center_window(window)
         
-        # العنوان الرئيسي
         header_frame = tk.Frame(window, bg=self.colors['primary'], height=80)
         header_frame.pack(fill=tk.X)
         header_frame.pack_propagate(False)
@@ -1207,7 +1184,6 @@ class ModernWorkshopApp:
                  bg=self.colors['primary'], 
                  fg='white').pack(expand=True)
         
-        # قسم البحث
         search_frame = tk.Frame(window, bg='white')
         search_frame.pack(fill=tk.X, padx=30, pady=20)
         
@@ -1225,7 +1201,6 @@ class ModernWorkshopApp:
         search_entry = tk.Entry(search_input_frame, font=('Arial', 12), bg='#f8f9fa', width=25)
         search_entry.pack(side=tk.LEFT, padx=5)
         
-        # معلومات البيع
         info_frame = tk.Frame(window, bg='#f8f9fa', relief='raised', bd=2)
         info_frame.pack(fill=tk.BOTH, expand=True, padx=30, pady=10)
         
@@ -1233,7 +1208,6 @@ class ModernWorkshopApp:
                  font=('Arial', 13, 'bold'), 
                  bg='#f8f9fa').pack(pady=10)
         
-        # عرض البيانات
         data_frame = tk.Frame(info_frame, bg='white', relief='solid', bd=1)
         data_frame.pack(fill=tk.BOTH, expand=True, padx=15, pady=10)
         
@@ -1267,7 +1241,6 @@ class ModernWorkshopApp:
             value_label.pack(side=tk.LEFT, padx=10)
             info_labels[key] = value_label
         
-        # قسم الدفع
         payment_frame = tk.Frame(window, bg='white')
         payment_frame.pack(fill=tk.X, padx=30, pady=15)
         
@@ -1281,7 +1254,7 @@ class ModernWorkshopApp:
         
         payment_frame.columnconfigure(1, weight=1)
         
-        current_sale_id = [None]  # استخدام قائمة للحفاظ على المرجع
+        current_sale_id = [None]
         
         def search_sale():
             search_text = search_entry.get().strip()
@@ -1293,7 +1266,6 @@ class ModernWorkshopApp:
                 with sqlite3.connect('workshop.db') as conn:
                     c = conn.cursor()
                     
-                    # البحث برقم البيع أو اسم الزبون
                     if search_text.isdigit():
                         c.execute('''SELECT id, device_name, customer_name, customer_phone, 
                                   amount, paid_amount, installments_remaining 
@@ -1314,7 +1286,6 @@ class ModernWorkshopApp:
                         messagebox.showinfo("مكتمل", "جميع الأقساط مدفوعة لهذا البيع!")
                         return
                     
-                    # تحديث البيانات
                     current_sale_id[0] = sale[0]
                     info_labels['sale_id'].config(text=str(sale[0]), fg=self.colors['primary'])
                     info_labels['product'].config(text=sale[1])
@@ -1331,7 +1302,6 @@ class ModernWorkshopApp:
                                                        fg=self.colors['warning'],
                                                        font=('Arial', 11, 'bold'))
                     
-                    # اقتراح قيمة القسط
                     suggested_amount = remaining_amount / sale[6]
                     amount_entry.delete(0, tk.END)
                     amount_entry.insert(0, f"{suggested_amount:.2f}")
@@ -1379,19 +1349,18 @@ class ModernWorkshopApp:
                               WHERE id=?''', (new_installments, new_paid_amount, current_sale_id[0]))
                     conn.commit()
                 
-                # طباعة إيصال الدفع
                 details = {
-                    "رقم البيع": current_sale_id[0],
-                    "المنتج": sale[3],
-                    "الزبون": sale[4],
-                    "رقم الهاتف": sale[5] or "غير محدد",
-                    "المبلغ المدفوع": f"${amount:.2f}",
-                    "الأقساط المتبقية": new_installments,
-                    "الإجمالي المدفوع": f"${new_paid_amount:.2f}",
-                    "المبلغ الكلي": f"${sale[1]:.2f}",
-                    "المبلغ المتبقي": f"${sale[1] - new_paid_amount:.2f}"
+                    "Sale ID / رقم البيع": current_sale_id[0],
+                    "Product / المنتج": sale[3],
+                    "Customer / الزبون": sale[4],
+                    "Phone / رقم الهاتف": sale[5] or "N/A",
+                    "Payment / المبلغ المدفوع": f"${amount:.2f}",
+                    "Remaining Inst. / الأقساط المتبقية": new_installments,
+                    "Total Paid / الإجمالي المدفوع": f"${new_paid_amount:.2f}",
+                    "Total Amount / المبلغ الكلي": f"${sale[1]:.2f}",
+                    "Balance / المبلغ المتبقي": f"${sale[1] - new_paid_amount:.2f}"
                 }
-                print_pdf("ايصال دفع قسط", details)
+                print_pdf("Installment Receipt - ايصال دفع قسط", details)
                 
                 messagebox.showinfo("نجاح ✓", 
                                    f"تم دفع القسط بنجاح!\n\n"
@@ -1409,7 +1378,6 @@ class ModernWorkshopApp:
                 messagebox.showerror("خطأ", f"حدث خطأ أثناء الدفع: {str(e)}")
                 logging.error(f"خطأ في دفع القسط: {str(e)}")
         
-        # الأزرار
         btn_frame = tk.Frame(window, bg='white')
         btn_frame.pack(pady=15)
         
@@ -1435,7 +1403,6 @@ class ModernWorkshopApp:
         window.configure(bg='white')
         self.center_window(window)
         
-        # العنوان
         header_frame = tk.Frame(window, bg=self.colors['purple'], height=80)
         header_frame.pack(fill=tk.X)
         header_frame.pack_propagate(False)
@@ -1445,14 +1412,12 @@ class ModernWorkshopApp:
                  bg=self.colors['purple'], 
                  fg='white').pack(expand=True)
         
-        # محتوى التقرير
         report_frame = tk.Frame(window, bg='white')
         report_frame.pack(fill=tk.BOTH, expand=True, padx=20, pady=20)
         
         with sqlite3.connect('workshop.db') as conn:
             c = conn.cursor()
             
-            # إحصائيات الصيانات
             c.execute("SELECT COUNT(*) FROM repairs")
             total_repairs = c.fetchone()[0]
             
@@ -1465,7 +1430,6 @@ class ModernWorkshopApp:
             c.execute("SELECT SUM(final_cost) FROM repairs WHERE status='مكتملة'")
             total_repairs_revenue = c.fetchone()[0] or 0
             
-            # إحصائيات المبيعات
             c.execute("SELECT COUNT(*) FROM sales")
             total_sales = c.fetchone()[0]
             
@@ -1478,7 +1442,6 @@ class ModernWorkshopApp:
             c.execute("SELECT SUM(paid_amount) FROM sales")
             total_paid = c.fetchone()[0] or 0
             
-            # إحصائيات المنتجات
             c.execute("SELECT COUNT(*) FROM products")
             total_products = c.fetchone()[0]
             
@@ -1488,7 +1451,6 @@ class ModernWorkshopApp:
             c.execute("SELECT COUNT(*) FROM products WHERE quantity < 5")
             low_stock = c.fetchone()[0]
         
-        # تنسيق العرض
         categories = [
             ("📋 الصيانات", [
                 ("إجمالي الصيانات", total_repairs, 'primary'),
@@ -1592,8 +1554,8 @@ class ModernWorkshopApp:
             new_password = new_password_entry.get()
             confirm_password = confirm_password_entry.get()
             
-            if len(new_password) < 8:
-                messagebox.showerror("خطأ", "كلمة المرور يجب أن تكون 8 أحرف على الأقل")
+            if len(new_password) < 6:
+                messagebox.showerror("خطأ", "كلمة المرور يجب أن تكون 6 أحرف على الأقل")
                 return
             
             if new_password != confirm_password:
@@ -1664,13 +1626,158 @@ class ModernWorkshopApp:
                         writer.writerows(products_data)
                 
                 messagebox.showinfo("نجاح", f"تم تصدير البيانات إلى:\n• {repairs_file}\n• {sales_file}\n• {products_file}")
-                logging.info(f"تم تصدير البيانات إلى {filename}")
+                logging.info(f"تم تصدير البيانات")
             except Exception as e:
                 messagebox.showerror("خطأ", f"حدث خطأ أثناء التصدير: {str(e)}")
                 logging.error(f"خطأ في التصدير: {str(e)}")
 
     def import_data(self):
-        messagebox.showinfo("معلومات", "ميزة الاستيراد قيد التطوير.\nيمكنك استخدام النسخ الاحتياطي لاستعادة البيانات.")
+        """استيراد البيانات من ملفات CSV"""
+        import_window = tk.Toplevel(self.root)
+        import_window.title("استيراد البيانات")
+        import_window.geometry("500x400")
+        import_window.configure(bg='white')
+        self.center_window(import_window)
+        
+        tk.Label(import_window, text="استيراد البيانات من ملفات CSV", 
+                 font=('Arial', 16, 'bold'), bg='white').pack(pady=20)
+        
+        info_frame = tk.Frame(import_window, bg='#e8f4f8', relief='ridge', bd=2)
+        info_frame.pack(fill=tk.X, padx=20, pady=10)
+        
+        tk.Label(info_frame, text="ملاحظة: يجب أن تكون ملفات CSV بنفس تنسيق التصدير", 
+                 font=('Arial', 10), bg='#e8f4f8', fg='#0066cc').pack(pady=10)
+        
+        btn_frame = tk.Frame(import_window, bg='white')
+        btn_frame.pack(expand=True, pady=20)
+        
+        def import_repairs():
+            filename = filedialog.askopenfilename(
+                title="اختر ملف الصيانات",
+                filetypes=[("CSV files", "*.csv"), ("All files", "*.*")]
+            )
+            if filename:
+                try:```python
+                    with open(filename, 'r', encoding='utf-8-sig') as f:
+                        reader = csv.reader(f)
+                        next(reader)  # تخطي رأس الجدول
+                        
+                        with sqlite3.connect('workshop.db') as conn:
+                            c = conn.cursor()
+                            count = 0
+                            for row in reader:
+                                try:
+                                    c.execute('''INSERT INTO repairs 
+                                              (device_name, owner_name, owner_phone, status, entry_date, 
+                                              exit_date, description, estimated_cost, final_cost) 
+                                              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)''',
+                                             (row[1], row[2], row[3], row[4], row[5], 
+                                              row[6] if row[6] else None, row[7], 
+                                              float(row[8]) if row[8] else 0, 
+                                              float(row[9]) if row[9] else 0))
+                                    count += 1
+                                except Exception as e:
+                                    logging.error(f"خطأ في استيراد سطر: {e}")
+                                    continue
+                            conn.commit()
+                    
+                    messagebox.showinfo("نجاح", f"تم استيراد {count} صيانة بنجاح!")
+                    logging.info(f"تم استيراد {count} صيانة")
+                except Exception as e:
+                    messagebox.showerror("خطأ", f"حدث خطأ أثناء الاستيراد: {str(e)}")
+                    logging.error(f"خطأ في استيراد الصيانات: {str(e)}")
+        
+        def import_sales():
+            filename = filedialog.askopenfilename(
+                title="اختر ملف المبيعات",
+                filetypes=[("CSV files", "*.csv"), ("All files", "*.*")]
+            )
+            if filename:
+                try:
+                    with open(filename, 'r', encoding='utf-8-sig') as f:
+                        reader = csv.reader(f)
+                        next(reader)  # تخطي رأس الجدول
+                        
+                        with sqlite3.connect('workshop.db') as conn:
+                            c = conn.cursor()
+                            count = 0
+                            for row in reader:
+                                try:
+                                    c.execute('''INSERT INTO sales 
+                                              (product_id, device_name, customer_name, customer_phone, 
+                                              sale_type, installments_remaining, sale_date, amount, 
+                                              paid_amount, notes) 
+                                              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''',
+                                             (int(row[1]) if row[1] else None, row[2], row[3], row[4], 
+                                              row[5], int(row[6]) if row[6] else 0, row[7], 
+                                              float(row[8]) if row[8] else 0, 
+                                              float(row[9]) if row[9] else 0, row[10]))
+                                    count += 1
+                                except Exception as e:
+                                    logging.error(f"خطأ في استيراد سطر: {e}")
+                                    continue
+                            conn.commit()
+                    
+                    messagebox.showinfo("نجاح", f"تم استيراد {count} عملية بيع بنجاح!")
+                    logging.info(f"تم استيراد {count} عملية بيع")
+                except Exception as e:
+                    messagebox.showerror("خطأ", f"حدث خطأ أثناء الاستيراد: {str(e)}")
+                    logging.error(f"خطأ في استيراد المبيعات: {str(e)}")
+        
+        def import_products():
+            filename = filedialog.askopenfilename(
+                title="اختر ملف المنتجات",
+                filetypes=[("CSV files", "*.csv"), ("All files", "*.*")]
+            )
+            if filename:
+                try:
+                    with open(filename, 'r', encoding='utf-8-sig') as f:
+                        reader = csv.reader(f)
+                        next(reader)  # تخطي رأس الجدول
+                        
+                        with sqlite3.connect('workshop.db') as conn:
+                            c = conn.cursor()
+                            count = 0
+                            for row in reader:
+                                try:
+                                    c.execute('''INSERT INTO products 
+                                              (product_name, category, price, quantity, description, 
+                                              created_date, last_updated) 
+                                              VALUES (?, ?, ?, ?, ?, ?, ?)''',
+                                             (row[1], row[2], 
+                                              float(row[3]) if row[3] else 0, 
+                                              int(row[4]) if row[4] else 0, 
+                                              row[5], row[6], row[7]))
+                                    count += 1
+                                except sqlite3.IntegrityError:
+                                    logging.warning(f"المنتج {row[1]} موجود مسبقاً")
+                                    continue
+                                except Exception as e:
+                                    logging.error(f"خطأ في استيراد سطر: {e}")
+                                    continue
+                            conn.commit()
+                    
+                    messagebox.showinfo("نجاح", f"تم استيراد {count} منتج بنجاح!")
+                    logging.info(f"تم استيراد {count} منتج")
+                except Exception as e:
+                    messagebox.showerror("خطأ", f"حدث خطأ أثناء الاستيراد: {str(e)}")
+                    logging.error(f"خطأ في استيراد المنتجات: {str(e)}")
+        
+        tk.Button(btn_frame, text="📥 استيراد الصيانات", bg=self.colors['primary'], fg='white',
+                  font=('Arial', 11, 'bold'), command=import_repairs, 
+                  width=20, height=2).pack(pady=10)
+        
+        tk.Button(btn_frame, text="📥 استيراد المبيعات", bg=self.colors['success'], fg='white',
+                  font=('Arial', 11, 'bold'), command=import_sales, 
+                  width=20, height=2).pack(pady=10)
+        
+        tk.Button(btn_frame, text="📥 استيراد المنتجات", bg=self.colors['info'], fg='white',
+                  font=('Arial', 11, 'bold'), command=import_products, 
+                  width=20, height=2).pack(pady=10)
+        
+        tk.Button(btn_frame, text="إغلاق", bg=self.colors['danger'], fg='white',
+                  font=('Arial', 11, 'bold'), command=import_window.destroy, 
+                  width=20, height=2).pack(pady=10)
 
     def show_dashboard(self):
         for widget in self.root.winfo_children():
@@ -1682,3 +1789,4 @@ if __name__ == "__main__":
     root = tk.Tk()
     app = ModernWorkshopApp(root)
     root.mainloop()
+ 
