@@ -41,10 +41,6 @@ def create_database():
         conn.commit()
 
 create_database()
-حاضر! إليك باقي الكود:
-
-```python
-# دالة طباعة PDF محسنة مع دعم العربية
 def print_pdf(title, details, filename=None):
     if not filename:
         filename = f"{title.lower().replace(' ', '_')}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
@@ -633,8 +629,8 @@ class ModernWorkshopApp:
         def delete_product():
             selected = tree.selection()
             if not selected:
-                messagebox.showwarning("تحذير", "يرجى اختيار منت ```python
-ج للحذف")
+                messagebox.showwarning("تحذير", "يرجى اختيار منتج للحذف")
+
                 return
             
             if messagebox.askyesno("تأكيد", "هل أنت متأكد من حذف هذا المنتج؟"):
@@ -1172,8 +1168,8 @@ class ModernWorkshopApp:
                 messagebox.showwarning("تحذير", "يرجى اختيار عملية بيع للحذف")
                 return
             
-            if messagebox.askyesno("تأكيد الحذف", "هل أنت متأكد ```python
- من حذف هذه العملية؟\nلا يمكن التراجع عن هذا الإجراء!"):
+            if messagebox.askyesno("تأكيد الحذف", " من حذف هذه العملية؟\nلا يمكن التراجع عن هذا الإجراء!"):
+
                 item = tree.item(selected[0])
                 sale_id = item['values'][0]
                 
