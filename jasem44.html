@@ -1,1684 +1,435 @@
-
-import sqlite3
-import tkinter as tk
-from tkinter import messagebox, ttk, filedialog
-from datetime import datetime
-import hashlib
-from reportlab.lib.pagesizes import letter, A4
-from reportlab.lib import colors
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
-from reportlab.lib.enums import TA_RIGHT, TA_CENTER
-from reportlab.pdfbase import pdfmetrics
-from reportlab.pdfbase.ttfonts import TTFont
-import csv
-import shutil
-import os
-import logging
-
-# إعداد التسجيل
-logging.basicConfig(filename='workshop.log', level=logging.INFO, 
-                    format='%(asctime)s - %(levelname)s - %(message)s')
-
-# إنشاء قاعدة البيانات
-def create_database():
-    with sqlite3.connect('workshop.db') as conn:
-        c = conn.cursor()
-        c.execute('''CREATE TABLE IF NOT EXISTS repairs
-                     (id INTEGER PRIMARY KEY, device_name TEXT NOT NULL, owner_name TEXT NOT NULL, 
-                     owner_phone TEXT, status TEXT DEFAULT 'قيد الإصلاح', entry_date DATE, 
-                     exit_date DATE, description TEXT, estimated_cost REAL DEFAULT 0, 
-                     final_cost REAL DEFAULT 0)''')
-        c.execute('''CREATE TABLE IF NOT EXISTS sales
-                     (id INTEGER PRIMARY KEY, product_id INTEGER, device_name TEXT NOT NULL, 
-                     customer_name TEXT NOT NULL, customer_phone TEXT, sale_type TEXT DEFAULT 'نقدي', 
-                     installments_remaining INTEGER DEFAULT 0, sale_date DATE, 
-                     amount REAL NOT NULL, paid_amount REAL DEFAULT 0, notes TEXT)''')
-        c.execute('''CREATE TABLE IF NOT EXISTS products
-                     (id INTEGER PRIMARY KEY, product_name TEXT NOT NULL UNIQUE, category TEXT, 
-                     price REAL DEFAULT 0, quantity INTEGER DEFAULT 0, description TEXT, 
-                     created_date DATE, last_updated DATE)''')
-        conn.commit()
-
-create_database()
-def print_pdf(title, details, filename=None):
-    if not filename:
-        filename = f"{title.lower().replace(' ', '_')}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام كاشير اللحوم المجمدة (دينار عراقي)</title>
     
-    try:
-        doc = SimpleDocTemplate(filename, pagesize=A4, rightMargin=50, leftMargin=50, 
-                                topMargin=50, bottomMargin=50)
-        
-        # محاولة تسجيل خط عربي (إذا كان متوفراً)
-        try:
-            # يمكن استخدام خطوط عربية مثل Arial أو Traditional Arabic
-            # يجب تحميل ملف الخط أولاً
-            # pdfmetrics.registerFont(TTFont('Arabic', 'Arial.ttf'))
-            arabic_font = 'Helvetica'  # استخدام خط افتراضي
-        except:
-            arabic_font = 'Helvetica'
-        
-        styles = getSampleStyleSheet()
-        
-        # نمط العنوان مع محاذاة للعربية
-        title_style = ParagraphStyle(
-            'ArabicTitle',
-            parent=styles['Heading1'],
-            fontName=arabic_font,
-            fontSize=18,
-            textColor=colors.HexColor('#2c3e50'),
-            alignment=TA_CENTER,
-            spaceAfter=20,
-            leading=24
-        )
-        
-        # نمط النص العادي
-        normal_style = ParagraphStyle(
-            'ArabicNormal',
-            parent=styles['Normal'],
-            fontName=arabic_font,
-            fontSize=11,
-            textColor=colors.black,
-            alignment=TA_RIGHT,
-            spaceAfter=10,
-            leading=16
-        )
-        
-        content = []
-        
-        # إضافة شعار أو عنوان رئيسي
-        header = Paragraph(f"<b>{title}</b>", title_style)
-        content.append(header)
-        content.append(Spacer(1, 20))
-        
-        # خط فاصل
-        separator_data = [['', '']]
-        separator_table = Table(separator_data, colWidths=[500])
-        separator_table.setStyle(TableStyle([
-            ('LINEBELOW', (0, 0), (-1, 0), 2, colors.HexColor('#3498db')),
-        ]))
-        content.append(separator_table)
-        content.append(Spacer(1, 15))
-        
-        # تحويل التفاصيل إلى جدول
-        data = [['القيمة', 'البيان']]  # عكس الترتيب للعربية
-        for key, value in details.items():
-            # تحويل القيم للنص لضمان التوافق
-            data.append([str(value), str(key)])
-        
-        # إنشاء الجدول
-        table = Table(data, colWidths=[200, 200])
-        table.setStyle(TableStyle([
-            # تنسيق الرأس
-            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#3498db')),
-            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-            ('FONTNAME', (0, 0), (-1, 0), arabic_font),
-            ('FONTSIZE', (0, 0), (-1, 0), 12),
-            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-            ('TOPPADDING', (0, 0), (-1, 0), 12),
-            
-            # تنسيق البيانات
-            ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
-            ('FONTNAME', (0, 1), (-1, -1), arabic_font),
-            ('FONTSIZE', (0, 1), (-1, -1), 10),
-            ('GRID', (0, 0), (-1, -1), 1, colors.grey),
-            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.lightgrey]),
-            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-            ('TOPPADDING', (0, 1), (-1, -1), 8),
-            ('BOTTOMPADDING', (0, 1), (-1, -1), 8),
-        ]))
-        content.append(table)
-        
-        content.append(Spacer(1, 30))
-        
-        # إضافة التاريخ والوقت
-        date_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        footer_text = f"<i>تاريخ الطباعة: {date_time}</i>"
-        footer = Paragraph(footer_text, normal_style)
-        content.append(footer)
-        
-        # بناء المستند
-        doc.build(content)
-        messagebox.showinfo("نجاح", f"تم إنشاء الملف بنجاح:\n{filename}")
-        logging.info(f"تم إنشاء PDF: {filename}")
-        
-        # فتح الملف تلقائياً
-        try:
-            os.startfile(filename)
-        except:
-            pass
-            
-    except Exception as e:
-        messagebox.showerror("خطأ", f"خطأ في الطباعة: {str(e)}")
-        logging.error(f"خطأ في الطباعة: {str(e)}")
-
-# تشفير كلمة المرور
-def hash_password(password):
-    return hashlib.sha256(password.encode()).hexdigest()
-
-class ModernWorkshopApp:
-    def __init__(self, root):
-        self.root = root
-        self.root.title("نظام إدارة الورشة الاحترافي")
-        self.root.geometry("1200x800")
-        self.root.configure(bg='#2c3e50')
-        
-        self.center_window(self.root)
-        
-        self.colors = {
-            'primary': '#3498db',
-            'secondary': '#2ecc71',
-            'danger': '#e74c3c',
-            'warning': '#f39c12',
-            'dark': '#2c3e50',
-            'light': '#ecf0f1',
-            'success': '#27ae60',
-            'info': '#17a2b8',
-            'purple': '#6f42c1'
+    <style>
+        /* --- CSS Styling (Professional Look) --- */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5; /* Light background */
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            direction: rtl; /* Right-to-left for Arabic */
+            text-align: right;
         }
-        
-        self.setup_styles()
-        self.password_hash = hash_password("workshop123")
-        
-        self.create_login_window()
 
-    def center_window(self, window):
-        window.update_idletasks()
-        width = window.winfo_width()
-        height = window.winfo_height()
-        x = (window.winfo_screenwidth() // 2) - (width // 2)
-        y = (window.winfo_screenheight() // 2) - (height // 2)
-        window.geometry('{}x{}+{}+{}'.format(width, height, x, y))
+        header {
+            background-color: #7b0000; /* Dark Red/Maroon for Meat Theme */
+            color: white;
+            padding: 15px 0;
+            text-align: center;
+            margin-bottom: 30px;
+            border-radius: 5px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
 
-    def setup_styles(self):
-        style = ttk.Style()
-        style.theme_use('clam')
-        
-        style.configure('Primary.TButton', 
-                        background=self.colors['primary'],
-                        foreground='white',
-                        font=('Arial', 10, 'bold'),
-                        padding=10)
-        
-        style.configure('Success.TButton',
-                        background=self.colors['success'],
-                        foreground='white',
-                        font=('Arial', 10, 'bold'),
-                        padding=10)
-        
-        style.configure('Danger.TButton',
-                        background=self.colors['danger'],
-                        foreground='white',
-                        font=('Arial', 10, 'bold'),
-                        padding=10)
+        section {
+            background-color: white;
+            padding: 25px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            border-top: 5px solid #7b0000;
+        }
 
-    def create_login_window(self):
-        self.login_window = tk.Toplevel(self.root)
-        self.login_window.title("تسجيل الدخول - النظام الاحترافي")
-        self.login_window.geometry("400x300")
-        self.login_window.configure(bg=self.colors['dark'])
-        self.login_window.resizable(False, False)
-        self.center_window(self.login_window)
-        
-        self.login_window.transient(self.root)
-        self.login_window.grab_set()
-        
-        title_frame = tk.Frame(self.login_window, bg=self.colors['dark'])
-        title_frame.pack(pady=30)
-        
-        tk.Label(title_frame, text="نظام إدارة الورشة", 
-                 font=('Arial', 18, 'bold'), 
-                 bg=self.colors['dark'], 
-                 fg='white').pack()
-        
-        tk.Label(title_frame, text="الإصدار الاحترافي v2.0", 
-                 font=('Arial', 12), 
-                 bg=self.colors['dark'], 
-                 fg=self.colors['primary']).pack()
-        
-        input_frame = tk.Frame(self.login_window, bg=self.colors['dark'])
-        input_frame.pack(pady=40)
-        
-        tk.Label(input_frame, text="كلمة المرور:", 
-                 font=('Arial', 12, 'bold'), 
-                 bg=self.colors['dark'], 
-                 fg='white').grid(row=0, column=0, padx=10, pady=10, sticky='e')
-        
-        self.password_entry = tk.Entry(input_frame, show="*", 
-                                       font=('Arial', 12), 
-                                       width=20,
-                                       bg=self.colors['light'])
-        self.password_entry.grid(row=0, column=1, padx=10, pady=10)
-        self.password_entry.bind('<Return>', lambda e: self.check_password())
-        self.password_entry.focus()
-        
-        btn_frame = tk.Frame(self.login_window, bg=self.colors['dark'])
-        btn_frame.pack(pady=20)
-        
-        ttk.Button(btn_frame, text="دخول", 
-                   style='Primary.TButton',
-                   command=self.check_password).pack(side=tk.LEFT, padx=10)
-        
-        ttk.Button(btn_frame, text="خروج", 
-                   style='Danger.TButton',
-                   command=self.root.quit).pack(side=tk.LEFT, padx=10)
-        
-        self.root.withdraw()
+        input[type="text"], input[type="password"] {
+            padding: 12px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            width: 250px;
+            box-sizing: border-box;
+            text-align: right;
+            font-size: 16px;
+        }
 
-    def check_password(self):
-        if hash_password(self.password_entry.get()) == self.password_hash:
-            logging.info("تسجيل دخول ناجح")
-            self.login_window.destroy()
-            self.root.deiconify()
-            self.build_main_window()
-        else:
-            messagebox.showerror("خطأ", "كلمة مرور خاطئة!")
-            self.password_entry.delete(0, tk.END)
-            logging.warning("محاولة تسجيل دخول فاشلة")
+        button {
+            background-color: #1abc9c; /* Greenish button for action/sale */
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
 
-    def build_main_window(self):
-        self.create_menubar()
-        
-        title_frame = tk.Frame(self.root, bg=self.colors['dark'], height=100)
-        title_frame.pack(fill=tk.X, padx=10, pady=10)
-        title_frame.pack_propagate(False)
-        
-        tk.Label(title_frame, text="نظام إدارة الورشة الاحترافي", 
-                 font=('Arial', 20, 'bold'), 
-                 bg=self.colors['dark'], 
-                 fg='white').pack(expand=True)
-        
-        tk.Label(title_frame, text=f"مرحباً بك - {datetime.now().strftime('%Y-%m-%d %H:%M')}", 
-                 font=('Arial', 12), 
-                 bg=self.colors['dark'], 
-                 fg=self.colors['primary']).pack()
-        
-        self.create_dashboard()
-        self.create_quick_actions()
+        button:hover {
+            background-color: #14a383;
+        }
 
-    def create_menubar(self):
-        menubar = tk.Menu(self.root, bg=self.colors['light'], fg=self.colors['dark'])
-        
-        file_menu = tk.Menu(menubar, tearoff=0, bg='white', fg='black')
-        file_menu.add_command(label="تصدير البيانات", command=self.export_data)
-        file_menu.add_command(label="استيراد البيانات", command=self.import_data)
-        file_menu.add_separator()
-        file_menu.add_command(label="خروج", command=self.root.quit)
-        menubar.add_cascade(label="ملف", menu=file_menu)
-        
-        view_menu = tk.Menu(menubar, tearoff=0, bg='white', fg='black')
-        view_menu.add_command(label="لوحة التحكم", command=self.show_dashboard)
-        view_menu.add_command(label="عرض الصيانات", command=self.show_repairs)
-        view_menu.add_command(label="عرض المبيعات", command=self.show_sales)
-        view_menu.add_command(label="عرض المنتجات", command=self.show_products)
-        view_menu.add_command(label="التقارير", command=self.show_reports)
-        menubar.add_cascade(label="عرض", menu=view_menu)
-        
-        add_menu = tk.Menu(menubar, tearoff=0, bg='white', fg='black')
-        add_menu.add_command(label="إضافة صيانة", command=self.add_repair)
-        add_menu.add_command(label="إضافة بيع", command=self.add_sale)
-        add_menu.add_command(label="إضافة منتج", command=self.add_product)
-        add_menu.add_command(label="دفع قسط", command=self.pay_installment)
-        menubar.add_cascade(label="إضافة", menu=add_menu)
-        
-        settings_menu = tk.Menu(menubar, tearoff=0, bg='white', fg='black')
-        settings_menu.add_command(label="تغيير كلمة المرور", command=self.change_password)
-        settings_menu.add_command(label="نسخ احتياطي", command=self.backup_data)
-        menubar.add_cascade(label="الإعدادات", menu=settings_menu)
-        
-        self.root.config(menu=menubar)
+        #complete-sale-btn {
+            background-color: #2980b9; /* Blue for 'Complete Sale' */
+        }
+        #complete-sale-btn:hover {
+            background-color: #2471a3;
+        }
 
-    def create_dashboard(self):
-        dashboard_frame = tk.Frame(self.root, bg='white', relief='raised', bd=2)
-        dashboard_frame.pack(fill=tk.X, padx=20, pady=10)
-        
-        tk.Label(dashboard_frame, text="الإحصائيات السريعة", 
-                 font=('Arial', 14, 'bold'), 
-                 bg='white').pack(pady=10)
-        
-        stats_frame = tk.Frame(dashboard_frame, bg='white')
-        stats_frame.pack(fill=tk.X, padx=20, pady=10)
-        
-        with sqlite3.connect('workshop.db') as conn:
-            c = conn.cursor()
-            
-            c.execute("SELECT COUNT(*) FROM repairs WHERE status='قيد الإصلاح'")
-            pending_repairs = c.fetchone()[0]
-            
-            c.execute("SELECT COUNT(*) FROM sales WHERE sale_type='أقساط' AND installments_remaining > 0")
-            pending_installments = c.fetchone()[0]
-            
-            c.execute("SELECT SUM(amount) FROM sales WHERE strftime('%Y-%m', sale_date)=strftime('%Y-%m', 'now')")
-            monthly_sales = c.fetchone()[0] or 0
-            
-            c.execute("SELECT COUNT(*) FROM products WHERE quantity > 0")
-            available_products = c.fetchone()[0]
-            
-            c.execute("SELECT SUM(final_cost) FROM repairs WHERE exit_date IS NOT NULL AND strftime('%Y-%m', exit_date)=strftime('%Y-%m', 'now')")
-            monthly_repairs_revenue = c.fetchone()[0] or 0
-        
-        stats_data = [
-            ("الصيانات المعلقة", pending_repairs, self.colors['warning']),
-            ("الأقساط المستحقة", pending_installments, self.colors['danger']),
-            ("المبيعات الشهرية", f"{monthly_sales:.2f} $", self.colors['success']),
-            ("إيرادات الصيانات", f"{monthly_repairs_revenue:.2f} $", self.colors['info']),
-            ("المنتجات المتاحة", available_products, self.colors['primary'])
-        ]
-        
-        for i, (title, value, color) in enumerate(stats_data):
-            stat_card = tk.Frame(stats_frame, bg=color, relief='raised', bd=2)
-            stat_card.grid(row=0, column=i, padx=10, pady=5, sticky='ew')
-            
-            tk.Label(stat_card, text=title, font=('Arial', 10, 'bold'), 
-                     bg=color, fg='white').pack(pady=(10, 0))
-            tk.Label(stat_card, text=str(value), font=('Arial', 16, 'bold'), 
-                     bg=color, fg='white').pack(pady=(0, 10))
-            
-            stats_frame.columnconfigure(i, weight=1)
+        #reports-access button {
+            background-color: #e67e22; /* Orange for 'Reports' */
+        }
+        #reports-access button:hover {
+            background-color: #d35400;
+        }
 
-    def create_quick_actions(self):
-        actions_frame = tk.Frame(self.root, bg='white', relief='raised', bd=2)
-        actions_frame.pack(fill=tk.BOTH, expand=True, padx=20, pady=10)
-        
-        tk.Label(actions_frame, text="الإجراءات السريعة", 
-                 font=('Arial', 14, 'bold'), 
-                 bg='white').pack(pady=10)
-        
-        buttons = [
-            ("إضافة صيانة", self.colors['primary'], self.add_repair),
-            ("إضافة بيع", self.colors['success'], self.add_sale),
-            ("إضافة منتج", self.colors['secondary'], self.add_product),
-            ("عرض الصيانات", self.colors['warning'], self.show_repairs),
-            ("عرض المبيعات", self.colors['info'], self.show_sales),
-            ("عرض المنتجات", self.colors['dark'], self.show_products),
-            ("التقارير", self.colors['purple'], self.show_reports),
-            ("دفع أقساط", self.colors['danger'], self.pay_installment)
-        ]
-        
-        btn_frame = tk.Frame(actions_frame, bg='white')
-        btn_frame.pack(expand=True)
-        
-        for i, (text, color, command) in enumerate(buttons):
-            btn = tk.Button(btn_frame, text=text, font=('Arial', 11, 'bold'),
-                            bg=color, fg='white', relief='raised', bd=2,
-                            command=command, width=15, height=2)
-            btn.grid(row=i//4, column=i%4, padx=8, pady=8, sticky='nsew')
-            btn_frame.columnconfigure(i%4, weight=1)
-            btn_frame.rowconfigure(i//4, weight=1)
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
 
-    def add_product(self):
-        window = tk.Toplevel(self.root)
-        window.title("إضافة منتج جديد")
-        window.geometry("500x500")
-        window.configure(bg='white')
-        self.center_window(window)
-        
-        title_label = tk.Label(window, text="إضافة منتج جديد", 
-                               font=('Arial', 16, 'bold'), bg='white')
-        title_label.pack(pady=20)
-        
-        form_frame = tk.Frame(window, bg='white')
-        form_frame.pack(fill=tk.BOTH, expand=True, padx=30)
-        
-        fields = [
-            ("اسم المنتج:", "entry"),
-            ("الفئة:", "entry"),
-            ("السعر:", "entry"),
-            ("الكمية:", "entry"),
-            ("الوصف:", "text")
-        ]
-        
-        entries = {}
-        for i, (label, field_type) in enumerate(fields):
-            tk.Label(form_frame, text=label, font=('Arial', 11), 
-                     bg='white').grid(row=i, column=0, sticky='e', pady=8, padx=10)
-            
-            if field_type == "entry":
-                entry = tk.Entry(form_frame, font=('Arial', 11), bg='#f8f9fa')
-                entry.grid(row=i, column=1, sticky='ew', pady=8, padx=10)
-            else:
-                entry = tk.Text(form_frame, height=3, width=30, font=('Arial', 11), bg='#f8f9fa')
-                entry.grid(row=i, column=1, sticky='ew', pady=8, padx=10)
-            
-            entries[label] = entry
-        
-        form_frame.columnconfigure(1, weight=1)
-        
-        def save():
-            try:
-                product_name = entries["اسم المنتج:"].get().strip()
-                if not product_name:
-                    raise ValueError("يرجى إدخال اسم المنتج")
-                
-                price = float(entries["السعر:"].get() or 0)
-                quantity = int(entries["الكمية:"].get() or 0)
-                
-                with sqlite3.connect('workshop.db') as conn:
-                    c = conn.cursor()
-                    c.execute('''INSERT INTO products 
-                              (product_name, category, price, quantity, description, created_date, last_updated) 
-                              VALUES (?, ?, ?, ?, ?, ?, ?)''',
-                             (product_name,
-                              entries["الفئة:"].get().strip(),
-                              price,
-                              quantity,
-                              entries["الوصف:"].get("1.0", tk.END).strip(),
-                              datetime.now().date(),
-                              datetime.now().date()))
-                    conn.commit()
-                
-                messagebox.showinfo("نجاح", "تم إضافة المنتج بنجاح!")
-                logging.info(f"تم إضافة منتج: {product_name}")
-                window.destroy()
-                self.show_dashboard()
-            except sqlite3.IntegrityError:
-                messagebox.showerror("خطأ", "اسم المنتج موجود مسبقاً!")
-            except ValueError as ve:
-                messagebox.showerror("خطأ", str(ve))
-            except Exception as e:
-                messagebox.showerror("خطأ", f"حدث خطأ أثناء الحفظ: {str(e)}")
-                logging.error(f"خطأ في إضافة المنتج: {str(e)}")
-        
-        btn_frame = tk.Frame(window, bg='white')
-        btn_frame.pack(pady=20)
-        
-        tk.Button(btn_frame, text="حفظ", bg=self.colors['success'], fg='white',
-                  font=('Arial', 11, 'bold'), command=save, width=10).pack(side=tk.LEFT, padx=10)
-        
-        tk.Button(btn_frame, text="إلغاء", bg=self.colors['danger'], fg='white',
-                  font=('Arial', 11, 'bold'), command=window.destroy, width=10).pack(side=tk.LEFT, padx=10)
+        th, td {
+            border: 1px solid #e0e0e0;
+            padding: 10px;
+            text-align: right;
+        }
 
-    def show_products(self):
-        window = tk.Toplevel(self.root)
-        window.title("عرض المنتجات")
-        window.geometry("900x600")
-        window.configure(bg='white')
-        self.center_window(window)
-        
-        title_frame = tk.Frame(window, bg='white')
-        title_frame.pack(fill=tk.X, padx=20, pady=10)
-        
-        tk.Label(title_frame, text="قائمة المنتجات", 
-                 font=('Arial', 16, 'bold'), bg='white').pack()
-        
-        search_frame = tk.Frame(window, bg='white')
-        search_frame.pack(fill=tk.X, padx=20, pady=10)
-        
-        tk.Label(search_frame, text="بحث:", font=('Arial', 11), bg='white').pack(side=tk.LEFT)
-        search_entry = tk.Entry(search_frame, font=('Arial', 11), width=30, bg='#f8f9fa')
-        search_entry.pack(side=tk.LEFT, padx=10)
-        
-        def search():
-            load_data(search_entry.get())
-        
-        tk.Button(search_frame, text="بحث", bg=self.colors['primary'], fg='white',
-                  command=search).pack(side=tk.LEFT, padx=5)
-        tk.Button(search_frame, text="عرض الكل", bg=self.colors['secondary'], fg='white',
-                  command=lambda: load_data()).pack(side=tk.LEFT, padx=5)
-        
-        tree_frame = tk.Frame(window)
-        tree_frame.pack(fill=tk.BOTH, expand=True, padx=20, pady=10)
-        
-        tree = ttk.Treeview(tree_frame, columns=("ID", "المنتج", "الفئة", "السعر", "الكمية", "الوصف"), show="headings")
-        
-        columns = [
-            ("ID", 50),
-            ("المنتج", 150),
-            ("الفئة", 100),
-            ("السعر", 100),
-            ("الكمية", 80),
-            ("الوصف", 200)
-        ]
-        
-        for col, width in columns:
-            tree.heading(col, text=col)
-            tree.column(col, width=width)
-        
-        scrollbar = ttk.Scrollbar(tree_frame, orient=tk.VERTICAL, command=tree.yview)
-        tree.configure(yscrollcommand=scrollbar.set)
-        tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-        
-        def load_data(search_text=""):
-            for item in tree.get_children():
-                tree.delete(item)
-            
-            with sqlite3.connect('workshop.db') as conn:
-                c = conn.cursor()
-                
-                if search_text:
-                    c.execute('''SELECT id, product_name, category, price, quantity, description FROM products 
-                              WHERE product_name LIKE ? OR category LIKE ? OR description LIKE ?''',
-                             (f"%{search_text}%", f"%{search_text}%", f"%{search_text}%"))
-                else:
-                    c.execute("SELECT id, product_name, category, price, quantity, description FROM products ORDER BY id DESC")
-                
-                rows = c.fetchall()
-                for row in rows:
-                    tree.insert("", "end", values=row)
-        
-        load_data()
-        
-        def edit_product():
-            selected = tree.selection()
-            if not selected:
-                messagebox.showwarning("تحذير", "يرجى اختيار منتج للتعديل")
-                return
-            
-            item = tree.item(selected[0])
-            values = item['values']
-            
-            edit_window = tk.Toplevel(window)
-            edit_window.title("تعديل المنتج")
-            edit_window.geometry("400x400")
-            self.center_window(edit_window)
-            
-            tk.Label(edit_window, text="تعديل المنتج", font=('Arial', 14, 'bold')).pack(pady=10)
-            
-            form_frame = tk.Frame(edit_window)
-            form_frame.pack(fill=tk.BOTH, expand=True, padx=20, pady=10)
-            
-            fields = ["اسم المنتج", "الفئة", "السعر", "الكمية", "الوصف"]
-            entries = {}
-            
-            for i, field in enumerate(fields):
-                tk.Label(form_frame, text=f"{field}:").grid(row=i, column=0, sticky='e', pady=5, padx=5)
-                entry = tk.Entry(form_frame, font=('Arial', 11), bg='#f8f9fa')
-                entry.grid(row=i, column=1, sticky='ew', pady=5, padx=5)
-                entry.insert(0, str(values[i+1]))
-                entries[field] = entry
-            
-            form_frame.columnconfigure(1, weight=1)
-            
-            def update_product():
-                try:
-                    product_name = entries["اسم المنتج"].get().strip()
-                    if not product_name:
-                        raise ValueError("يرجى إدخال اسم المنتج")
-                    
-                    with sqlite3.connect('workshop.db') as conn:
-                        c = conn.cursor()
-                        c.execute('''UPDATE products SET 
-                                  product_name=?, category=?, price=?, quantity=?, description=?, last_updated=? 
-                                  WHERE id=?''',
-                                 (product_name,
-                                  entries["الفئة"].get(),
-                                  float(entries["السعر"].get()),
-                                  int(entries["الكمية"].get()),
-                                  entries["الوصف"].get(),
-                                  datetime.now().date(),
-                                  values[0]))
-                        conn.commit()
-                    
-                    messagebox.showinfo("نجاح", "تم تحديث المنتج بنجاح!")
-                    logging.info(f"تم تحديث منتج ID: {values[0]}")
-                    edit_window.destroy()
-                    load_data()
-                except sqlite3.IntegrityError:
-                    messagebox.showerror("خطأ", "اسم المنتج موجود مسبقاً!")
-                except ValueError as ve:
-                    messagebox.showerror("خطأ", str(ve))
-                except Exception as e:
-                    messagebox.showerror("خطأ", f"حدث خطأ أثناء التحديث: {str(e)}")
-                    logging.error(f"خطأ في تحديث المنتج: {str(e)}")
-            
-            tk.Button(edit_window, text="تحديث", bg=self.colors['success'], fg='white',
-                      command=update_product).pack(pady=10)
-        
-        def delete_product():
-            selected = tree.selection()
-            if not selected:
-                messagebox.showwarning("تحذير", "يرجى اختيار منتج للحذف")
+        th {
+            background-color: #f9f9f9;
+            font-weight: 600;
+        }
 
-                return
-            
-            if messagebox.askyesno("تأكيد", "هل أنت متأكد من حذف هذا المنتج؟"):
-                item = tree.item(selected[0])
-                product_id = item['values'][0]
-                
-                with sqlite3.connect('workshop.db') as conn:
-                    c = conn.cursor()
-                    c.execute("DELETE FROM products WHERE id=?", (product_id,))
-                    conn.commit()
-                
-                messagebox.showinfo("نجاح", "تم حذف المنتج بنجاح!")
-                logging.info(f"تم حذف منتج ID: {product_id}")
-                load_data()
-        
-        btn_frame = tk.Frame(window, bg='white')
-        btn_frame.pack(pady=10)
-        
-        tk.Button(btn_frame, text="تعديل", bg=self.colors['warning'], fg='white',
-                  command=edit_product).pack(side=tk.LEFT, padx=5)
-        tk.Button(btn_frame, text="حذف", bg=self.colors['danger'], fg='white',
-                  command=delete_product).pack(side=tk.LEFT, padx=5)
-        tk.Button(btn_frame, text="إغلاق", bg=self.colors['primary'], fg='white',
-                  command=window.destroy).pack(side=tk.LEFT, padx=5)
+        .hidden {
+            display: none;
+        }
 
-    def add_sale(self):
-        window = tk.Toplevel(self.root)
-        window.title("إضافة بيع جديد")
-        window.geometry("600x500")
-        window.configure(bg='white')
-        self.center_window(window)
-        
-        title_label = tk.Label(window, text="إضافة بيع جديد", 
-                               font=('Arial', 16, 'bold'), bg='white')
-        title_label.pack(pady=20)
-        
-        form_frame = tk.Frame(window, bg='white')
-        form_frame.pack(fill=tk.BOTH, expand=True, padx=30)
-        
-        tk.Label(form_frame, text="اختر المنتج:", font=('Arial', 11), bg='white').grid(row=0, column=0, sticky='e', pady=8)
-        
-        with sqlite3.connect('workshop.db') as conn:
-            c = conn.cursor()
-            c.execute("SELECT id, product_name, price, quantity FROM products WHERE quantity > 0")
-            products = c.fetchall()
-        
-        product_var = tk.StringVar()
-        product_combo = ttk.Combobox(form_frame, textvariable=product_var, font=('Arial', 11))
-        product_combo['values'] = [f"{p[0]} - {p[1]} (${p[2]}) - متوفر: {p[3]}" for p in products]
-        product_combo.grid(row=0, column=1, sticky='ew', pady=8, padx=10)
-        
-        fields = [
-            ("اسم الزبون:", "entry"),
-            ("رقم الهاتف:", "entry"),
-            ("الكمية:", "entry"),
-            ("ملاحظات:", "text")
-        ]
-        
-        entries = {}
-        for i, (label, field_type) in enumerate(fields, 1):
-            tk.Label(form_frame, text=label, font=('Arial', 11), 
-                     bg='white').grid(row=i, column=0, sticky='e', pady=8, padx=10)
-            
-            if field_type == "entry":
-                entry = tk.Entry(form_frame, font=('Arial', 11), bg='#f8f9fa')
-                entry.grid(row=i, column=1, sticky='ew', pady=8, padx=10)
-            else:
-                entry = tk.Text(form_frame, height=3, width=30, font=('Arial', 11), bg='#f8f9fa')
-                entry.grid(row=i, column=1, sticky='ew', pady=8, padx=10)
-            
-            entries[label] = entry
-        
-        tk.Label(form_frame, text="نوع البيع:", font=('Arial', 11), bg='white').grid(row=5, column=0, sticky='e', pady=8)
-        sale_type_var = tk.StringVar(value="نقدي")
-        sale_type_frame = tk.Frame(form_frame, bg='white')
-        sale_type_frame.grid(row=5, column=1, sticky='w', pady=8, padx=10)
-        ttk.Radiobutton(sale_type_frame, text="نقدي", variable=sale_type_var, value="نقدي").pack(side=tk.LEFT)
-        ttk.Radiobutton(sale_type_frame, text="أقساط", variable=sale_type_var, value="أقساط").pack(side=tk.LEFT)
-        
-        tk.Label(form_frame, text="الأقساط المتبقية:", font=('Arial', 11), bg='white').grid(row=6, column=0, sticky='e', pady=8)
-        installments_entry = tk.Entry(form_frame, font=('Arial', 11), bg='#f8f9fa')
-        installments_entry.grid(row=6, column=1, sticky='ew', pady=8, padx=10)
-        installments_entry.insert(0, "0")
-        
-        form_frame.columnconfigure(1, weight=1)
-        
-        def save():
-            try:
-                if not product_var.get():
-                    raise ValueError("يرجى اختيار منتج")
-                
-                product_id = int(product_var.get().split(' - ')[0])
-                quantity = int(entries["الكمية:"].get() or 0)
-                
-                if quantity <= 0:
-                    raise ValueError("يرجى إدخال كمية صحيحة")
-                
-                with sqlite3.connect('workshop.db') as conn:
-                    c = conn.cursor()
-                    
-                    c.execute("SELECT quantity, price, product_name FROM products WHERE id=?", (product_id,))
-                    product = c.fetchone()
-                    
-                    if not product:
-                        raise ValueError("المنتج غير موجود")
-                    
-                    if product[0] < quantity:
-                        raise ValueError(f"الكمية غير متاحة. المتوفر: {product[0]}")
-                    
-                    c.execute("UPDATE products SET quantity = quantity - ?, last_updated = ? WHERE id=?", 
-                              (quantity, datetime.now().date(), product_id))
-                    
-                    total_amount = product[1] * quantity
-                    installments = int(installments_entry.get()) if sale_type_var.get() == "أقساط" else 0
-                    
-                    c.execute('''INSERT INTO sales 
-                              (product_id, device_name, customer_name, customer_phone, sale_type, 
-                              installments_remaining, sale_date, amount, notes) 
-                              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)''',
-                             (product_id,
-                              product[2],
-                              entries["اسم الزبون:"].get().strip(),
-                              entries["رقم الهاتف:"].get().strip(),
-                              sale_type_var.get(),
-                              installments,
-                              datetime.now().date(),
-                              total_amount,
-                              entries["ملاحظات:"].get("1.0", tk.END).strip()))
-                    conn.commit()
-                
-                details = {
-                    "المنتج": product[2],
-                    "الزبون": entries["اسم الزبون:"].get(),
-                    "الهاتف": entries["رقم الهاتف:"].get(),
-                    "الكمية": quantity,
-                    "سعر الوحدة": f"${product[1]:.2f}",
-                    "المبلغ الإجمالي": f"${total_amount:.2f}",
-                    "نوع البيع": sale_type_var.get(),
-                    "الأقساط المتبقية": installments
-                }
-                print_pdf("ايصال بيع", details)
-                
-                messagebox.showinfo("نجاح", "تم إضافة البيع بنجاح!")
-                logging.info(f"تم إضافة بيع جديد للمنتج ID: {product_id}")
-                window.destroy()
-                self.show_dashboard()
-                
-            except ValueError as ve:
-                messagebox.showerror("خطأ", str(ve))
-            except Exception as e:
-                messagebox.showerror("خطأ", f"حدث خطأ أثناء الحفظ: {str(e)}")
-                logging.error(f"خطأ في إضافة البيع: {str(e)}")
-        
-        btn_frame = tk.Frame(window, bg='white')
-        btn_frame.pack(pady=20)
-        
-        tk.Button(btn_frame, text="حفظ وطباعة", bg=self.colors['success'], fg='white',
-                  font=('Arial', 11, 'bold'), command=save, width=12).pack(side=tk.LEFT, padx=10)
-        
-        tk.Button(btn_frame, text="إلغاء", bg=self.colors['danger'], fg='white',
-                  font=('Arial', 11, 'bold'), command=window.destroy, width=10).pack(side=tk.LEFT, padx=10)
+        #total-amount {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #7b0000;
+            margin-top: 10px;
+            display: block;
+        }
 
-    def add_repair(self):
-        window = tk.Toplevel(self.root)
-        window.title("إضافة صيانة جديدة")
-        window.geometry("500x500")
-        window.configure(bg='white')
-        self.center_window(window)
-        
-        title_label = tk.Label(window, text="إضافة صيانة جديدة", 
-                               font=('Arial', 16, 'bold'), bg='white')
-        title_label.pack(pady=20)
-        
-        form_frame = tk.Frame(window, bg='white')
-        form_frame.pack(fill=tk.BOTH, expand=True, padx=30)
-        
-        fields = [
-            ("اسم الجهاز:", "entry"),
-            ("اسم المالك:", "entry"),
-            ("رقم الهاتف:", "entry"),
-            ("وصف المشكلة:", "text"),
-            ("التكلفة المتوقعة:", "entry")
-        ]
-        
-        entries = {}
-        for i, (label, field_type) in enumerate(fields):
-            tk.Label(form_frame, text=label, font=('Arial', 11), 
-                     bg='white').grid(row=i, column=0, sticky='e', pady=8, padx=10)
-            
-            if field_type == "entry":
-                entry = tk.Entry(form_frame, font=('Arial', 11), bg='#f8f9fa')
-                entry.grid(row=i, column=1, sticky='ew', pady=8, padx=10)
-            else:
-                entry = tk.Text(form_frame, height=3, width=30, font=('Arial', 11), bg='#f8f9fa')
-                entry.grid(row=i, column=1, sticky='ew', pady=8, padx=10)
-            
-            entries[label] = entry
-        
-        tk.Label(form_frame, text="حالة الصيانة:", font=('Arial', 11), 
-                 bg='white').grid(row=len(fields), column=0, sticky='e', pady=8, padx=10)
-        
-        status_var = tk.StringVar(value="قيد الإصلاح")
-        status_frame = tk.Frame(form_frame, bg='white')
-        status_frame.grid(row=len(fields), column=1, sticky='w', pady=8, padx=10)
-        
-        statuses = [("قيد الإصلاح", "قيد الإصلاح"), ("مكتملة", "مكتملة"), ("ملغاة", "ملغاة")]
-        for text, value in statuses:
-            ttk.Radiobutton(status_frame, text=text, variable=status_var, 
-                            value=value).pack(side=tk.LEFT, padx=5)
-        
-        form_frame.columnconfigure(1, weight=1)
-        
-        def save():
-            try:
-                device_name = entries["اسم الجهاز:"].get().strip()
-                owner_name = entries["اسم المالك:"].get().strip()
-                if not device_name or not owner_name:
-                    raise ValueError("يرجى إدخال اسم الجهاز واسم المالك")
-                
-                with sqlite3.connect('workshop.db') as conn:
-                    c = conn.cursor()
-                    c.execute('''INSERT INTO repairs 
-                              (device_name, owner_name, owner_phone, status, entry_date, description, estimated_cost) 
-                              VALUES (?, ?, ?, ?, ?, ?, ?)''',
-                             (device_name,
-                              owner_name,
-                              entries["رقم الهاتف:"].get().strip(),
-                              status_var.get(),
-                              datetime.now().date(),
-                              entries["وصف المشكلة:"].get("1.0", tk.END).strip(),
-                              float(entries["التكلفة المتوقعة:"].get() or 0)))
-                    conn.commit()
-                
-                messagebox.showinfo("نجاح", "تم إضافة الصيانة بنجاح!")
-                logging.info(f"تم إضافة صيانة جديدة للجهاز: {device_name}")
-                window.destroy()
-                self.show_dashboard()
-            except ValueError as ve:
-                messagebox.showerror("خطأ", str(ve))
-            except Exception as e:
-                messagebox.showerror("خطأ", f"حدث خطأ أثناء الحفظ: {str(e)}")
-                logging.error(f"خطأ في إضافة الصيانة: {str(e)}")
-        
-        btn_frame = tk.Frame(window, bg='white')
-        btn_frame.pack(pady=20)
-        
-        tk.Button(btn_frame, text="حفظ", bg=self.colors['success'], fg='white',
-                  font=('Arial', 11, 'bold'), command=save, width=10).pack(side=tk.LEFT, padx=10)
-        
-        tk.Button(btn_frame, text="إلغاء", bg=self.colors['danger'], fg='white',
-                  font=('Arial', 11, 'bold'), command=window.destroy, width=10).pack(side=tk.LEFT, padx=10)
+        #profit-summary p {
+            font-size: 1.1em;
+            font-weight: bold;
+            padding: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>نظام كاشير متجر اللحوم المجمدة 🇮🇶</h1>
+    </header>
 
-    def show_repairs(self):
-        window = tk.Toplevel(self.root)
-        window.title("عرض الصيانات")
-        window.geometry("1000x600")
-        window.configure(bg='white')
-        self.center_window(window)
-        
-        title_frame = tk.Frame(window, bg='white')
-        title_frame.pack(fill=tk.X, padx=20, pady=10)
-        
-        tk.Label(title_frame, text="قائمة الصيانات", 
-                 font=('Arial', 16, 'bold'), bg='white').pack()
-        
-        search_frame = tk.Frame(window, bg='white')
-        search_frame.pack(fill=tk.X, padx=20, pady=10)
-        
-        tk.Label(search_frame, text="بحث:", font=('Arial', 11), bg='white').pack(side=tk.LEFT)
-        search_entry = tk.Entry(search_frame, font=('Arial', 11), width=30, bg='#f8f9fa')
-        search_entry.pack(side=tk.LEFT, padx=10)
-        
-        def search():
-            load_data(search_entry.get())
-        
-        tk.Button(search_frame, text="بحث", bg=self.colors['primary'], fg='white',
-                  command=search).pack(side=tk.LEFT, padx=5)
-        tk.Button(search_frame, text="عرض الكل", bg=self.colors['secondary'], fg='white',
-                  command=lambda: load_data()).pack(side=tk.LEFT, padx=5)
-        
-        tree_frame = tk.Frame(window)
-        tree_frame.pack(fill=tk.BOTH, expand=True, padx=20, pady=10)
-        
-        tree = ttk.Treeview(tree_frame, columns=("ID", "الجهاز", "المالك", "الهاتف", "الحالة", "التكلفة المتوقعة", "التكلفة النهائية", "تاريخ الدخول"), show="headings")
-        
-        columns = [
-            ("ID", 50),
-            ("الجهاز", 120),
-            ("المالك", 120),
-            ("الهاتف", 100),
-            ("الحالة", 100),
-            ("التكلفة المتوقعة", 100),
-            ("التكلفة النهائية", 100),
-            ("تاريخ الدخول", 100)
-        ]
-        
-        for col, width in columns:
-            tree.heading(col, text=col)
-            tree.column(col, width=width)
-        
-        scrollbar = ttk.Scrollbar(tree_frame, orient=tk.VERTICAL, command=tree.yview)
-        tree.configure(yscrollcommand=scrollbar.set)
-        tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-        
-        def load_data(search_text=""):
-            for item in tree.get_children():
-                tree.delete(item)
-            
-            with sqlite3.connect('workshop.db') as conn:
-                c = conn.cursor()
-                
-                if search_text:
-                    c.execute('''SELECT id, device_name, owner_name, owner_phone, status, estimated_cost, final_cost, entry_date FROM repairs 
-                              WHERE device_name LIKE ? OR owner_name LIKE ? OR owner_phone LIKE ?''',
-                             (f"%{search_text}%", f"%{search_text}%", f"%{search_text}%"))
-                else:
-                    c.execute("SELECT id, device_name, owner_name, owner_phone, status, estimated_cost, final_cost, entry_date FROM repairs ORDER BY id DESC")
-                
-                rows = c.fetchall()
-                for row in rows:
-                    tree.insert("", "end", values=row)
-        
-        load_data()
-        
-        def complete_repair():
-            selected = tree.selection()
-            if not selected:
-                messagebox.showwarning("تحذير", "يرجى اختيار صيانة لإكمالها")
-                return
-            
-            item = tree.item(selected[0])
-            values = item['values']
-            if values[4] != "قيد الإصلاح":
-                messagebox.showwarning("تحذير", "الصيانة ليست قيد الإصلاح")
-                return
-            
-            complete_window = tk.Toplevel(window)
-            complete_window.title("إكمال الصيانة")
-            complete_window.geometry("400x200")
-            complete_window.configure(bg='white')
-            self.center_window(complete_window)
-            
-            tk.Label(complete_window, text="إكمال الصيانة", font=('Arial', 14, 'bold'), bg='white').pack(pady=15)
-            
-            form_frame = tk.Frame(complete_window, bg='white')
-            form_frame.pack(fill=tk.BOTH, expand=True, padx=30)
-            
-            tk.Label(form_frame, text="التكلفة النهائية:", font=('Arial', 11), bg='white').grid(row=0, column=0, sticky='e', pady=10)
-            final_cost_entry = tk.Entry(form_frame, font=('Arial', 12), bg='#f8f9fa', width=20)
-            final_cost_entry.grid(row=0, column=1, sticky='ew', pady=10, padx=10)
-            final_cost_entry.insert(0, str(values[5]))
-            final_cost_entry.focus()
-            
-            form_frame.columnconfigure(1, weight=1)
-            
-            def update():
-                try:
-                    final_cost = float(final_cost_entry.get())
-                    
-                    with sqlite3.connect('workshop.db') as conn:
-                        c = conn.cursor()
-                        c.execute("UPDATE repairs SET status=?, exit_date=?, final_cost=? WHERE id=?", 
-                                  ("مكتملة", datetime.now().date(), final_cost, values[0]))
-                        conn.commit()
-                    
-                    details = {
-                        "رقم الصيانة": values[0],
-                        "اسم الجهاز": values[1],
-                        "اسم المالك": values[2],
-                        "رقم الهاتف": values[3],
-                        "الحالة": "مكتملة",
-                        "التكلفة النهائية": f"${final_cost:.2f}",
-                        "تاريخ الدخول": values[7],
-                        "تاريخ الخروج": datetime.now().date()
-                    }
-                    print_pdf("ايصال خروج صيانة", details)
-                    
-                    messagebox.showinfo("نجاح", "تم إكمال الصيانة بنجاح!")
-                    logging.info(f"تم إكمال صيانة ID: {values[0]}")
-                    complete_window.destroy()
-                    load_data()
-                except ValueError:
-                    messagebox.showerror("خطأ", "يرجى إدخال تكلفة صحيحة")
-                except Exception as e:
-                    messagebox.showerror("خطأ", f"حدث خطأ: {str(e)}")
-                    logging.error(f"خطأ في إكمال الصيانة: {str(e)}")
-            
-            btn_frame = tk.Frame(complete_window, bg='white')
-            btn_frame.pack(pady=15)
-            
-            tk.Button(btn_frame, text="إكمال وطباعة", bg=self.colors['success'], fg='white',
-                      font=('Arial', 11, 'bold'), command=update, width=12).pack(side=tk.LEFT, padx=5)
-            tk.Button(btn_frame, text="إلغاء", bg=self.colors['danger'], fg='white',
-                      font=('Arial', 11, 'bold'), command=complete_window.destroy, width=10).pack(side=tk.LEFT, padx=5)
-        
-        def delete_repair():
-            selected = tree.selection()
-            if not selected:
-                messagebox.showwarning("تحذير", "يرجى اختيار صيانة للحذف")
-                return
-            
-            if messagebox.askyesno("تأكيد الحذف", "هل أنت متأكد من حذف هذه الصيانة؟\nلا يمكن التراجع عن هذا الإجراء!"):
-                item = tree.item(selected[0])
-                repair_id = item['values'][0]
-                
-                with sqlite3.connect('workshop.db') as conn:
-                    c = conn.cursor()
-                    c.execute("DELETE FROM repairs WHERE id=?", (repair_id,))
-                    conn.commit()
-                
-                messagebox.showinfo("نجاح", "تم حذف الصيانة بنجاح!")
-                logging.info(f"تم حذف صيانة ID: {repair_id}")
-                load_data()
-        
-        def print_repair():
-            selected = tree.selection()
-            if not selected:
-                messagebox.showwarning("تحذير", "يرجى اختيار صيانة للطباعة")
-                return
-            
-            item = tree.item(selected[0])
-            values = item['values']
-            
-            with sqlite3.connect('workshop.db') as conn:
-                c = conn.cursor()
-                c.execute("SELECT * FROM repairs WHERE id=?", (values[0],))
-                full_data = c.fetchone()
-            
-            details = {
-                "رقم الصيانة": full_data[0],
-                "اسم الجهاز": full_data[1],
-                "اسم المالك": full_data[2],
-                "رقم الهاتف": full_data[3] or "غير محدد",
-                "الحالة": full_data[4],
-                "التكلفة المتوقعة": f"${full_data[8]:.2f}" if full_data[8] else "$0.00",
-                "التكلفة النهائية": f"${full_data[9]:.2f}" if full_data[9] else "$0.00",
-                "تاريخ الدخول": full_data[5],
-                "تاريخ الخروج": full_data[6] or "غير محدد",
-                "وصف المشكلة": full_data[7] or "لا يوجد"
+    <section id="cashier-interface">
+        <h2>شاشة الكاشير</h2>
+        <input type="text" id="barcode-input" placeholder="ادخل الباركود هنا" autofocus>
+        <button onclick="addItemByBarcode()">إضافة منتج</button>
+
+        <div id="cart">
+            <h3>سلة المبيعات</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>المنتج</th>
+                        <th>الكمية</th>
+                        <th>سعر الوحدة</th>
+                        <th>الإجمالي</th>
+                    </tr>
+                </thead>
+                <tbody id="cart-items">
+                </tbody>
+            </table>
+            <p>الإجمالي الكلي:</p> 
+            <span id="total-amount">0.00 د.ع</span>
+        </div>
+
+        <button id="complete-sale-btn" onclick="completeSale()">إتمام البيع</button>
+    </section>
+
+    <section id="reports-access">
+        <h2>التقارير والإحصائيات</h2>
+        <input type="password" id="report-code" placeholder="رمز الدخول (22)">
+        <button onclick="accessReports()">عرض التقارير</button>
+    </section>
+
+    <section id="reports-section" class="hidden">
+        <h2>تقارير المبيعات والأرباح</h2>
+        <div id="profit-summary">
+            <p>الربح اليومي: <span id="daily-profit">0.00 د.ع</span></p>
+            <p>الربح الشهري: <span id="monthly-profit">0.00 د.ع</span></p>
+            <p>الربح السنوي: <span id="yearly-profit">0.00 د.ع</span></p>
+        </div>
+
+        <h3>تقرير المنتجات (أداء المبيعات)</h3>
+        <table id="product-reports-table">
+            <thead>
+                <tr>
+                    <th>المنتج</th>
+                    <th>سعر الشراء</th>
+                    <th>سعر البيع</th>
+                    <th>الكمية المباعة</th>
+                    <th>إجمالي الإيرادات</th>
+                    <th>إجمالي الربح</th>
+                </tr>
+            </thead>
+            <tbody>
+                </tbody>
+        </table>
+
+        <button onclick="resetStatistics()" style="background-color: #e74c3c; margin-top: 20px;">حذف الإحصائيات</button>
+    </section>
+
+    <section id="inventory-management">
+        <h2>ملاحظة: إدارة المخزون</h2>
+        <p>البيانات الأولية للمنتجات مخزنة في كود JavaScript. يمكنك تعديلها في القسم المسمى <code>inventory</code>.</p>
+    </section>
+
+    <script>
+        // --- JavaScript Logic (With IQD Support) ---
+
+        const CURRENCY = ' د.ع'; // Iraqi Dinar (IQD)
+        const REPORT_CODE = '22';
+
+        // Helper function to safely get data from localStorage or return a default
+        const getLocalStorageData = (key, defaultValue) => {
+            const data = localStorage.getItem(key);
+            return data ? JSON.parse(data) : defaultValue;
+        };
+
+        // --- DATA STRUCTURES (Stored in localStorage) ---
+        // Simulating the inventory (Barcode, Name, Stock, Purchase Price, Sale Price)
+        let inventory = getLocalStorageData('inventory', {
+            "123456789012": { name: "لحم بقري مفروم (1كغ)", stock: 50, purchasePrice: 9000.00, salePrice: 12000.00 },
+            "234567890123": { name: "دجاج مجمد (500غ)", stock: 100, purchasePrice: 4500.00, salePrice: 6000.00 },
+            "345678901234": { name: "أسماك فيليه مجمدة", stock: 30, purchasePrice: 15000.00, salePrice: 18500.00 }
+        });
+
+        // Sales History (Stored as a list of completed transactions)
+        let salesHistory = getLocalStorageData('salesHistory', []);
+
+        // Current Cart
+        let currentCart = []; // { barcode, quantity, name, salePrice, purchasePrice }
+
+        // --- CORE FUNCTIONS ---
+
+        // Update localStorage for persistence
+        const updateLocalStorage = () => {
+            localStorage.setItem('inventory', JSON.stringify(inventory));
+            localStorage.setItem('salesHistory', JSON.stringify(salesHistory));
+        };
+
+        // Render the current cart to the HTML table
+        const renderCart = () => {
+            const cartItemsElement = document.getElementById('cart-items');
+            cartItemsElement.innerHTML = '';
+            let total = 0;
+
+            currentCart.forEach(item => {
+                const itemTotal = item.quantity * item.salePrice;
+                total += itemTotal;
+
+                const row = cartItemsElement.insertRow();
+                row.innerHTML = `
+                    <td>${item.name}</td>
+                    <td>${item.quantity}</td>
+                    <td>${item.salePrice.toFixed(2) + CURRENCY}</td>
+                    <td>${itemTotal.toFixed(2) + CURRENCY}</td>
+                `;
+            });
+
+            document.getElementById('total-amount').textContent = total.toFixed(2) + CURRENCY;
+        };
+
+        // Function to add item to cart by barcode
+        const addItemByBarcode = () => {
+            const barcodeInput = document.getElementById('barcode-input');
+            const barcode = barcodeInput.value.trim();
+            barcodeInput.value = ''; // Clear input
+            barcodeInput.focus(); // Keep focus for scanner
+
+            const product = inventory[barcode];
+            if (!product) {
+                alert('الباركود غير موجود في المخزون!');
+                return;
             }
-            print_pdf("ايصال صيانة", details)
-        
-        btn_frame = tk.Frame(window, bg='white')
-        btn_frame.pack(pady=10)
-        
-        tk.Button(btn_frame, text="إكمال الصيانة", bg=self.colors['success'], fg='white',
-                  font=('Arial', 10, 'bold'), command=complete_repair, width=12).pack(side=tk.LEFT, padx=5)
-        tk.Button(btn_frame, text="طباعة الإيصال", bg=self.colors['info'], fg='white',
-                  font=('Arial', 10, 'bold'), command=print_repair, width=12).pack(side=tk.LEFT, padx=5)
-        tk.Button(btn_frame, text="حذف", bg=self.colors['danger'], fg='white',
-                  font=('Arial', 10, 'bold'), command=delete_repair, width=10).pack(side=tk.LEFT, padx=5)
-        tk.Button(btn_frame, text="إغلاق", bg=self.colors['primary'], fg='white',
-                  font=('Arial', 10, 'bold'), command=window.destroy, width=10).pack(side=tk.LEFT, padx=5)
 
-    def show_sales(self):
-        window = tk.Toplevel(self.root)
-        window.title("عرض المبيعات")
-        window.geometry("1000x600")
-        window.configure(bg='white')
-        self.center_window(window)
-        
-        title_frame = tk.Frame(window, bg='white')
-        title_frame.pack(fill=tk.X, padx=20, pady=10)
-        
-        tk.Label(title_frame, text="قائمة المبيعات", 
-                 font=('Arial', 16, 'bold'), bg='white').pack()
-        
-        search_frame = tk.Frame(window, bg='white')
-        search_frame.pack(fill=tk.X, padx=20, pady=10)
-        
-        tk.Label(search_frame, text="بحث:", font=('Arial', 11), bg='white').pack(side=tk.LEFT)
-        search_entry = tk.Entry(search_frame, font=('Arial', 11), width=30, bg='#f8f9fa')
-        search_entry.pack(side=tk.LEFT, padx=10)
-        
-        def search():
-            load_data(search_entry.get())
-        
-        tk.Button(search_frame, text="بحث", bg=self.colors['primary'], fg='white',
-                  command=search).pack(side=tk.LEFT, padx=5)
-        tk.Button(search_frame, text="عرض الكل", bg=self.colors['secondary'], fg='white',
-                  command=lambda: load_data()).pack(side=tk.LEFT, padx=5)
-        
-        tree_frame = tk.Frame(window)
-        tree_frame.pack(fill=tk.BOTH, expand=True, padx=20, pady=10)
-        
-        tree = ttk.Treeview(tree_frame, columns=("ID", "المنتج", "الزبون", "الهاتف", "النوع", "الأقساط", "المبلغ", "المدفوع", "التاريخ"), show="headings")
-        
-        columns = [
-            ("ID", 50),
-            ("المنتج", 150),
-            ("الزبون", 120),
-            ("الهاتف", 100),
-            ("النوع", 80),
-            ("الأقساط", 80),
-            ("المبلغ", 100),
-            ("المدفوع", 100),
-            ("التاريخ", 100)
-        ]
-        
-        for col, width in columns:
-            tree.heading(col, text=col)
-            tree.column(col, width=width)
-        
-        scrollbar = ttk.Scrollbar(tree_frame, orient=tk.VERTICAL, command=tree.yview)
-        tree.configure(yscrollcommand=scrollbar.set)
-        tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-        
-        def load_data(search_text=""):
-            for item in tree.get_children():
-                tree.delete(item)
-            
-            with sqlite3.connect('workshop.db') as conn:
-                c = conn.cursor()
-                
-                if search_text:
-                    c.execute('''SELECT id, device_name, customer_name, customer_phone, sale_type, 
-                              installments_remaining, amount, paid_amount, sale_date FROM sales 
-                              WHERE device_name LIKE ? OR customer_name LIKE ? OR customer_phone LIKE ?''',
-                             (f"%{search_text}%", f"%{search_text}%", f"%{search_text}%"))
-                else:
-                    c.execute('''SELECT id, device_name, customer_name, customer_phone, sale_type, 
-                              installments_remaining, amount, paid_amount, sale_date FROM sales ORDER BY id DESC''')
-                
-                rows = c.fetchall()
-                for row in rows:
-                    tree.insert("", "end", values=row)
-        
-        load_data()
-        
-        def delete_sale():
-            selected = tree.selection()
-            if not selected:
-                messagebox.showwarning("تحذير", "يرجى اختيار عملية بيع للحذف")
-                return
-            
-            if messagebox.askyesno("تأكيد الحذف", " من حذف هذه العملية؟\nلا يمكن التراجع عن هذا الإجراء!"):
+            if (product.stock <= 0) {
+                alert(`المخزون نفد من ${product.name}!`);
+                return;
+            }
 
-                item = tree.item(selected[0])
-                sale_id = item['values'][0]
-                
-                with sqlite3.connect('workshop.db') as conn:
-                    c = conn.cursor()
-                    c.execute("DELETE FROM sales WHERE id=?", (sale_id,))
-                    conn.commit()
-                
-                messagebox.showinfo("نجاح", "تم حذف عملية البيع بنجاح!")
-                logging.info(f"تم حذف بيع ID: {sale_id}")
-                load_data()
-        
-        btn_frame = tk.Frame(window, bg='white')
-        btn_frame.pack(pady=10)
-        
-        tk.Button(btn_frame, text="حذف", bg=self.colors['danger'], fg='white',
-                  font=('Arial', 10, 'bold'), command=delete_sale, width=10).pack(side=tk.LEFT, padx=5)
-        tk.Button(btn_frame, text="إغلاق", bg=self.colors['primary'], fg='white',
-                  font=('Arial', 10, 'bold'), command=window.destroy, width=10).pack(side=tk.LEFT, padx=5)
+            const cartItemIndex = currentCart.findIndex(item => item.barcode === barcode);
 
-    def pay_installment(self):
-        window = tk.Toplevel(self.root)
-        window.title("دفع قسط")
-        window.geometry("700x550")
-        window.configure(bg='white')
-        self.center_window(window)
-        
-        # العنوان الرئيسي
-        header_frame = tk.Frame(window, bg=self.colors['primary'], height=80)
-        header_frame.pack(fill=tk.X)
-        header_frame.pack_propagate(False)
-        
-        tk.Label(header_frame, text="💰 دفع قسط", 
-                 font=('Arial', 20, 'bold'), 
-                 bg=self.colors['primary'], 
-                 fg='white').pack(expand=True)
-        
-        # قسم البحث
-        search_frame = tk.Frame(window, bg='white')
-        search_frame.pack(fill=tk.X, padx=30, pady=20)
-        
-        tk.Label(search_frame, text="ابحث عن عملية البيع:", 
-                 font=('Arial', 12, 'bold'), 
-                 bg='white').pack(anchor='w', pady=(0, 10))
-        
-        search_input_frame = tk.Frame(search_frame, bg='white')
-        search_input_frame.pack(fill=tk.X)
-        
-        tk.Label(search_input_frame, text="رقم البيع أو اسم الزبون:", 
-                 font=('Arial', 11), 
-                 bg='white').pack(side=tk.LEFT, padx=(0, 10))
-        
-        search_entry = tk.Entry(search_input_frame, font=('Arial', 12), bg='#f8f9fa', width=25)
-        search_entry.pack(side=tk.LEFT, padx=5)
-        
-        # معلومات البيع
-        info_frame = tk.Frame(window, bg='#f8f9fa', relief='raised', bd=2)
-        info_frame.pack(fill=tk.BOTH, expand=True, padx=30, pady=10)
-        
-        tk.Label(info_frame, text="معلومات البيع", 
-                 font=('Arial', 13, 'bold'), 
-                 bg='#f8f9fa').pack(pady=10)
-        
-        # عرض البيانات
-        data_frame = tk.Frame(info_frame, bg='white', relief='solid', bd=1)
-        data_frame.pack(fill=tk.BOTH, expand=True, padx=15, pady=10)
-        
-        info_labels = {}
-        info_fields = [
-            ("رقم البيع:", "sale_id"),
-            ("المنتج:", "product"),
-            ("اسم الزبون:", "customer"),
-            ("رقم الهاتف:", "phone"),
-            ("المبلغ الكلي:", "total"),
-            ("المبلغ المدفوع:", "paid"),
-            ("المبلغ المتبقي:", "remaining"),
-            ("الأقساط المتبقية:", "installments")
-        ]
-        
-        for i, (label, key) in enumerate(info_fields):
-            row_frame = tk.Frame(data_frame, bg='white')
-            row_frame.pack(fill=tk.X, padx=10, pady=5)
-            
-            tk.Label(row_frame, text=label, 
-                     font=('Arial', 11, 'bold'), 
-                     bg='white', 
-                     width=18, 
-                     anchor='e').pack(side=tk.LEFT, padx=5)
-            
-            value_label = tk.Label(row_frame, text="---", 
-                                   font=('Arial', 11), 
-                                   bg='white', 
-                                   fg=self.colors['dark'],
-                                   anchor='w')
-            value_label.pack(side=tk.LEFT, padx=10)
-            info_labels[key] = value_label
-        
-        # قسم الدفع
-        payment_frame = tk.Frame(window, bg='white')
-        payment_frame.pack(fill=tk.X, padx=30, pady=15)
-        
-        tk.Label(payment_frame, text="المبلغ المراد دفعه:", 
-                 font=('Arial', 12, 'bold'), 
-                 bg='white').grid(row=0, column=0, sticky='e', padx=10, pady=10)
-        
-        amount_entry = tk.Entry(payment_frame, font=('Arial', 14, 'bold'), 
-                               bg='#fff3cd', width=20, justify='center')
-        amount_entry.grid(row=0, column=1, padx=10, pady=10)
-        
-        payment_frame.columnconfigure(1, weight=1)
-        
-        current_sale_id = [None]  # استخدام قائمة للحفاظ على المرجع
-        
-        def search_sale():
-            search_text = search_entry.get().strip()
-            if not search_text:
-                messagebox.showwarning("تحذير", "يرجى إدخال رقم البيع أو اسم الزبون")
-                return
-            
-            try:
-                with sqlite3.connect('workshop.db') as conn:
-                    c = conn.cursor()
-                    
-                    # البحث برقم البيع أو اسم الزبون
-                    if search_text.isdigit():
-                        c.execute('''SELECT id, device_name, customer_name, customer_phone, 
-                                  amount, paid_amount, installments_remaining 
-                                  FROM sales WHERE id=? AND sale_type='أقساط' ''', (int(search_text),))
-                    else:
-                        c.execute('''SELECT id, device_name, customer_name, customer_phone, 
-                                  amount, paid_amount, installments_remaining 
-                                  FROM sales WHERE customer_name LIKE ? AND sale_type='أقساط' 
-                                  ORDER BY id DESC LIMIT 1''', (f"%{search_text}%",))
-                    
-                    sale = c.fetchone()
-                    
-                    if not sale:
-                        messagebox.showwarning("غير موجود", "لم يتم العثور على عملية بيع بالأقساط بهذه البيانات")
-                        return
-                    
-                    if sale[6] <= 0:
-                        messagebox.showinfo("مكتمل", "جميع الأقساط مدفوعة لهذا البيع!")
-                        return
-                    
-                    # تحديث البيانات
-                    current_sale_id[0] = sale[0]
-                    info_labels['sale_id'].config(text=str(sale[0]), fg=self.colors['primary'])
-                    info_labels['product'].config(text=sale[1])
-                    info_labels['customer'].config(text=sale[2])
-                    info_labels['phone'].config(text=sale[3] or "غير محدد")
-                    info_labels['total'].config(text=f"${sale[4]:.2f}", fg=self.colors['dark'])
-                    info_labels['paid'].config(text=f"${sale[5]:.2f}", fg=self.colors['success'])
-                    
-                    remaining_amount = sale[4] - sale[5]
-                    info_labels['remaining'].config(text=f"${remaining_amount:.2f}", 
-                                                   fg=self.colors['danger'], 
-                                                   font=('Arial', 11, 'bold'))
-                    info_labels['installments'].config(text=str(sale[6]), 
-                                                       fg=self.colors['warning'],
-                                                       font=('Arial', 11, 'bold'))
-                    
-                    # اقتراح قيمة القسط
-                    suggested_amount = remaining_amount / sale[6]
-                    amount_entry.delete(0, tk.END)
-                    amount_entry.insert(0, f"{suggested_amount:.2f}")
-                    amount_entry.focus()
-                    
-            except Exception as e:
-                messagebox.showerror("خطأ", f"حدث خطأ أثناء البحث: {str(e)}")
-                logging.error(f"خطأ في البحث عن البيع: {str(e)}")
-        
-        def process_payment():
-            if current_sale_id[0] is None:
-                messagebox.showwarning("تحذير", "يرجى البحث عن عملية بيع أولاً")
-                return
-            
-            try:
-                amount = float(amount_entry.get())
-                if amount <= 0:
-                    raise ValueError("المبلغ المدفوع يجب أن يكون أكبر من صفر")
-                
-                with sqlite3.connect('workshop.db') as conn:
-                    c = conn.cursor()
-                    
-                    c.execute('''SELECT installments_remaining, amount, paid_amount, 
-                              device_name, customer_name, customer_phone 
-                              FROM sales WHERE id=?''', (current_sale_id[0],))
-                    sale = c.fetchone()
-                    
-                    if not sale:
-                        raise ValueError("عملية البيع غير موجودة")
-                    
-                    if sale[0] <= 0:
-                        raise ValueError("لا توجد أقساط متبقية")
-                    
-                    remaining_amount = sale[1] - sale[2]
-                    if amount > remaining_amount:
-                        if not messagebox.askyesno("تأكيد", 
-                                                   f"المبلغ المدخل (${amount:.2f}) أكبر من المبلغ المتبقي (${remaining_amount:.2f})\n"
-                                                   "هل تريد المتابعة؟"):
-                            return
-                    
-                    new_installments = max(0, sale[0] - 1)
-                    new_paid_amount = sale[2] + amount
-                    
-                    c.execute('''UPDATE sales SET installments_remaining=?, paid_amount=? 
-                              WHERE id=?''', (new_installments, new_paid_amount, current_sale_id[0]))
-                    conn.commit()
-                
-                # طباعة إيصال الدفع
-                details = {
-                    "رقم البيع": current_sale_id[0],
-                    "المنتج": sale[3],
-                    "الزبون": sale[4],
-                    "رقم الهاتف": sale[5] or "غير محدد",
-                    "المبلغ المدفوع": f"${amount:.2f}",
-                    "الأقساط المتبقية": new_installments,
-                    "الإجمالي المدفوع": f"${new_paid_amount:.2f}",
-                    "المبلغ الكلي": f"${sale[1]:.2f}",
-                    "المبلغ المتبقي": f"${sale[1] - new_paid_amount:.2f}"
+            if (cartItemIndex > -1) {
+                // Check if adding one more exceeds stock (only if quantity in cart < stock)
+                if (currentCart[cartItemIndex].quantity < product.stock) {
+                    currentCart[cartItemIndex].quantity += 1;
+                } else {
+                    alert(`لا يمكن إضافة المزيد. الحد الأقصى المتوفر هو ${product.stock} وحدات.`);
+                    return;
                 }
-                print_pdf("ايصال دفع قسط", details)
-                
-                messagebox.showinfo("نجاح ✓", 
-                                   f"تم دفع القسط بنجاح!\n\n"
-                                   f"المبلغ المدفوع: ${amount:.2f}\n"
-                                   f"الأقساط المتبقية: {new_installments}\n"
-                                   f"المبلغ المتبقي: ${sale[1] - new_paid_amount:.2f}")
-                logging.info(f"تم دفع قسط للبيع ID: {current_sale_id[0]}, المبلغ: ${amount:.2f}")
-                
-                window.destroy()
-                self.show_dashboard()
-                
-            except ValueError as ve:
-                messagebox.showerror("خطأ", str(ve))
-            except Exception as e:
-                messagebox.showerror("خطأ", f"حدث خطأ أثناء الدفع: {str(e)}")
-                logging.error(f"خطأ في دفع القسط: {str(e)}")
-        
-        # الأزرار
-        btn_frame = tk.Frame(window, bg='white')
-        btn_frame.pack(pady=15)
-        
-        tk.Button(btn_frame, text="🔍 بحث", bg=self.colors['info'], fg='white',
-                  font=('Arial', 11, 'bold'), command=search_sale, 
-                  width=12, height=2).pack(side=tk.LEFT, padx=5)
-        
-        tk.Button(btn_frame, text="💳 دفع وطباعة", bg=self.colors['success'], fg='white',
-                  font=('Arial', 11, 'bold'), command=process_payment, 
-                  width=15, height=2).pack(side=tk.LEFT, padx=5)
-        
-        tk.Button(btn_frame, text="✖ إلغاء", bg=self.colors['danger'], fg='white',
-                  font=('Arial', 11, 'bold'), command=window.destroy, 
-                  width=10, height=2).pack(side=tk.LEFT, padx=5)
-        
-        search_entry.bind('<Return>', lambda e: search_sale())
-        search_entry.focus()
+            } else {
+                currentCart.push({
+                    barcode: barcode,
+                    quantity: 1,
+                    name: product.name,
+                    salePrice: product.salePrice,
+                    purchasePrice: product.purchasePrice
+                });
+            }
+            
+            // NOTE: Stock deduction will be finalized on completeSale.
+            // No temporary deduction needed here, as we check against initial stock above.
 
-    def show_reports(self):
-        window = tk.Toplevel(self.root)
-        window.title("التقارير والإحصائيات")
-        window.geometry("700x700")
-        window.configure(bg='white')
-        self.center_window(window)
+            renderCart();
+        };
+
+        // Complete the Sale
+        const completeSale = () => {
+            if (currentCart.length === 0) {
+                alert('سلة المبيعات فارغة!');
+                return;
+            }
+
+            const totalSaleAmount = parseFloat(document.getElementById('total-amount').textContent.replace(CURRENCY, '').trim());
+            const saleDate = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+
+            // 1. Deduct from inventory (Finalization)
+            currentCart.forEach(item => {
+                if (inventory[item.barcode]) {
+                    inventory[item.barcode].stock -= item.quantity;
+                    // Ensure stock doesn't go negative, although checked in addItemByBarcode
+                    if (inventory[item.barcode].stock < 0) {
+                        inventory[item.barcode].stock = 0;
+                    }
+                }
+            });
+
+            // 2. Record the sale in history
+            salesHistory.push({
+                id: Date.now(),
+                date: saleDate,
+                total: totalSaleAmount,
+                items: [...currentCart] // Copy of cart items
+            });
+
+            // 3. Clear the cart and update storage
+            currentCart = [];
+            updateLocalStorage();
+            renderCart();
+            
+            alert('تم إتمام البيع بنجاح! شكراً.');
+        };
         
-        # العنوان
-        header_frame = tk.Frame(window, bg=self.colors['purple'], height=80)
-        header_frame.pack(fill=tk.X)
-        header_frame.pack_propagate(False)
-        
-        tk.Label(header_frame, text="📊 التقارير والإحصائيات", 
-                 font=('Arial', 18, 'bold'), 
-                 bg=self.colors['purple'], 
-                 fg='white').pack(expand=True)
-        
-        # محتوى التقرير
-        report_frame = tk.Frame(window, bg='white')
-        report_frame.pack(fill=tk.BOTH, expand=True, padx=20, pady=20)
-        
-        with sqlite3.connect('workshop.db') as conn:
-            c = conn.cursor()
-            
-            # إحصائيات الصيانات
-            c.execute("SELECT COUNT(*) FROM repairs")
-            total_repairs = c.fetchone()[0]
-            
-            c.execute("SELECT COUNT(*) FROM repairs WHERE status='مكتملة'")
-            completed_repairs = c.fetchone()[0]
-            
-            c.execute("SELECT COUNT(*) FROM repairs WHERE status='قيد الإصلاح'")
-            pending_repairs = c.fetchone()[0]
-            
-            c.execute("SELECT SUM(final_cost) FROM repairs WHERE status='مكتملة'")
-            total_repairs_revenue = c.fetchone()[0] or 0
-            
-            # إحصائيات المبيعات
-            c.execute("SELECT COUNT(*) FROM sales")
-            total_sales = c.fetchone()[0]
-            
-            c.execute("SELECT SUM(amount) FROM sales")
-            total_revenue = c.fetchone()[0] or 0
-            
-            c.execute("SELECT SUM(amount) FROM sales WHERE strftime('%Y-%m', sale_date)=strftime('%Y-%m', 'now')")
-            monthly_revenue = c.fetchone()[0] or 0
-            
-            c.execute("SELECT SUM(paid_amount) FROM sales")
-            total_paid = c.fetchone()[0] or 0
-            
-            # إحصائيات المنتجات
-            c.execute("SELECT COUNT(*) FROM products")
-            total_products = c.fetchone()[0]
-            
-            c.execute("SELECT SUM(quantity) FROM products")
-            total_quantity = c.fetchone()[0] or 0
-            
-            c.execute("SELECT COUNT(*) FROM products WHERE quantity < 5")
-            low_stock = c.fetchone()[0]
-        
-        # تنسيق العرض
-        categories = [
-            ("📋 الصيانات", [
-                ("إجمالي الصيانات", total_repairs, 'primary'),
-                ("الصيانات المكتملة", completed_repairs, 'success'),
-                ("الصيانات قيد الإصلاح", pending_repairs, 'warning'),
-                ("إجمالي إيرادات الصيانات", f"${total_repairs_revenue:.2f}", 'info')
-            ]),
-            ("💰 المبيعات", [
-                ("إجمالي المبيعات", total_sales, 'primary'),
-                ("إجمالي الإيرادات", f"${total_revenue:.2f}", 'success'),
-                ("إيرادات الشهر الحالي", f"${monthly_revenue:.2f}", 'info'),
-                ("إجمالي المبالغ المدفوعة", f"${total_paid:.2f}", 'secondary'),
-                ("المبالغ المتبقية", f"${total_revenue - total_paid:.2f}", 'danger')
-            ]),
-            ("📦 المنتجات", [
-                ("إجمالي المنتجات", total_products, 'primary'),
-                ("الكمية الإجمالية", total_quantity, 'success'),
-                ("المنتجات منخفضة المخزون", low_stock, 'warning')
-            ])
-        ]
-        
-        for category_name, items in categories:
-            cat_frame = tk.LabelFrame(report_frame, text=category_name, 
-                                     font=('Arial', 12, 'bold'),
-                                     bg='white', fg=self.colors['dark'],
-                                     relief='raised', bd=2)
-            cat_frame.pack(fill=tk.X, pady=10)
-            
-            for title, value, color in items:
-                item_frame = tk.Frame(cat_frame, bg='white')
-                item_frame.pack(fill=tk.X, padx=15, pady=5)
+        // --- REPORTING FUNCTIONS ---
+
+        // Access Reports (Security Check)
+        const accessReports = () => {
+            const code = document.getElementById('report-code').value;
+            const reportsSection = document.getElementById('reports-section');
+
+            if (code === REPORT_CODE) {
+                reportsSection.classList.remove('hidden');
+                generateReports(); 
+                alert('تم تسجيل الدخول للتقارير بنجاح.');
+            } else {
+                reportsSection.classList.add('hidden');
+                alert('رمز الدخول غير صحيح!');
+            }
+            document.getElementById('report-code').value = '';
+        };
+
+        // Generate and Display Reports
+        const generateReports = () => {
+            let dailyProfit = 0;
+            let monthlyProfit = 0;
+            let yearlyProfit = 0;
+
+            const productStats = {}; // { barcode: { salesCount, totalRevenue, totalProfit, ... } }
+
+            const today = new Date();
+            const currentDay = today.toISOString().split('T')[0];
+            const currentMonth = today.toISOString().substring(0, 7); 
+            const currentYear = today.getFullYear().toString();
+
+            salesHistory.forEach(sale => {
+                let saleProfit = 0;
                 
-                tk.Label(item_frame, text=title, 
-                        font=('Arial', 11), 
-                        bg='white',
-                        anchor='w').pack(side=tk.LEFT)
-                
-                tk.Label(item_frame, text=str(value), 
-                        font=('Arial', 11, 'bold'), 
-                        bg='white',
-                        fg=self.colors[color],
-                        anchor='e').pack(side=tk.RIGHT)
-        
-        def export_report():
-            reports = [
-                ("إجمالي الصيانات", total_repairs),
-                ("الصيانات المكتملة", completed_repairs),
-                ("الصيانات قيد الإصلاح", pending_repairs),
-                ("إجمالي إيرادات الصيانات", f"${total_repairs_revenue:.2f}"),
-                ("إجمالي المبيعات", total_sales),
-                ("إجمالي الإيرادات", f"${total_revenue:.2f}"),
-                ("إيرادات الشهر", f"${monthly_revenue:.2f}"),
-                ("إجمالي المنتجات", total_products),
-                ("الكمية الإجمالية", total_quantity),
-                ("المنتجات منخفضة المخزون", low_stock)
-            ]
-            
-            filename = f"report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
-            with open(filename, 'w', newline='', encoding='utf-8-sig') as file:
-                writer = csv.writer(file)
-                writer.writerow(['التقرير', 'القيمة'])
-                for title, value in reports:
-                    writer.writerow([title, value])
-            
-            messagebox.showinfo("نجاح", f"تم تصدير التقرير إلى:\n{filename}")
-            logging.info(f"تم تصدير التقرير: {filename}")
-        
-        btn_frame = tk.Frame(window, bg='white')
-        btn_frame.pack(pady=15)
-        
-        tk.Button(btn_frame, text="📥 تصدير التقرير", bg=self.colors['primary'], fg='white',
-                  font=('Arial', 11, 'bold'), command=export_report, width=15).pack(side=tk.LEFT, padx=5)
-        tk.Button(btn_frame, text="إغلاق", bg=self.colors['danger'], fg='white',
-                  font=('Arial', 11, 'bold'), command=window.destroy, width=10).pack(side=tk.LEFT, padx=5)
-
-    def change_password(self):
-        window = tk.Toplevel(self.root)
-        window.title("تغيير كلمة المرور")
-        window.geometry("400x300")
-        window.configure(bg='white')
-        self.center_window(window)
-        
-        title_label = tk.Label(window, text="تغيير كلمة المرور", 
-                               font=('Arial', 16, 'bold'), bg='white')
-        title_label.pack(pady=20)
-        
-        form_frame = tk.Frame(window, bg='white')
-        form_frame.pack(fill=tk.BOTH, expand=True, padx=30)
-        
-        tk.Label(form_frame, text="كلمة المرور الجديدة:", font=('Arial', 11), bg='white').grid(row=0, column=0, sticky='e', pady=10)
-        new_password_entry = tk.Entry(form_frame, show="*", font=('Arial', 11), bg='#f8f9fa')
-        new_password_entry.grid(row=0, column=1, sticky='ew', pady=10, padx=10)
-        
-        tk.Label(form_frame, text="تأكيد كلمة المرور:", font=('Arial', 11), bg='white').grid(row=1, column=0, sticky='e', pady=10)
-        confirm_password_entry = tk.Entry(form_frame, show="*", font=('Arial', 11), bg='#f8f9fa')
-        confirm_password_entry.grid(row=1, column=1, sticky='ew', pady=10, padx=10)
-        
-        form_frame.columnconfigure(1, weight=1)
-        
-        def save():
-            new_password = new_password_entry.get()
-            confirm_password = confirm_password_entry.get()
-            
-            if len(new_password) < 8:
-                messagebox.showerror("خطأ", "كلمة المرور يجب أن تكون 8 أحرف على الأقل")
-                return
-            
-            if new_password != confirm_password:
-                messagebox.showerror("خطأ", "كلمات المرور غير متطابقة")
-                return
-            
-            self.password_hash = hash_password(new_password)
-            messagebox.showinfo("نجاح", "تم تغيير كلمة المرور بنجاح!")
-            logging.info("تم تغيير كلمة المرور")
-            window.destroy()
-        
-        btn_frame = tk.Frame(window, bg='white')
-        btn_frame.pack(pady=20)
-        
-        tk.Button(btn_frame, text="حفظ", bg=self.colors['success'], fg='white',
-                  font=('Arial', 11, 'bold'), command=save, width=10).pack(side=tk.LEFT, padx=10)
-        
-        tk.Button(btn_frame, text="إلغاء", bg=self.colors['danger'], fg='white',
-                  font=('Arial', 11, 'bold'), command=window.destroy, width=10).pack(side=tk.LEFT, padx=10)
-
-    def backup_data(self):
-        filename = filedialog.asksaveasfilename(
-            defaultextension=".db",
-            filetypes=[("Database files", "*.db"), ("All files", "*.*")],
-            title="حفظ نسخة احتياطية"
-        )
-        if filename:
-            try:
-                shutil.copy2('workshop.db', filename)
-                messagebox.showinfo("نجاح", f"تم إنشاء النسخة الاحتياطية في:\n{filename}")
-                logging.info(f"تم إنشاء نسخة احتياطية: {filename}")
-            except Exception as e:
-                messagebox.showerror("خطأ", f"حدث خطأ أثناء النسخ الاحتياطي: {str(e)}")
-                logging.error(f"خطأ في النسخ الاحتياطي: {str(e)}")
-
-    def export_data(self):
-        filename = filedialog.asksaveasfilename(
-            defaultextension=".csv",
-            filetypes=[("CSV files", "*.csv"), ("All files", "*.*")],
-            title="تصدير البيانات"
-        )
-        if filename:
-            try:
-                with sqlite3.connect('workshop.db') as conn:
-                    repairs_file = filename.replace('.csv', '_repairs.csv')
-                    c = conn.cursor()
-                    c.execute("SELECT * FROM repairs")
-                    repairs_data = c.fetchall()
-                    with open(repairs_file, 'w', newline='', encoding='utf-8-sig') as f:
-                        writer = csv.writer(f)
-                        writer.writerow(['ID', 'الجهاز', 'المالك', 'الهاتف', 'الحالة', 'تاريخ الدخول', 'تاريخ الخروج', 'الوصف', 'التكلفة المتوقعة', 'التكلفة النهائية'])
-                        writer.writerows(repairs_data)
+                sale.items.forEach(item => {
+                    const itemProfit = (item.salePrice - item.purchasePrice) * item.quantity;
+                    saleProfit += itemProfit;
                     
-                    sales_file = filename.replace('.csv', '_sales.csv')
-                    c.execute("SELECT * FROM sales")
-                    sales_data = c.fetchall()
-                    with open(sales_file, 'w', newline='', encoding='utf-8-sig') as f:
-                        writer = csv.writer(f)
-                        writer.writerow(['ID', 'معرف المنتج', 'المنتج', 'الزبون', 'الهاتف', 'نوع البيع', 'الأقساط المتبقية', 'التاريخ', 'المبلغ', 'المدفوع', 'ملاحظات'])
-                        writer.writerows(sales_data)
-                    
-                    products_file = filename.replace('.csv', '_products.csv')
-                    c.execute("SELECT * FROM products")
-                    products_data = c.fetchall()
-                    with open(products_file, 'w', newline='', encoding='utf-8-sig') as f:
-                        writer = csv.writer(f)
-                        writer.writerow(['ID', 'المنتج', 'الفئة', 'السعر', 'الكمية', 'الوصف', 'التاريخ', 'التحديث'])
-                        writer.writerows(products_data)
-                
-                messagebox.showinfo("نجاح", f"تم تصدير البيانات إلى:\n• {repairs_file}\n• {sales_file}\n• {products_file}")
-                logging.info(f"تم تصدير البيانات إلى {filename}")
-            except Exception as e:
-                messagebox.showerror("خطأ", f"حدث خطأ أثناء التصدير: {str(e)}")
-                logging.error(f"خطأ في التصدير: {str(e)}")
+                    // Update Product Stats
+                    if (!productStats[item.barcode]) {
+                        productStats[item.barcode] = {
+                            name: item.name,
+                            salesCount: 0,
+                            totalRevenue: 0,
+                            totalProfit: 0,
+                            purchasePrice: item.purchasePrice,
+                            salePrice: item.salePrice
+                        };
+                    }
+                    productStats[item.barcode].salesCount += item.quantity;
+                    productStats[item.barcode].totalRevenue += item.salePrice * item.quantity;
+                    productStats[item.barcode].totalProfit += itemProfit;
+                });
 
-    def import_data(self):
-        messagebox.showinfo("معلومات", "ميزة الاستيراد قيد التطوير.\nيمكنك استخدام النسخ الاحتياطي لاستعادة البيانات.")
+                // Update Time-based Profits
+                if (sale.date === currentDay) {
+                    dailyProfit += saleProfit;
+                }
+                if (sale.date.startsWith(currentMonth)) {
+                    monthlyProfit += saleProfit;
+                }
+                if (sale.date.startsWith(currentYear)) {
+                    yearlyProfit += saleProfit;
+                }
+            });
 
-    def show_dashboard(self):
-        for widget in self.root.winfo_children():
-            if not isinstance(widget, tk.Menu):
-                widget.destroy()
-        self.build_main_window()
+            // Display Profit Summary (IQD)
+            document.getElementById('daily-profit').textContent = dailyProfit.toFixed(2) + CURRENCY;
+            document.getElementById('monthly-profit').textContent = monthlyProfit.toFixed(2) + CURRENCY;
+            document.getElementById('yearly-profit').textContent = yearlyProfit.toFixed(2) + CURRENCY;
 
-if __name__ == "__main__":
-    root = tk.Tk()
-    app = ModernWorkshopApp(root)
-    root.mainloop() اللغة العربية في الطباعة تضهر بشكل مربعات كما في الصورة واجعل البيع بلدينار العراقي والاسعار 
+            // Display Product Reports Table (IQD)
+            const tableBody = document.getElementById('product-reports-table').getElementsByTagName('tbody')[0];
+            tableBody.innerHTML = '';
+            
+            for (const barcode in productStats) {
+                const stats = productStats[barcode];
+                const row = tableBody.insertRow();
+                row.innerHTML = `
+                    <td>${stats.name}</td>
+                    <td>${stats.purchasePrice.toFixed(2) + CURRENCY}</td>
+                    <td>${stats.salePrice.toFixed(2) + CURRENCY}</td>
+                    <td>${stats.salesCount}</td>
+                    <td>${stats.totalRevenue.toFixed(2) + CURRENCY}</td>
+                    <td style="font-weight: bold; color: ${stats.totalProfit > 0 ? '#1abc9c' : '#e74c3c'};">${stats.totalProfit.toFixed(2) + CURRENCY}</td>
+                `;
+            }
+        };
+
+        // Delete Statistics
+        const resetStatistics = () => {
+            if (confirm('⚠️ تحذير: هل أنت متأكد من حذف جميع إحصائيات المبيعات؟ هذا الإجراء لا يمكن التراجع عنه وسيفقد جميع بيانات الأرباح والمبيعات التاريخية.')) {
+                salesHistory = []; // Clear sales history
+                updateLocalStorage(); 
+                generateReports(); // Refresh the reports section (will show 0.00)
+                alert('تم حذف جميع الإحصائيات بنجاح.');
+            }
+        };
+
+        // Initial load: render cart, ensure inventory is stored
+        document.addEventListener('DOMContentLoaded', () => {
+            updateLocalStorage(); // Save initial dummy data if not present
+            renderCart();
+            // Optional: Attach event listener for Enter key on barcode input
+            document.getElementById('barcode-input').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault(); // Prevent form submission
+                    addItemByBarcode();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
