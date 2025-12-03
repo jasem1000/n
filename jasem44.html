@@ -1,1935 +1,1461 @@
-هذا مجلد نظام عياده طبيب اريد اطوره يرسل رسائل تذكير بقرب مراجعة المريض عبر الواتساب تلقائي دون تدخل مني ويكون مجاني يرسل 1000 رساله بلشهر وهذه الاكود مع اسم ملفه اريد ترسلي الاكواد المعدله كامله والخطوات بلتفصيل                                       api.php         <?php
-
-header('Content-Type: text/html; charset=utf-8');
-
-include 'db.php';
-
-
-
-$action = $_GET['action'] ?? '';
-
-
-
-switch ($action) {
-
-    case 'add_patient':
-
-        add_patient($conn);
-
-        break;
-
-    case 'get_waiting':
-
-        get_waiting_list($conn);
-
-        break;
-
-    case 'get_doctor_list':
-
-        get_doctor_list($conn);
-
-        break;
-
-    case 'update_visit':
-
-        update_visit($conn);
-
-        break;
-
-    case 'search_patients':
-
-        search_patients($conn);
-
-        break;
-
-    case 'get_patient_history':
-
-        get_patient_history($conn);
-
-        break;
-
-    case 'get_stats':
-
-        get_stats($conn);
-
-        break;
-
-    case 'add_inventory':  // جديد: إضافة مادة إلى المخزن
-
-        add_inventory($conn);
-
-        break;
-
-    case 'get_inventory':  // جديد: جلب قائمة المخزن
-
-        get_inventory($conn);
-
-        break;
-
-    case 'update_inventory':  // جديد: تحديث مادة
-
-        update_inventory($conn);
-
-        break;
-
-    case 'delete_inventory':  // جديد: حذف مادة
-
-        delete_inventory($conn);
-
-        break;
-
-    case 'get_upcoming_reviews':  // جديد: جلب المراجعات القادمة للتذكيرات
-
-        get_upcoming_reviews($conn);
-
-        break;
-
-    default:
-
-        echo "Invalid Action";
-
+import tkinter as tk
+from tkinter import ttk, messagebox, filedialog, simpledialog
+import sqlite3
+import datetime
+import io
+import os
+import json
+import time
+# --- مكتبات الطباعة والصور ---
+from PIL import Image, ImageTk, ImageDraw, ImageFont, ImageWin
+import win32print
+import win32ui
+import win32con
+# --- مكتبات معالجة اللغة العربية ---
+try:
+    import arabic_reshaper
+    from bidi.algorithm import get_display
+except ImportError:
+    print("يرجى تثبيت مكتبات العربية: pip install arabic-reshaper python-bidi")
+    def get_display(text): return text
+    class arabic_reshaper:
+        @staticmethod
+        def reshape(text): return text
+# --- إعدادات الألوان والتصميم ---
+BG_MAIN_COLOR = "#F4F7F6"
+PANEL_COLOR = "#3F6287"
+PRIMARY_COLOR = "#007AFF"
+SECONDARY_COLOR = "#00AEFF"
+ACCENT_COLOR = "#0DAAFF"
+SUCCESS_COLOR = "#28a745"
+DANGER_COLOR = "#dc3545"
+TEXT_COLOR = "#0099FF"
+TEXT_SECONDARY = "#6c757d"
+CARD_COLORS = {
+    "أبيض (افتراضي)": "#FFFFFF",
+    "أحمر فاتح": "#FFEBEE",
+    "أخضر فاتح": "#E8F5E9",
+    "أزرق فاتح": "#E3F2FD",
+    "أصفر فاتح": "#FFFDE7",
+    "برتقالي فاتح": "#FFF3E0",
+    "رمادي فاتح": "#F5F5F5"
 }
-
-
-
-function add_patient($conn) {
-
-    $name = $_POST['name'];
-
-    $age = $_POST['age'];
-
-    $price = $_POST['price'];
-
-    $phone = '+964' . preg_replace('/\D/', '', $_POST['phone']);  // ثابت +964، تنظيف الأرقام
-
-    $today = date("Y-m-d");
-
-
-
-    // تحقق إذا كان المريض موجوداً
-
-    $stmt = $conn->prepare("SELECT id FROM patients WHERE patient_name = ? AND patient_age = ?");
-
-    $stmt->bind_param("si", $name, $age);
-
-    $stmt->execute();
-
-    $result = $stmt->get_result();
-
-    if ($result->num_rows > 0) {
-
-        $patient = $result->fetch_assoc();
-
-        $patient_id = $patient['id'];
-
-        // تحديث الهاتف إذا تغير
-
-        $stmt_update = $conn->prepare("UPDATE patients SET phone = ? WHERE id = ?");
-
-        $stmt_update->bind_param("si", $phone, $patient_id);
-
-        $stmt_update->execute();
-
-    } else {
-
-        $stmt_insert = $conn->prepare("INSERT INTO patients (patient_name, patient_age, phone) VALUES (?, ?, ?)");
-
-        $stmt_insert->bind_param("sis", $name, $age, $phone);
-
-        $stmt_insert->execute();
-
-        $patient_id = $stmt_insert->insert_id;
-
-    }
-
-
-
-    // إضافة الزيارة
-
-    $stmt = $conn->prepare("INSERT INTO visits (patient_id, ticket_price, visit_date) VALUES (?, ?, ?)");
-
-    $stmt->bind_param("ids", $patient_id, $price, $today);
-
-    $stmt->execute();
-
-
-
-    echo "Success";
-
-}
-
-
-
-function get_waiting_list($conn) {
-
-    $today = date("Y-m-d");
-
-    // تعديل: عرض فقط المرضى غير المشخصين (prescription IS NULL)
-
-    $result = $conn->query("SELECT p.patient_name, p.patient_age FROM patients p JOIN visits v ON p.id = v.patient_id WHERE v.visit_date = '$today' AND v.prescription IS NULL ORDER BY v.id ASC");
-
-    $output = "<ul class='list-group'>";
-
-    if ($result->num_rows > 0) {
-
-        while ($row = $result->fetch_assoc()) {
-
-            $output .= "<li class='list-group-item'>{$row['patient_name']} ({$row['patient_age']} سنة)</li>";
-
-        }
-
-    } else {
-
-        $output .= "<li class='list-group-item'>لا يوجد مرضى في قائمة الانتظار.</li>";
-
-    }
-
-    $output .= "</ul>";
-
-    echo $output;
-
-}
-
-
-
-function get_doctor_list($conn) {
-
-    $today = date("Y-m-d");
-
-    // تعديل: عرض فقط المرضى غير المشخصين (prescription IS NULL)
-
-    $result = $conn->query("SELECT p.patient_name, p.patient_age, v.id as visit_id, v.prescription, v.notes FROM patients p JOIN visits v ON p.id = v.patient_id WHERE v.visit_date = '$today' AND v.prescription IS NULL ORDER BY v.id ASC");
-
-    if ($result->num_rows === 0) {
-
-        echo "<p>لا يوجد مرضى اليوم.</p>";
-
-        return;
-
-    }
-
-    while ($row = $result->fetch_assoc()) {
-
-        $status = empty($row['prescription']) ? "بانتظار التشخيص" : "تم التشخيص";
-
-        $buttons = "";
-
-        if (empty($row['prescription'])) {
-
-            $buttons = "<button class='add-details-btn btn btn-primary' data-id='{$row['visit_id']}' data-name='{$row['patient_name']}'>إضافة تفاصيل</button>";
-
-        } else {
-
-            $print_data = http_build_query([
-
-                'patient_name' => $row['patient_name'],
-
-                'prescription' => $row['prescription'],
-
-                'notes' => $row['notes']
-
-            ]);
-
-            $buttons = "<button onclick=\"window.open('print.html?{$print_data}', '_blank', 'width=800,height=600')\" class='print-btn btn btn-success'>طباعة</button>";
-
-        }
-
-
-
-        echo "<div class='patient-card card mb-2'>
-
-                <div class='card-body d-flex justify-content-between align-items-center'>
-
-                    <span><strong>{$row['patient_name']}</strong> ({$row['patient_age']} سنة) - <small>$status</small></span>
-
-                    <div>{$buttons}</div>
-
-                </div>
-
-              </div>";
-
-    }
-
-}
-
-
-
-function update_visit($conn) {
-
-    $visit_id = $_POST['visit_id'];
-
-    $prescription = $_POST['prescription'];
-
-    $notes = $_POST['notes'];
-
-    $next_review = $_POST['next_review'] ?? null;  // جديد: تاريخ المراجعة التالية
-
-    $image_path = null;
-
-
-
-    if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) {
-
-        $target_dir = "uploads/";
-
-        if (!is_dir($target_dir)) {
-
-            mkdir($target_dir, 0777, true);
-
-        }
-
-        $filename = time() . '_' . basename($_FILES["image"]["name"]);
-
-        $target_file = $target_dir . $filename;
-
-        if (move_uploaded_file($_FILES["image"]["tmp_name"], $target_file)) {
-
-            $image_path = $target_file;
-
-        }
-
-    }
-
-    
-
-    $stmt = $conn->prepare("UPDATE visits SET prescription = ?, notes = ?, image_path = ?, next_review_date = ? WHERE id = ?");
-
-    $stmt->bind_param("ssssi", $prescription, $notes, $image_path, $next_review, $visit_id);
-
-    if ($stmt->execute()) {
-
-        echo "Success";
-
-    } else {
-
-        echo "Error";
-
-    }
-
-}
-
-
-
-function search_patients($conn) {
-
-    $query = "%" . ($_GET['query'] ?? '') . "%";
-
-    $stmt = $conn->prepare("SELECT id, patient_name, patient_age FROM patients WHERE patient_name LIKE ? ORDER BY patient_name LIMIT 10");
-
-    $stmt->bind_param("s", $query);
-
-    $stmt->execute();
-
-    $result = $stmt->get_result();
-
-    $output = "<ul class='list-group'>";
-
-    if ($result->num_rows > 0) {
-
-        while ($row = $result->fetch_assoc()) {
-
-            $output .= "<li class='list-group-item patient-result' data-id='{$row['id']}'>{$row['patient_name']} ({$row['patient_age']} سنة)</li>";
-
-        }
-
-    } else {
-
-        $output .= "<li class='list-group-item'>لا توجد نتائج.</li>";
-
-    }
-
-    $output .= "</ul>";
-
-    echo $output;
-
-}
-
-
-
-function get_patient_history($conn) {
-
-    $patient_id = $_GET['id'] ?? 0;
-
-    $stmt = $conn->prepare("SELECT * FROM visits WHERE patient_id = ? ORDER BY visit_date DESC");
-
-    $stmt->bind_param("i", $patient_id);
-
-    $stmt->execute();
-
-    $result = $stmt->get_result();
-
-    $output = "";
-
-    if ($result->num_rows > 0) {
-
-        while ($row = $result->fetch_assoc()) {
-
-            $image_tag = !empty($row['image_path']) ? "<p><a href='{$row['image_path']}' target='_blank'>عرض الصورة المرفقة</a></p>" : "";
-
-            $output .= "<div class='visit-record card mb-3'>
-
-                <div class='card-body'>
-
-                    <h4 class='card-title'>تاريخ الزيارة: {$row['visit_date']}</h4>
-
-                    <p class='card-text'><strong>الوصفة:</strong><br>" . nl2br(htmlspecialchars($row['prescription'])) . "</p>
-
-                    <p class='card-text'><strong>ملاحظات:</strong><br>" . nl2br(htmlspecialchars($row['notes'])) . "</p>
-
-                    {$image_tag}
-
-                </div>
-
-            </div>";
-
-        }
-
-    } else {
-
-        $output = "<p>لا يوجد سجل زيارات لهذا المريض.</p>";
-
-    }
-
-    echo $output;
-
-}
-
-
-
-function get_stats($conn) {
-
-    header('Content-Type: application/json; charset=utf-8');
-
-    
-
-    $today = date("Y-m-d");
-
-    $month = date("m");
-
-    $year = date("Y");
-
-
-
-    $monthly = $conn->query("SELECT SUM(ticket_price) as total FROM visits WHERE MONTH(visit_date) = $month AND YEAR(visit_date) = $year")->fetch_assoc();
-
-    $daily_income = $conn->query("SELECT SUM(ticket_price) as total FROM visits WHERE visit_date = '$today'")->fetch_assoc();
-
-    $daily_visits = $conn->query("SELECT COUNT(id) as total FROM visits WHERE visit_date = '$today'")->fetch_assoc();
-
-    $total_visits = $conn->query("SELECT COUNT(id) as total FROM visits")->fetch_assoc();
-
-
-
-    $stats = [
-
-        'monthly_income' => number_format($monthly['total'] ?? 0),
-
-        'daily_income' => number_format($daily_income['total'] ?? 0),
-
-        'daily_visits' => $daily_visits['total'] ?? 0,
-
-        'total_visits' => $total_visits['total'] ?? 0,
-
-    ];
-
-
-
-    echo json_encode($stats);
-
-}
-
-
-
-// وظائف المخزن الجديدة
-
-function add_inventory($conn) {
-
-    $name = $_POST['name'];
-
-    $quantity = $_POST['quantity'];
-
-    $price = $_POST['price'];
-
-    $description = $_POST['description'];
-
-    $today = date("Y-m-d");
-
-
-
-    $stmt = $conn->prepare("INSERT INTO inventory (name, quantity, price, description, added_date) VALUES (?, ?, ?, ?, ?)");
-
-    $stmt->bind_param("sidss", $name, $quantity, $price, $description, $today);
-
-    if ($stmt->execute()) {
-
-        echo "Success";
-
-    } else {
-
-        echo "Error";
-
-    }
-
-}
-
-
-
-function get_inventory($conn) {
-
-    $result = $conn->query("SELECT * FROM inventory ORDER BY added_date DESC");
-
-    $inventory = [];
-
-    while ($row = $result->fetch_assoc()) {
-
-        $inventory[] = $row;
-
-    }
-
-    echo json_encode($inventory);
-
-}
-
-
-
-function update_inventory($conn) {
-
-    $id = $_POST['id'];
-
-    $name = $_POST['name'];
-
-    $quantity = $_POST['quantity'];
-
-    $price = $_POST['price'];
-
-    $description = $_POST['description'];
-
-
-
-    $stmt = $conn->prepare("UPDATE inventory SET name = ?, quantity = ?, price = ?, description = ? WHERE id = ?");
-
-    $stmt->bind_param("sidsi", $name, $quantity, $price, $description, $id);
-
-    if ($stmt->execute()) {
-
-        echo "Success";
-
-    } else {
-
-        echo "Error";
-
-    }
-
-}
-
-
-
-function delete_inventory($conn) {
-
-    $id = $_POST['id'];
-
-    $stmt = $conn->prepare("DELETE FROM inventory WHERE id = ?");
-
-    $stmt->bind_param("i", $id);
-
-    if ($stmt->execute()) {
-
-        echo "Success";
-
-    } else {
-
-        echo "Error";
-
-    }
-
-}
-
-
-
-// جديد: جلب المراجعات القادمة (غداً أو اليوم)
-
-function get_upcoming_reviews($conn) {
-
-    $tomorrow = date("Y-m-d", strtotime("+1 day"));
-
-    $today = date("Y-m-d");
-
-    $stmt = $conn->prepare("SELECT p.patient_name, p.phone, v.next_review_date FROM patients p JOIN visits v ON p.id = v.patient_id WHERE v.next_review_date BETWEEN ? AND ? AND p.phone IS NOT NULL");
-
-    $stmt->bind_param("ss", $today, $tomorrow);
-
-    $stmt->execute();
-
-    $result = $stmt->get_result();
-
-    $reviews = [];
-
-    while ($row = $result->fetch_assoc()) {
-
-        $reviews[] = $row;
-
-    }
-
-    echo json_encode($reviews);
-
-}
-
-
-
-$conn->close();
-
-?>                    db.php       <?php
-
-// للرفع المجاني: استبدل بالبيانات من 000webhost (مثال: $servername = "sqlXXX.000webhost.com";)
-
-$servername = "localhost";  // غير إلى host الجديد
-
-$username = "root";         // غير إلى user الجديد
-
-$password = "";             // غير إلى pass الجديد
-
-$dbname = "clinic_db";      // غير إذا لزم
-
-
-
-$conn = new mysqli($servername, $username, $password, $dbname);
-
-
-
-if ($conn->connect_error) {
-
-    die("Connection failed: " . $conn->connect_error);
-
-}
-
-
-
-$conn->set_charset("utf8mb4");  // دعم العربية
-
-?>         doctor.js    $(document).ready(function() {
-
-    const modal = $("#detailsModal");
-
-    const modalPatientName = $("#modalPatientName");
-
-    const visitIdInput = $("#visitId");
-
-
-
-    function loadDoctorList() {
-
-        $.get("api.php?action=get_doctor_list", function(data) {
-
-            $("#doctorPatientList").html(data);
-
-        }).fail(function() {
-
-            $("#doctorPatientList").html("<p>خطأ في تحميل البيانات.</p>");
-
-        });
-
-    }
-
-
-
-    $(document).on("click", ".add-details-btn", function() {
-
-        const visitId = $(this).data("id");
-
-        const patientName = $(this).data("name");
-
-        
-
-        $("#detailsForm")[0].reset();
-
-        
-
-        visitIdInput.val(visitId);
-
-        modalPatientName.text(patientName);
-
-        modal.show();
-
-    });
-
-
-
-    $(".close-button").click(() => modal.hide());
-
-    $(window).click(function(event) {
-
-        if ($(event.target).is(modal)) {
-
-            modal.hide();
-
-        }
-
-    });
-
-
-
-    $("#detailsForm").on("submit", function(e) {
-
-        e.preventDefault();
-
-        const formData = new FormData(this);
-
-
-
-        $.ajax({
-
-            url: 'api.php?action=update_visit',
-
-            type: 'POST',
-
-            data: formData,
-
-            contentType: false,
-
-            processData: false,
-
-            success: function(response) {
-
-                alert("تم تحديث بيانات الزيارة بنجاح!");
-
-                modal.hide();
-
-                loadDoctorList();
-
-            },
-
-            error: function() {
-
-                alert("حدث خطأ أثناء حفظ البيانات.");
-
-            }
-
-        });
-
-    });
-
-
-
-    loadDoctorList();
-
-    setInterval(loadDoctorList, 10000);
-
-});                        footer.php      </div> </body>
-
-               </html>  وهذا كود ملف      header.php     <!DOCTYPE html>
-
-<html lang="ar" dir="rtl">
-
-<head>
-
-    <meta charset="UTF-8">
-
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title><?php echo isset($pageTitle) ? $pageTitle : "نظام العيادة"; ?></title>
-
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"> <!-- Bootstrap للتصميم الاحترافي -->
-
-    <link rel="stylesheet" href="style.css">
-
-</head>
-
-<body>
-
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-
-        <div class="container-fluid">
-
-            <a class="navbar-brand" href="#">نظام العيادة</a>
-
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-
-                <span class="navbar-toggler-icon"></span>
-
-            </button>
-
-            <div class="collapse navbar-collapse" id="navbarNav">
-
-                <ul class="navbar-nav">
-
-                    <li class="nav-item"><a class="nav-link" href="secretary.php">واجهة السكرتير</a></li>
-
-                    <li class="nav-item"><a class="nav-link" href="doctor.php">واجهة الطبيب</a></li>
-
-                    <li class="nav-item"><a class="nav-link" href="history.php">سجل المرضى</a></li>
-
-                    <li class="nav-item"><a class="nav-link" href="stats.php">الإحصائيات</a></li>
-
-                    <li class="nav-item"><a class="nav-link" href="inventory.php">المخزن</a></li> <!-- جديد -->
-
-                    <li class="nav-item"><a class="nav-link" href="reminders.php">التذكيرات</a></li> <!-- جديد -->
-
-                </ul>
-
-            </div>
-
-        </div>
-
-    </nav>
-
-    <div class="container mt-4">
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>  وهذا كود    history.php     <?php $pageTitle = "سجل المرضى"; include 'header.php'; ?>
-
-
-
-<h1>البحث في سجلات المرضى</h1>
-
-<input type="text" id="searchInput" placeholder="اكتب اسم المريض للبحث...">
-
-<div id="searchResults"></div>
-
-<hr>
-
-<div id="history-details">
-
-    <h3>تفاصيل الزيارات</h3>
-
-    <div id="visit-list">
-
-        <p>ابحث عن مريض لعرض سجل زياراته.</p>
-
-    </div>
-
-</div>
-
-
-
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-<script>
-
-$(document).ready(function() {
-
-    // Search patients as user types (debounced for performance)
-
-    let searchTimeout;
-
-    $("#searchInput").on("keyup", function() {
-
-        clearTimeout(searchTimeout);
-
-        let query = $(this).val();
-
-        
-
-        if (query.length > 1) {
-
-            searchTimeout = setTimeout(function() {
-
-                $.get(`api.php?action=search_patients&query=${query}`, function(data) {
-
-                    $("#searchResults").html(data).show();
-
-                });
-
-            }, 300); // Wait 300ms after user stops typing
-
-        } else {
-
-            $("#searchResults").html("").hide();
-
-        }
-
-    });
-
-
-
-    // Get history for a selected patient
-
-    $(document).on("click", ".patient-result", function() {
-
-        let patientId = $(this).data("id");
-
-        let patientName = $(this).text();
-
-        $("#searchInput").val(patientName);
-
-        $("#searchResults").hide();
-
-        
-
-        $("#visit-list").html("<p>جاري تحميل السجل...</p>");
-
-        $.get(`api.php?action=get_patient_history&id=${patientId}`, function(data) {
-
-            $("#visit-list").html(data);
-
-        });
-
-    });
-
-});
-
-</script>
-
-
-
-<?php include 'footer.php'; ?>  وهذا   print.html       <!DOCTYPE html>
-
-<html lang="ar" dir="rtl">
-
-<head>
-
-    <meta charset="UTF-8">
-
-    <title>طباعة وصفة طبية</title>
-
-    <style>
-
-        body { font-family: Arial, sans-serif; margin: 25px; }
-
-        .prescription { border: 1px solid #000; padding: 20px; width: 100%; box-sizing: border-box; }
-
-        h1 { text-align: center; color: #333; margin-top: 0; }
-
-        .header, .footer { text-align: center; margin-bottom: 20px; }
-
-        .details { margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px dashed #ccc; }
-
-        .details p { margin: 5px 0; }
-
-        .section { margin-top: 25px; }
-
-        .section h3 { border-bottom: 1px solid #ccc; padding-bottom: 5px; margin-top: 0; }
-
-        p { white-space: pre-wrap; line-height: 1.6; }
-
-    </style>
-
-</head>
-
-<body>
-
-    <div class="prescription">
-
-        <div class="header">
-
-            <h2>عيادة الدكتور/ة [اكتب اسمك هنا]</h2>
-
-            <p>[تخصصك هنا] | [رقم الهاتف]</p>
-
-        </div>
-
-        <h1>وصفة طبية</h1>
-
-        <div class="details">
-
-            <p><strong>اسم المريض:</strong> <span id="pName"></span></p>
-
-            <p><strong>التاريخ:</strong> <span id="pDate"></span></p>
-
-        </div>
-
-        <div class="section">
-
-            <h3>Rx (الوصفة)</h3>
-
-            <p id="pPrescription"></p>
-
-        </div>
-
-        <div class="section">
-
-            <h3>ملاحظات الطبيب</h3>
-
-            <p id="pNotes"></p>
-
-        </div>
-
-         <div class="section" style="text-align: left; margin-top: 60px;">
-
-            <p><strong>توقيع الطبيب</strong></p>
-
-            <br>
-
-            <p>___________________</p>
-
-        </div>
-
-    </div>
-
-    <script>
-
-        window.onload = function() {
-
-            const params = new URLSearchParams(window.location.search);
-
-            document.getElementById('pName').textContent = params.get('patient_name') || 'غير محدد';
-
-            document.getElementById('pDate').textContent = new Date().toLocaleDateString('ar-IQ', {
-
-                year: 'numeric', month: 'long', day: 'numeric'
-
-            });
-
-            document.getElementById('pPrescription').textContent = params.get('prescription') || 'لا يوجد';
-
-            document.getElementById('pNotes').textContent = params.get('notes') || 'لا يوجد';
-
-            
-
-            setTimeout(() => {
-
-                window.print();
-
-                window.onafterprint = () => window.close();
-
-            }, 500);
-
-        };
-
-    </script>
-
-</body>
-
-</html>   وهذا      inventory.php      <?php $pageTitle = "المخزن"; include 'header.php'; ?>
-
-
-
-<h1>إدارة المخزن</h1>
-
-<form id="inventoryForm" class="row g-3">
-
-    <input type="hidden" id="itemId">
-
-    <div class="col-md-4">
-
-        <input type="text" class="form-control" id="itemName" placeholder="اسم المادة" required>
-
-    </div>
-
-    <div class="col-md-2">
-
-        <input type="number" class="form-control" id="itemQuantity" placeholder="الكمية" required>
-
-    </div>
-
-    <div class="col-md-2">
-
-        <input type="number" class="form-control" id="itemPrice" placeholder="السعر" step="any" required>
-
-    </div>
-
-    <div class="col-md-4">
-
-        <textarea class="form-control" id="itemDescription" placeholder="الوصف" rows="1"></textarea>
-
-    </div>
-
-    <div class="col-12">
-
-        <button type="submit" class="btn btn-primary">إضافة/تحديث المادة</button>
-
-    </div>
-
-</form>
-
-<hr>
-
-<h2>قائمة المواد</h2>
-
-<table class="table table-striped" id="inventoryTable">
-
-    <thead>
-
-        <tr>
-
-            <th>اسم</th>
-
-            <th>كمية</th>
-
-            <th>سعر</th>
-
-            <th>وصف</th>
-
-            <th>تاريخ</th>
-
-            <th>إجراءات</th>
-
-        </tr>
-
-    </thead>
-
-    <tbody></tbody>
-
-</table>
-
-
-
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-<script>
-
-$(document).ready(function() {
-
-    loadInventory();
-
-
-
-    $("#inventoryForm").on("submit", function(e) {
-
-        e.preventDefault();
-
-        const id = $("#itemId").val();
-
-        const url = id ? 'api.php?action=update_inventory' : 'api.php?action=add_inventory';
-
-        $.ajax({
-
-            url: url,
-
-            type: 'POST',
-
-            data: {
-
-                id: id,
-
-                name: $("#itemName").val(),
-
-                quantity: $("#itemQuantity").val(),
-
-                price: $("#itemPrice").val(),
-
-                description: $("#itemDescription").val()
-
-            },
-
-            success: function() {
-
-                alert("تم العملية بنجاح!");
-
-                $("#inventoryForm")[0].reset();
-
-                $("#itemId").val('');
-
-                loadInventory();
-
-            },
-
-            error: function() {
-
-                alert("خطأ!");
-
-            }
-
-        });
-
-    });
-
-
-
-    function loadInventory() {
-
-        $.getJSON("api.php?action=get_inventory", function(data) {
-
-            const tbody = $("#inventoryTable tbody");
-
-            tbody.empty();
-
-            data.forEach(item => {
-
-                tbody.append(`
-
-                    <tr>
-
-                        <td>${item.name}</td>
-
-                        <td>${item.quantity}</td>
-
-                        <td>${item.price}</td>
-
-                        <td>${item.description || ''}</td>
-
-                        <td>${item.added_date}</td>
-
-                        <td>
-
-                            <button class="btn btn-sm btn-warning edit-btn" data-id="${item.id}" data-name="${item.name}" data-quantity="${item.quantity}" data-price="${item.price}" data-description="${item.description}">تعديل</button>
-
-                            <button class="btn btn-sm btn-danger delete-btn" data-id="${item.id}">حذف</button>
-
-                        </td>
-
-                    </tr>
-
-                `);
-
-            });
-
-        });
-
-    }
-
-
-
-    $(document).on("click", ".edit-btn", function() {
-
-        $("#itemId").val($(this).data("id"));
-
-        $("#itemName").val($(this).data("name"));
-
-        $("#itemQuantity").val($(this).data("quantity"));
-
-        $("#itemPrice").val($(this).data("price"));
-
-        $("#itemDescription").val($(this).data("description"));
-
-    });
-
-
-
-    $(document).on("click", ".delete-btn", function() {
-
-        if (confirm("هل أنت متأكد؟")) {
-
-            $.post("api.php?action=delete_inventory", { id: $(this).data("id") }, function() {
-
-                loadInventory();
-
-            });
-
-        }
-
-    });
-
-});
-
-</script>
-
-
-
-<?php include 'footer.php'; ?>        وهذا        secretary.php      <?php $pageTitle = "واجهة السكرتير"; include 'header.php'; ?>
-
-
-
-<h1>تسجيل مريض جديد</h1>
-
-<form id="patientForm" class="row g-3">
-
-    <div class="col-md-6">
-
-        <input type="text" class="form-control" id="patientName" placeholder="اسم المريض" required>
-
-    </div>
-
-    <div class="col-md-3">
-
-        <input type="number" class="form-control" id="patientAge" placeholder="العمر" required>
-
-    </div>
-
-    <div class="col-md-3">
-
-        <input type="number" class="form-control" id="ticketPrice" placeholder="سعر الكشفية" step="any" required>
-
-    </div>
-
-    <div class="col-md-12">
-
-        <div class="input-group">
-
-            <span class="input-group-text">+964</span>
-
-            <input type="text" class="form-control" id="patientPhone" placeholder="رقم الهاتف (بدون +964)" required pattern="\d{10}">
-
-        </div>
-
-    </div>
-
-    <div class="col-12">
-
-        <button type="submit" class="btn btn-primary">إضافة المريض لقائمة الانتظار</button>
-
-    </div>
-
-</form>
-
-<hr>
-
-<h2>المرضى المنتظرون اليوم</h2>
-
-<div id="waitingList" class="list-group"></div>
-
-
-
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-<script>
-
-$(document).ready(function() {
-
-    $("#patientForm").on("submit", function(e) {
-
-        e.preventDefault();
-
-        $.ajax({
-
-            url: 'api.php?action=add_patient',
-
-            type: 'POST',
-
-            data: {
-
-                name: $("#patientName").val(),
-
-                age: $("#patientAge").val(),
-
-                price: $("#ticketPrice").val(),
-
-                phone: $("#patientPhone").val()  // +964 يضاف في API
-
-            },
-
-            success: function(response) {
-
-                alert("تمت إضافة المريض بنجاح!");
-
-                $("#patientForm")[0].reset();
-
-                loadWaitingList();
-
-            },
-
-            error: function() {
-
-                alert("حدث خطأ، يرجى المحاولة مرة أخرى.");
-
-            }
-
-        });
-
-    });
-
-
-
-    function loadWaitingList() {
-
-        $.get("api.php?action=get_waiting", function(data) {
-
-            $("#waitingList").html(data);
-
-        });
-
-    }
-
-
-
-    loadWaitingList();
-
-    setInterval(loadWaitingList, 10000);
-
-});
-
-</script>
-
-
-
-<?php include 'footer.php'; ?> وهذا            style.css   /* General Body Styles */
-
-body {
-
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-
-    background-color: #f4f4f9;
-
-    color: #333;
-
-    margin: 0;
-
-    padding: 20px;
-
-}
-
-
-
-/* Main Container */
-
-.container {
-
-    max-width: 1200px; /* أوسع للاحترافية */
-
-    margin: auto;
-
-    background: #fff;
-
-    padding: 20px;
-
-    border-radius: 8px;
-
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-
-}
-
-
-
-h1, h2, h3 {
-
-    color: #0056b3;
-
-    border-bottom: 2px solid #f0f0f0;
-
-    padding-bottom: 10px;
-
-    margin-top: 0;
-
-}
-
-
-
-/* Navigation Bar */
-
-.navbar {
-
-    margin-bottom: 20px;
-
-}
-
-
-
-/* Forms: Inputs, Textareas, Buttons */
-
-input[type="text"], input[type="number"], textarea, button {
-
-    width: 100%;
-
-    padding: 12px;
-
-    margin-bottom: 15px;
-
-    border-radius: 5px;
-
-    border: 1px solid #ddd;
-
-    box-sizing: border-box; /* Important for padding */
-
-    font-size: 16px;
-
-}
-
-
-
-textarea {
-
-    resize: vertical;
-
-}
-
-
-
-button {
-
-    background-color: #007bff;
-
-    color: white;
-
-    border: none;
-
-    cursor: pointer;
-
-    font-weight: bold;
-
-    transition: background-color 0.3s;
-
-}
-
-button:hover {
-
-    background-color: #0056b3;
-
-}
-
-
-
-/* Patient Card (Doctor's view) */
-
-.patient-card {
-
-    background-color: #e9ecef;
-
-    padding: 15px;
-
-    margin-bottom: 10px;
-
-    border-radius: 5px;
-
-    display: flex;
-
-    justify-content: space-between;
-
-    align-items: center;
-
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-
-}
-
-.patient-card small {
-
-    color: #6c757d;
-
-}
-
-
-
-/* Action Buttons */
-
-.add-details-btn {
-
-    background-color: #17a2b8;
-
-}
-
-.add-details-btn:hover {
-
-    background-color: #138496;
-
-}
-
-.print-btn {
-
-    background-color: #28a745;
-
-}
-
-.print-btn:hover {
-
-    background-color: #218838;
-
-}
-
-
-
-/* Modal for Doctor's Details */
-
-.modal {
-
-    display: none; 
-
-    position: fixed;
-
-    z-index: 1000;
-
-    left: 0; top: 0;
-
-    width: 100%; height: 100%;
-
-    overflow: auto;
-
-    background-color: rgba(0,0,0,0.5);
-
-}
-
-.modal-content {
-
-    background-color: #fefefe;
-
-    margin: 10% auto;
-
-    padding: 20px;
-
-    border: 1px solid #888;
-
-    width: 90%;
-
-    max-width: 600px;
-
-    border-radius: 8px;
-
-    position: relative;
-
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-
-}
-
-.close-button {
-
-    color: #aaa;
-
-    position: absolute;
-
-    left: 15px;
-
-    top: 10px;
-
-    font-size: 28px;
-
-    font-weight: bold;
-
-    cursor: pointer;
-
-}
-
-
-
-/* History & Search Page */
-
-#searchResults ul {
-
-    list-style: none;
-
-    padding: 0;
-
-    margin: 0;
-
-    border: 1px solid #ddd;
-
-    border-radius: 5px;
-
-}
-
-#searchResults li {
-
-    padding: 10px;
-
-    cursor: pointer;
-
-    border-bottom: 1px solid #ddd;
-
-}
-
-#searchResults li:last-child {
-
-    border-bottom: none;
-
-}
-
-#searchResults li:hover {
-
-    background-color: #f0f0f0;
-
-}
-
-#history-details {
-
-    margin-top: 20px;
-
-    background-color: #f8f9fa;
-
-    padding: 15px;
-
-    border-radius: 5px;
-
-}
-
-.visit-record {
-
-    border-bottom: 1px solid #e9ecef;
-
-    padding-bottom: 15px;
-
-    margin-bottom: 15px;
-
-}
-
-.visit-record:last-child {
-
-    border-bottom: none;
-
-    margin-bottom: 0;
-
-}
-
-.visit-record h4 {
-
-    color: #007bff;
-
-}
-
-
-
-/* Statistics Cards */
-
-.stats-grid {
-
-    gap: 20px;
-
-}
-
-.stat-card {
-
-    background-color: #ffffff;
-
-    padding: 25px;
-
-    text-align: center;
-
-    border-radius: 8px;
-
-    border: 1px solid #e9ecef;
-
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-
-}
-
-.stat-card h3 {
-
-    margin: 0 0 10px;
-
-    font-size: 18px;
-
-    color: #0056b3;
-
-    border-bottom: none;
-
-}
-
-.stat-card p {
-
-    font-size: 28px;
-
-    font-weight: bold;
-
-    margin: 0;
-
-    color: #28a745; /* أخضر للأرقام */
-
-}
-
-
-
-/* لقوائم مثل waitingList */
-
-.list-group-item {
-
-    border-radius: 5px;
-
-    margin-bottom: 5px;
-
-}
-
-
-
-/* Responsiveness */
-
-@media (max-width: 768px) {
-
-    .navbar-nav {
-
-        flex-direction: column;
-
-    }
-
-}        وهذا             stats.php      <?php $pageTitle = "الإحصائيات"; include 'header.php'; ?>
-
-
-
-<h1>لوحة الإحصائيات</h1>
-
-<div class="row stats-grid">
-
-    <div class="col-md-3 stat-card">
-
-        <h3>الدخل (هذا الشهر)</h3>
-
-        <p id="monthlyIncome">0</p>
-
-    </div>
-
-    <div class="col-md-3 stat-card">
-
-        <h3>الدخل (اليوم)</h3>
-
-        <p id="dailyIncome">0</p>
-
-    </div>
-
-    <div class="col-md-3 stat-card">
-
-        <h3>عدد المراجعين (اليوم)</h3>
-
-        <p id="dailyVisits">0</p>
-
-    </div>
-
-    <div class="col-md-3 stat-card">
-
-        <h3>إجمالي عدد الزيارات</h3>
-
-        <p id="totalVisits">0</p>
-
-    </div>
-
-</div>
-
-
-
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-<script>
-
-$(document).ready(function() {
-
-    function loadStats() {
-
-        $.getJSON("api.php?action=get_stats", function(data) {
-
-            $("#monthlyIncome").text(data.monthly_income + " د.ع");
-
-            $("#dailyIncome").text(data.daily_income + " د.ع");
-
-            $("#dailyVisits").text(data.daily_visits);
-
-            $("#totalVisits").text(data.total_visits);
-
-        });
-
-    }
-
-    loadStats(); // Load stats on page load
-
-});
-
-</script>
-
-
-
-<?php include 'footer.php'; ?>                وهذا             reminders.php     <?php $pageTitle = "التذكيرات"; include 'header.php'; ?>
-
-
-
-<h1>التذكيرات بالمراجعات القادمة</h1>
-
-<p>قائمة المرضى الذين لديهم مراجعة اليوم أو غدًا.</p>
-
-<button id="sendAll" class="btn btn-primary mb-3">إرسال تذكير للجميع مباشرة</button>
-
-<p class="text-warning">ملاحظة: قد يمنع متصفحك فتح نوافذ متعددة بسبب حظر النوافذ المنبثقة. تأكد من السماح بالنوافذ أو جرب إرسالها يدويًا.</p>
-
-<table class="table table-striped" id="remindersTable">
-
-    <thead>
-
-        <tr>
-
-            <th>اسم المريض</th>
-
-            <th>رقم الهاتف</th>
-
-            <th>تاريخ المراجعة</th>
-
-            <th>إجراءات</th>
-
-        </tr>
-
-    </thead>
-
-    <tbody></tbody>
-
-</table>
-
-
-
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-<script>
-
-$(document).ready(function() {
-
-    loadReminders();
-
-
-
-    function loadReminders() {
-
-        $.getJSON("api.php?action=get_upcoming_reviews", function(data) {
-
-            const tbody = $("#remindersTable tbody");
-
-            tbody.empty();
-
-            if (data.length === 0) {
-
-                tbody.append("<tr><td colspan='4'>لا توجد مراجعات قادمة.</td></tr>");
-
-            } else {
-
-                data.forEach(item => {
-
-                    const message = encodeURIComponent(`مرحبا ${item.patient_name}، تذكير بموعد مراجعتك في العيادة يوم ${item.next_review_date}. شكرا!`);
-
-                    const waLink = `https://wa.me/${item.phone}?text=${message}`;
-
-                    
-
-                    tbody.append(`
-
-                        <tr>
-
-                            <td>${item.patient_name}</td>
-
-                            <td>${item.phone}</td>
-
-                            <td>${item.next_review_date}</td>
-
-                            <td>
-
-                                <a href="${waLink}" target="_blank" class="btn btn-success btn-sm single-send">إرسال تذكير عبر واتساب</a>
-
-                            </td>
-
-                        </tr>
-
-                    `);
-
-                });
-
-            }
-
-        }).fail(function() {
-
-            alert("خطأ في تحميل البيانات.");
-
-        });
-
-    }
-
-    
-
-    // إرسال للجميع مع تأخير لتجنب الحظر جزئيًا
-
-    $("#sendAll").click(function() {
-
-        if (confirm("هل تريد إرسال التذكيرات للجميع؟ سيتم فتح روابط الواتساب في تبويبات جديدة مع تأخير صغير.")) {
-
-            const links = [];
-
-            $(".single-send").each(function() {
-
-                links.push($(this).attr("href"));
-
-            });
-
-            
-
-            links.forEach((link, index) => {
-
-                setTimeout(() => {
-
-                    window.open(link, '_blank');
-
-                }, index * 500); // تأخير 0.5 ثانية بين كل فتح
-
-            });
-
-        }
-
-    });
-
-    
-
-    // تحديث تلقائي كل 5 دقائق (اختياري)
-
-    setInterval(loadReminders, 300000);
-
-});
-
-</script>
-
-
-
-<?php include 'footer.php'; ?>                                                                                                                                                                                                                                                                                                                              
+FONT_MAIN = ("Segoe UI", 12)
+FONT_BOLD = ("Segoe UI", 12, "bold")
+FONT_HEADER = ("Segoe UI", 20, "bold")
+FONT_TITLE = ("Segoe UI", 14, "bold")
+class NoteDialog:
+    """نافذة منبثقة للملاحظات مع اقتراحات"""
+    def __init__(self, parent, title, prompt, initial_value="", suggestions_str=""):
+        self.result = None
+        self.window = tk.Toplevel(parent)
+        self.window.title(title)
+        self.window.geometry("500x350")
+        self.window.configure(bg="#FFFFFF")
+        self.window.resizable(False, False)
+        self.window.transient(parent)
+        self.window.grab_set()
+        
+        x = parent.winfo_rootx() + (parent.winfo_width() // 2) - 250
+        y = parent.winfo_rooty() + (parent.winfo_height() // 2) - 175
+        self.window.geometry(f"+{x}+{y}")
+        
+        main_frame = tk.Frame(self.window, bg=PANEL_COLOR, padx=20, pady=20, relief='raised', bd=1)
+        main_frame.pack(expand=True, fill='both', padx=10, pady=10)
+        
+        tk.Label(main_frame, text=prompt, font=FONT_BOLD, bg=PANEL_COLOR, fg="white").pack(pady=(0, 10))
+        
+        self.note_var = tk.StringVar(value=initial_value)
+        self.entry = tk.Entry(main_frame, textvariable=self.note_var, font=("Segoe UI", 14), bg="#F9F9F9", justify='center')
+        self.entry.pack(fill='x', pady=5, ipady=5)
+        self.entry.focus_set()
+        self.entry.bind('<Return>', lambda e: self.confirm())
+        
+        if suggestions_str:
+            suggestions_frame = tk.LabelFrame(main_frame, text="اقتراحات سريعة", bg=PANEL_COLOR, fg="white", font=("Segoe UI", 10))
+            suggestions_frame.pack(fill='x', pady=10)
+            
+            sug_list = [s.strip() for s in suggestions_str.split(',') if s.strip()]
+            
+            grid_frame = tk.Frame(suggestions_frame, bg=PANEL_COLOR)
+            grid_frame.pack(fill='both', padx=5, pady=5)
+            
+            r, c = 0, 0
+            for sug in sug_list:
+                btn = tk.Button(grid_frame, text=sug, font=("Segoe UI", 9),
+                              bg="#E3F2FD", fg="#1565C0", relief='flat',
+                              command=lambda s=sug: self.add_suggestion(s))
+                btn.grid(row=r, column=c, padx=2, pady=2, sticky='ew')
+                c += 1
+                if c > 2:
+                    c = 0
+                    r += 1
+            for i in range(3): grid_frame.columnconfigure(i, weight=1)
+            
+        btn_frame = tk.Frame(main_frame, bg=PANEL_COLOR)
+        btn_frame.pack(fill='x', pady=20)
+        
+        tk.Button(btn_frame, text="إلغاء ❌", command=self.window.destroy, bg=DANGER_COLOR, fg="white", font=FONT_BOLD, relief='flat', width=10).pack(side='left', padx=5)
+        tk.Button(btn_frame, text="حفظ الملاحظة ✅", command=self.confirm, bg=SUCCESS_COLOR, fg="white", font=FONT_BOLD, relief='flat', width=15).pack(side='right', padx=5)
+        
+        self.window.wait_window()
+        
+    def add_suggestion(self, text):
+        current = self.note_var.get()
+        if current:
+            self.note_var.set(current + "، " + text)
+        else:
+            self.note_var.set(text)
+        self.entry.focus_set()
+        self.entry.icursor(tk.END)
+        
+    def confirm(self):
+        self.result = self.note_var.get()
+        self.window.destroy()
+class PhoneKeypad:
+    def __init__(self, parent, callback, initial_value=""):
+        self.parent = parent
+        self.callback = callback
+        self.value = tk.StringVar(value=initial_value)
+        self.setup_ui()
+        
+    def setup_ui(self):
+        self.window = tk.Toplevel(self.parent)
+        self.window.title("إدخال رقم الهاتف")
+        self.window.geometry("350x500")
+        self.window.configure(bg="#2C3E50")
+        self.window.transient(self.parent)
+        self.window.grab_set()
+        
+        x = self.parent.winfo_rootx() + (self.parent.winfo_width() // 2) - 175
+        y = self.parent.winfo_rooty() + (self.parent.winfo_height() // 2) - 250
+        self.window.geometry(f"+{x}+{y}")
+        
+        main_frame = tk.Frame(self.window, bg="#2C3E50", padx=10, pady=10)
+        main_frame.pack(fill='both', expand=True)
+        
+        display_frame = tk.Frame(main_frame, bg="#ECF0F1", pady=10, padx=10, relief='sunken', bd=2)
+        display_frame.pack(fill='x', pady=(0, 15))
+        
+        self.display = tk.Label(display_frame, textvariable=self.value,
+                               font=("Consolas", 28, "bold"), bg="#ECF0F1",
+                               fg="#2C3E50", height=1, anchor='center')
+        self.display.pack(fill='x')
+        
+        keypad_frame = tk.Frame(main_frame, bg="#2C3E50")
+        keypad_frame.pack(fill='both', expand=True)
+        
+        buttons = [
+            ('1', '2', '3'),
+            ('4', '5', '6'),
+            ('7', '8', '9'),
+            ('C', '0', '⌫')
+        ]
+        
+        for r, row_vals in enumerate(buttons):
+            for c, char in enumerate(row_vals):
+                btn_color = "#34495E"
+                fg_color = "white"
+                
+                cmd = lambda k=char: self.button_click(k)
+                
+                if char == 'C':
+                    btn_color = "#E74C3C"
+                elif char == '⌫':
+                    btn_color = "#E67E22"
+                
+                btn = tk.Button(keypad_frame, text=char, command=cmd,
+                               font=("Segoe UI", 18, "bold"), bg=btn_color, fg=fg_color,
+                               relief='flat', activebackground="#95A5A6")
+                btn.grid(row=r, column=c, padx=3, pady=3, sticky="nsew")
+        
+        confirm_btn = tk.Button(main_frame, text="تأكيــد ✅", command=self.confirm,
+                               bg="#27AE60", fg="white", font=("Segoe UI", 16, "bold"),
+                               height=1, relief='flat', cursor="hand2")
+        confirm_btn.pack(fill='x', pady=(10, 0))
+        
+        for i in range(3): keypad_frame.columnconfigure(i, weight=1)
+        for i in range(4): keypad_frame.rowconfigure(i, weight=1)
+    
+    def button_click(self, key):
+        current = self.value.get()
+        if key == 'C':
+            self.value.set("")
+        elif key == '⌫':
+            self.value.set(current[:-1])
+        else:
+            if len(current) < 11:
+                self.value.set(current + key)
+    
+    def confirm(self):
+        self.callback(self.value.get())
+        self.window.destroy()
+class LoginWindow:
+    def __init__(self, root, callback):
+        self.root = root
+        self.callback = callback
+        self.setup_ui()
+        
+    def setup_ui(self):
+        self.root.title("تسجيل الدخول - قصابة ومشويات الحسن")
+        self.root.geometry("450x400")
+        self.root.configure(bg=BG_MAIN_COLOR)
+        self.root.resizable(False, False)
+        
+        screen_width = self.root.winfo_screenwidth()
+        screen_height = self.root.winfo_screenheight()
+        x = (screen_width/2) - (450/2)
+        y = (screen_height/2) - (400/2)
+        self.root.geometry('%dx%d+%d+%d' % (450, 400, x, y))
+        
+        main_frame = tk.Frame(self.root, bg=PANEL_COLOR, padx=30, pady=40, relief='raised', bd=1)
+        main_frame.place(relx=0.5, rely=0.5, anchor='center')
+        
+        tk.Label(main_frame, text="🍖", font=("Segoe UI", 50), bg=PANEL_COLOR).pack()
+        tk.Label(main_frame, text="قصابة ومشويات الحسن",
+                 font=("Segoe UI", 20, "bold"), bg=PANEL_COLOR, fg="white").pack(pady=10)
+        
+        self.password_var = tk.StringVar()
+        password_entry = tk.Entry(main_frame, textvariable=self.password_var,
+                                 font=("Arial", 24), show="•", width=15, justify='center',
+                                 bg="#F2F2F7", relief='flat', bd=5)
+        password_entry.pack(pady=5)
+        password_entry.focus()
+        password_entry.bind('<Return>', lambda e: self.check_password())
+        
+        login_btn = tk.Button(main_frame, text="دخول للنظام 🔓", command=self.check_password,
+                             bg="#FFFFFF", fg=PANEL_COLOR, font=FONT_BOLD,
+                             width=20, height=2, relief='flat', cursor="hand2")
+        login_btn.pack(pady=25)
+    def check_password(self):
+        if self.password_var.get() == "1":
+            self.root.destroy()
+            self.callback()
+        else:
+            messagebox.showerror("خطأ", "كلمة المرور غير صحيحة!")
+class NumericKeypad:
+    def __init__(self, parent, callback):
+        self.parent = parent
+        self.callback = callback
+        self.value = tk.StringVar(value="0")
+        self.setup_ui()
+        
+    def setup_ui(self):
+        self.window = tk.Toplevel(self.parent)
+        self.window.title("أدخل الوزن (كغم)")
+        self.window.geometry("400x580")
+        self.window.configure(bg=BG_MAIN_COLOR)
+        self.window.transient(self.parent)
+        self.window.grab_set()
+        
+        x = self.parent.winfo_x() + (self.parent.winfo_width() // 2) - 200
+        y = self.parent.winfo_y() + (self.parent.winfo_height() // 2) - 290
+        self.window.geometry(f"+{x}+{y}")
+        
+        main_frame = tk.Frame(self.window, bg=BG_MAIN_COLOR, padx=15, pady=15)
+        main_frame.pack(fill='both', expand=True)
+        
+        self.display = tk.Label(main_frame, textvariable=self.value,
+                               font=("Consolas", 40, "bold"), bg="white",
+                               fg=TEXT_COLOR, height=2, anchor='e', padx=10)
+        self.display.pack(fill='x', pady=(0, 15))
+        
+        keypad_frame = tk.Frame(main_frame, bg=BG_MAIN_COLOR)
+        keypad_frame.pack(fill='both', expand=True)
+        
+        buttons = ['7', '8', '9', '4', '5', '6', '1', '2', '3', '0', '.', 'C']
+        
+        row, col = 0, 0
+        for button in buttons:
+            cmd = lambda x=button: self.button_click(x)
+            color = "#FFCDD2" if button == 'C' else PANEL_COLOR
+            fg_col = DANGER_COLOR if button == 'C' else "white"
+            btn = tk.Button(keypad_frame, text=button, command=cmd,
+                           font=("Segoe UI", 22, "bold"), bg=color, fg=fg_col, relief='flat')
+            btn.grid(row=row, column=col, padx=4, pady=4, sticky="nsew")
+            col += 1
+            if col > 2:
+                col = 0
+                row += 1
+        
+        confirm_btn = tk.Button(main_frame, text="تأكيــد الـوزن ✅", command=self.confirm,
+                               bg="#00C853", fg="white", font=("Segoe UI", 18, "bold"),
+                               height=2, relief='raised', bd=3, cursor="hand2")
+        confirm_btn.pack(fill='x', pady=(15, 5))
+        
+        for i in range(3): keypad_frame.columnconfigure(i, weight=1)
+        for i in range(4): keypad_frame.rowconfigure(i, weight=1)
+    
+    def button_click(self, key):
+        if key == 'C': self.value.set("0")
+        else:
+            current = self.value.get()
+            if current == "0" and key != '.': self.value.set(key)
+            else:
+                if key == '.' and '.' in current: return
+                self.value.set(current + key)
+    
+    def confirm(self):
+        try:
+            weight = float(self.value.get())
+            if weight > 0:
+                self.callback(weight)
+                self.window.destroy()
+        except ValueError: pass
+class RestaurantPOS:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("نظام إدارة قصابة ومشويات الحسن")
+        self.root.state('zoomed')
+        self.root.configure(bg=BG_MAIN_COLOR)
+        
+        self.setup_styles()
+        self.cart = []
+        self.db_name = "restaurant.db"
+        self.settings_file = "settings.json"
+        self.load_settings()
+        self.init_db()
+        
+        self.order_type = tk.StringVar(value="takeaway")
+        self.phone_var = tk.StringVar()
+        self.customer_name_var = tk.StringVar()
+        self.address_var = tk.StringVar()
+        self.pickup_time_var = tk.StringVar()
+        self.payment_status_var = tk.StringVar(value="paid")
+        self.search_var = tk.StringVar()
+        self.general_notes_var = tk.StringVar()
+        
+        self.phone_var.trace("w", self.on_phone_change)
+        self.search_var.trace("w", self.on_search_change)
+        self.order_type.trace("w", lambda *args: self.toggle_fields())
+        
+        self.setup_ui()
+    def setup_styles(self):
+        style = ttk.Style()
+        style.theme_use('clam')
+        style.configure("TNotebook", background=BG_MAIN_COLOR, borderwidth=0)
+        style.configure("TNotebook.Tab", font=("Segoe UI", 12), padding=[15, 8])
+        style.configure("Treeview", font=("Segoe UI", 11), rowheight=35)
+        style.configure("Treeview.Heading", font=("Segoe UI", 11, "bold"), background=SECONDARY_COLOR, foreground="white")
+    def load_settings(self):
+        default_settings = {
+            "printers": ["Default Printer"],
+            "logo_path": "",
+            "receipt_design": {"header_text": "قصابة ومشويات الحسن", "show_logo": True, "footer_text": "أهلاً وسهلاً بكم"}
+        }
+        try:
+            with open(self.settings_file, 'r', encoding='utf-8') as f: self.settings = json.load(f)
+        except:
+            self.settings = default_settings
+    def save_settings(self):
+        with open(self.settings_file, 'w', encoding='utf-8') as f: json.dump(self.settings, f, ensure_ascii=False, indent=4)
+    def init_db(self):
+        conn = sqlite3.connect(self.db_name)
+        c = conn.cursor()
+        c.execute('''CREATE TABLE IF NOT EXISTS products (
+            id INTEGER PRIMARY KEY,
+            name TEXT,
+            price REAL,
+            image BLOB,
+            category TEXT,
+            weight_based INTEGER DEFAULT 0,
+            card_color TEXT DEFAULT '#FFFFFF',
+            suggestions TEXT DEFAULT ''
+        )''')
+        
+        try:
+            c.execute("ALTER TABLE products ADD COLUMN card_color TEXT DEFAULT '#FFFFFF'")
+        except: pass
+        try:
+            c.execute("ALTER TABLE products ADD COLUMN suggestions TEXT DEFAULT ''")
+        except: pass
+        
+        c.execute('''CREATE TABLE IF NOT EXISTS customers (phone TEXT PRIMARY KEY, name TEXT, address TEXT, last_order_date TEXT)''')
+        c.execute('''CREATE TABLE IF NOT EXISTS orders (id INTEGER PRIMARY KEY, date TEXT, customer_name TEXT, phone TEXT, type TEXT, details TEXT, total REAL, notes TEXT, status TEXT, pickup_time TEXT, address TEXT, payment_status TEXT)''')
+        c.execute('''CREATE TABLE IF NOT EXISTS sales (id INTEGER PRIMARY KEY, date TEXT, order_id INTEGER, amount REAL, type TEXT)''')
+        
+        c.execute('''CREATE TABLE IF NOT EXISTS order_items (
+            id INTEGER PRIMARY KEY,
+            order_id INTEGER,
+            product_name TEXT,
+            qty REAL,
+            price REAL,
+            total REAL,
+            FOREIGN KEY(order_id) REFERENCES orders(id)
+        )''')
+        
+        conn.commit()
+        conn.close()
+    def setup_ui(self):
+        self.notebook = ttk.Notebook(self.root)
+        self.notebook.pack(fill='both', expand=True, padx=5, pady=5)
+        
+        self.pos_frame = ttk.Frame(self.notebook)
+        self.notebook.add(self.pos_frame, text=" 🛒 نقطة البيع ")
+        self.build_pos_tab()
+        
+        self.products_frame = ttk.Frame(self.notebook)
+        self.notebook.add(self.products_frame, text=" 🥩 إدارة الوجبات ")
+        self.build_products_tab()
+        
+        self.reports_frame = ttk.Frame(self.notebook)
+        self.notebook.add(self.reports_frame, text=" 📊 التقارير ")
+        self.build_reports_tab()
+        
+        self.settings_frame = ttk.Frame(self.notebook)
+        self.notebook.add(self.settings_frame, text=" ⚙️ الإعدادات ")
+        self.build_settings_tab()
+    def build_pos_tab(self):
+        top_control_frame = tk.Frame(self.pos_frame, bg=BG_MAIN_COLOR, pady=5)
+        top_control_frame.pack(side='top', fill='x')
+        style_toggle = {"font": ("Segoe UI", 12, "bold"), "indicatoron": 0, "width": 15, "relief": "flat", "bd": 0, "selectcolor": PRIMARY_COLOR, "fg": "#333"}
+        
+        center_toggle = tk.Frame(top_control_frame, bg=BG_MAIN_COLOR)
+        center_toggle.pack(anchor='center')
+        rb_takeaway = tk.Radiobutton(center_toggle, text="🛍️ سفري (استلام)", variable=self.order_type, value="takeaway", **style_toggle)
+        rb_takeaway.pack(side='left', padx=2)
+        
+        rb_delivery = tk.Radiobutton(center_toggle, text="🛵 توصيل خارجي", variable=self.order_type, value="delivery", **style_toggle)
+        rb_delivery.pack(side='left', padx=2)
+        # شريط بيانات الزبون
+        customer_bar = tk.Frame(self.pos_frame, bg="white", padx=10, pady=8, relief='raised', bd=1)
+        customer_bar.pack(side='top', fill='x', pady=(0, 5))
+        
+        right_frame = tk.Frame(customer_bar, bg="white")
+        right_frame.pack(side='right')
+        
+        tk.Label(right_frame, text="📱", font=("Segoe UI", 12), bg="white").pack(side='right', padx=(5,0))
+        self.phone_entry = tk.Entry(right_frame, textvariable=self.phone_var, font=("Segoe UI", 11, "bold"), width=15, bg="#F9F9F9", justify='center')
+        self.phone_entry.pack(side='right', padx=5)
+        self.phone_entry.bind("<Button-1>", self.open_phone_keypad)
+        
+        tk.Label(right_frame, text="👤", font=("Segoe UI", 12), bg="white").pack(side='right', padx=(5,0))
+        tk.Entry(right_frame, textvariable=self.customer_name_var, font=("Segoe UI", 11), width=20, bg="#F9F9F9", justify='right').pack(side='right', padx=5)
+        
+        self.dynamic_fields_frame = tk.Frame(customer_bar, bg="white")
+        self.dynamic_fields_frame.pack(side='right', padx=20)
+        
+        self.addr_container = tk.Frame(self.dynamic_fields_frame, bg="white")
+        tk.Label(self.addr_container, text="العنوان:", bg="white", font=("Segoe UI", 10, "bold")).pack(side='right')
+        tk.Entry(self.addr_container, textvariable=self.address_var, font=("Segoe UI", 10), width=25, bg="#F9F9F9").pack(side='right', padx=5)
+        
+        self.time_container = tk.Frame(self.dynamic_fields_frame, bg="white")
+        self.lbl_time = tk.Label(self.time_container, text="وقت الاستلام:", bg="white", font=("Segoe UI", 10, "bold"))
+        self.lbl_time.pack(side='right')
+        tk.Entry(self.time_container, textvariable=self.pickup_time_var, font=("Segoe UI", 10), width=15, bg="#F9F9F9").pack(side='right', padx=5)
+        
+        left_frame = tk.Frame(customer_bar, bg="white")
+        left_frame.pack(side='left')
+        tk.Button(left_frame, text="إرجاع فاتورة ↩️", command=self.retrieve_order_dialog,
+                  bg="#607D8B", fg="white", font=("Segoe UI", 9, "bold"), relief='flat').pack(side='left', padx=5)
+        
+        tk.Button(left_frame, text="إعادة طباعة 🖨️", command=self.reprint_order_dialog,
+                  bg="#795548", fg="white", font=("Segoe UI", 9, "bold"), relief='flat').pack(side='left', padx=5)
+        # منطقة العمل الرئيسية
+        paned = tk.PanedWindow(self.pos_frame, orient=tk.HORIZONTAL, bg=BG_MAIN_COLOR, sashwidth=6)
+        paned.pack(fill='both', expand=True, pady=5)
+        
+        # === اليسار: الفاتورة والسلة ===
+        left_cart_frame = tk.Frame(paned, bg=PANEL_COLOR, relief='sunken', bd=1)
+        paned.add(left_cart_frame, minsize=420, stretch="always")
+        
+        footer_frame = tk.Frame(left_cart_frame, bg="#F8F9FA")
+        footer_frame.pack(side='bottom', fill='x')
+        
+        action_btns = tk.Frame(footer_frame, bg="#F8F9FA", padx=2, pady=2)
+        action_btns.pack(side='bottom', fill='x')
+        
+        sub_btns = tk.Frame(action_btns, bg="#F8F9FA")
+        sub_btns.pack(fill='x', pady=(0, 2))
+        
+        tk.Button(sub_btns, text="تفريغ السلة ♻️", command=self.clear_cart, bg=DANGER_COLOR, fg="white", font=("Segoe UI", 9), relief='flat', height=1).pack(side='left', fill='x', expand=True)
+        tk.Button(action_btns, text="طباعة وإنهاء 🖨️", command=self.checkout, bg=SUCCESS_COLOR, fg="white", font=("Segoe UI", 11, "bold"), height=1, relief='flat').pack(fill='x', pady=1)
+        
+        total_frame = tk.Frame(footer_frame, bg="#343A40", pady=2)
+        total_frame.pack(side='bottom', fill='x')
+        self.lbl_total = tk.Label(total_frame, text="المجموع: 0 د.ع", font=("Arial", 16, "bold"), bg="#343A40", fg=SUCCESS_COLOR)
+        self.lbl_total.pack()
+        
+        pay_opts = tk.Frame(footer_frame, bg="#F8F9FA", pady=2)
+        pay_opts.pack(side='bottom', fill='x')
+        
+        self.btn_paid = tk.Button(pay_opts, text="✅ واصل", font=("Segoe UI", 10, "bold"),
+                                  relief='raised', bd=1, width=12, cursor="hand2",
+                                  command=lambda: self.set_payment_status("paid"))
+        self.btn_paid.pack(side='right', padx=10, expand=True)
+        
+        self.btn_unpaid = tk.Button(pay_opts, text="⏳ غير واصل", font=("Segoe UI", 10, "bold"),
+                                    relief='raised', bd=1, width=12, cursor="hand2",
+                                    command=lambda: self.set_payment_status("unpaid"))
+        self.btn_unpaid.pack(side='left', padx=10, expand=True)
+        
+        self.set_payment_status("paid")
+        
+        general_note_frame = tk.Frame(footer_frame, bg="#F8F9FA", padx=5, pady=2)
+        general_note_frame.pack(side='bottom', fill='x')
+        tk.Entry(general_note_frame, textvariable=self.general_notes_var, font=("Segoe UI", 10), bg="white", relief='solid', bd=1).pack(fill='x', ipady=2)
+        tk.Label(general_note_frame, text="ملاحظات عامة:", bg="#F8F9FA", font=("Segoe UI", 9, "bold"), fg=TEXT_SECONDARY).pack(anchor='ne')
+        
+        # جدول الفاتورة
+        tk.Label(left_cart_frame, text="🧾 تفاصيل الفاتورة", font=FONT_BOLD, bg=PANEL_COLOR, fg="white").pack(pady=(5,0))
+        
+        cols = ('item', 'qty', 'price', 'total', 'note', 'action')
+        self.tree = ttk.Treeview(left_cart_frame, columns=cols, show='headings', selectmode='browse')
+        self.tree.heading('item', text='الصنف')
+        self.tree.heading('qty', text='الكمية')
+        self.tree.heading('price', text='السعر')
+        self.tree.heading('total', text='الإجمالي')
+        self.tree.heading('note', text='ملاحظات')
+        self.tree.heading('action', text='')
+        
+        self.tree.column('item', width=120, anchor='e')
+        self.tree.column('qty', width=50, anchor='center')
+        self.tree.column('price', width=70, anchor='center')
+        self.tree.column('total', width=70, anchor='center')
+        self.tree.column('note', width=90, anchor='e')
+        self.tree.column('action', width=40, anchor='center')
+        
+        self.tree.pack(fill='both', expand=True, padx=5)
+        self.tree.bind("<Button-1>", self.on_tree_click)
+        self.tree.bind("<Double-1>", self.on_item_double_click)
+        
+        # === اليمين: المنتجات والبحث ===
+        right_products_frame = tk.Frame(paned, bg=BG_MAIN_COLOR)
+        paned.add(right_products_frame, minsize=550)
+        
+        search_frame = tk.Frame(right_products_frame, bg=PANEL_COLOR, padx=10, pady=10)
+        search_frame.pack(fill='x', pady=(0, 5))
+        tk.Label(search_frame, text="🔍 بحث:", bg=PANEL_COLOR, font=FONT_BOLD, fg="white").pack(side='right', padx=5)
+        tk.Entry(search_frame, textvariable=self.search_var, font=FONT_MAIN, bg="#F2F2F7", relief='flat').pack(side='right', fill='x', expand=True, ipady=3)
+        
+        products_container = tk.Frame(right_products_frame, bg=BG_MAIN_COLOR)
+        products_container.pack(fill='both', expand=True)
+        
+        self.canvas_products = tk.Canvas(products_container, bg=BG_MAIN_COLOR, highlightthickness=0)
+        self.scroll_y = ttk.Scrollbar(products_container, orient="vertical", command=self.canvas_products.yview)
+        
+        self.scrollable_frame = tk.Frame(self.canvas_products, bg=BG_MAIN_COLOR)
+        self.scrollable_frame.bind("<Configure>", lambda e: self.canvas_products.configure(scrollregion=self.canvas_products.bbox("all")))
+        
+        self.canvas_products.create_window((0, 0), window=self.scrollable_frame, anchor="ne")
+        self.canvas_products.configure(yscrollcommand=self.scroll_y.set)
+        
+        self.scroll_y.pack(side="left", fill="y")
+        self.canvas_products.pack(side="right", fill="both", expand=True)
+        
+        self.load_products_grid()
+        self.toggle_fields()
+    def open_phone_keypad(self, event):
+        PhoneKeypad(self.root, self.update_phone_from_keypad, self.phone_var.get())
+        return "break"
+    def update_phone_from_keypad(self, val):
+        self.phone_var.set(val)
+    def set_payment_status(self, status):
+        self.payment_status_var.set(status)
+        if status == "paid":
+            self.btn_paid.config(bg=SUCCESS_COLOR, fg="white", state="normal", relief="sunken")
+            self.btn_unpaid.config(bg="#E0E0E0", fg="#666", state="normal", relief="raised")
+            self.lbl_total.config(fg=SUCCESS_COLOR)
+        else:
+            self.btn_paid.config(bg="#E0E0E0", fg="#666", state="normal", relief="raised")
+            self.btn_unpaid.config(bg=DANGER_COLOR, fg="white", state="normal", relief="sunken")
+            self.lbl_total.config(fg=DANGER_COLOR)
+    def on_tree_click(self, event):
+        region = self.tree.identify_region(event.x, event.y)
+        if region == "cell":
+            column = self.tree.identify_column(event.x)
+            if column == '#6':
+                item_id = self.tree.identify_row(event.y)
+                if item_id:
+                    index = self.tree.index(item_id)
+                    if 0 <= index < len(self.cart):
+                        self.cart.pop(index)
+                        self.update_cart_view()
+    def on_item_double_click(self, event):
+        column = self.tree.identify_column(event.x)
+        if column == '#6': return
+        item_id = self.tree.identify_row(event.y)
+        if not item_id:
+            return
+        
+        index = self.tree.index(item_id)
+        if 0 <= index < len(self.cart):
+            current_item = self.cart[index]
+            current_note = current_item.get('note', '')
+            sugs = current_item.get('suggestions', '')
+            
+            dlg = NoteDialog(self.root, "ملاحظة وجبة", f"أضف ملاحظة لـ ({current_item['name']}):", current_note, suggestions_str=sugs)
+            
+            if dlg.result is not None:
+                self.cart[index]['note'] = dlg.result
+                self.update_cart_view()
+    def on_phone_change(self, *args):
+        phone = self.phone_var.get()
+        if not phone.isdigit() and phone != "":
+            self.phone_var.set(''.join(filter(str.isdigit, phone)))
+            return
+        
+        if len(phone) == 11:
+            self.phone_entry.config(fg=SUCCESS_COLOR)
+            self.fetch_customer_data(phone)
+        else:
+            self.phone_entry.config(fg="black")
+        
+        if len(phone) > 11:
+            self.phone_var.set(phone[:11])
+            self.phone_entry.config(fg=SUCCESS_COLOR)
+    def on_search_change(self, *args):
+        self.load_products_grid()
+    def fetch_customer_data(self, phone):
+        conn = sqlite3.connect(self.db_name)
+        c = conn.cursor()
+        c.execute("SELECT name, address FROM customers WHERE phone=?", (phone,))
+        res = c.fetchone()
+        conn.close()
+        if res:
+            self.customer_name_var.set(res[0])
+            self.address_var.set(res[1] if res[1] else "")
+        else:
+            self.customer_name_var.set("")
+            self.address_var.set("")
+    def toggle_fields(self):
+        val = self.order_type.get()
+        self.addr_container.pack_forget()
+        self.time_container.pack_forget()
+        
+        self.time_container.pack(side='right', padx=5)
+        
+        if val == "takeaway":
+            self.lbl_time.config(text="وقت الاستلام:")
+        else:
+            self.lbl_time.config(text="وقت التوصيل:")
+            self.addr_container.pack(side='right', padx=5)
+            if len(self.phone_var.get()) == 11:
+                self.fetch_customer_data(self.phone_var.get())
+    def load_products_grid(self):
+        for widget in self.scrollable_frame.winfo_children(): widget.destroy()
+        conn = sqlite3.connect(self.db_name)
+        c = conn.cursor()
+        search_term = self.search_var.get()
+        
+        query = "SELECT id, name, price, image, weight_based, card_color, suggestions FROM products"
+        params = []
+        if search_term:
+            query += " WHERE name LIKE ?"
+            params = [f'%{search_term}%']
+            
+        c.execute(query, params)
+        products = c.fetchall()
+        conn.close()
+        
+        MAX_COLS = 5
+        row = 0
+        col = 0
+        
+        for pid, name, price, img_blob, weight_based, card_color, suggestions in products:
+            bg_color = card_color if card_color else "#FFFFFF"
+            
+            card = tk.Frame(self.scrollable_frame, bg=bg_color, bd=0, relief="flat", highlightbackground="#E0E0E0", highlightthickness=1)
+            card.grid(row=row, column=MAX_COLS - 1 - col, padx=4, pady=4, sticky="nsew")
+            
+            click_cmd = lambda e, p=pid, n=name, pr=price, w=weight_based, s=suggestions, c=bg_color: self.add_product_to_cart(p, n, pr, w, s, c)
+            card.bind("<Button-1>", click_cmd)
+            
+            img_frame = tk.Frame(card, bg=bg_color, height=80, width=120)
+            img_frame.pack_propagate(False)
+            img_frame.pack()
+            img_frame.bind("<Button-1>", click_cmd)
+            
+            if img_blob:
+                try:
+                    image = Image.open(io.BytesIO(img_blob))
+                    image = image.resize((120, 80), Image.Resampling.LANCZOS)
+                    photo = ImageTk.PhotoImage(image)
+                    lbl = tk.Label(img_frame, image=photo, bg=bg_color)
+                    lbl.image = photo
+                    lbl.pack()
+                    lbl.bind("<Button-1>", click_cmd)
+                except:
+                    lbl_icon = tk.Label(img_frame, text="🍖", font=("Segoe UI", 24), bg=bg_color, fg="#CCC")
+                    lbl_icon.pack(expand=True, fill='both')
+                    lbl_icon.bind("<Button-1>", click_cmd)
+            else:
+                lbl_icon = tk.Label(img_frame, text="🍖", font=("Segoe UI", 24), bg=bg_color, fg="#CCC")
+                lbl_icon.pack(expand=True, fill='both')
+                lbl_icon.bind("<Button-1>", click_cmd)
+            
+            info_frame = tk.Frame(card, bg=bg_color, pady=2)
+            info_frame.pack(fill='x')
+            info_frame.bind("<Button-1>", click_cmd)
+            
+            name_lbl = tk.Label(info_frame, text=name, font=("Segoe UI", 10, "bold"), bg=bg_color, fg=TEXT_COLOR, wraplength=110)
+            name_lbl.pack()
+            name_lbl.bind("<Button-1>", click_cmd)
+            
+            unit = "كغم" if weight_based else "قطعة"
+            price_color = ACCENT_COLOR if weight_based else SUCCESS_COLOR
+            price_lbl = tk.Label(info_frame, text=f"{price:,.0f} د.ع", font=("Segoe UI", 9), bg=bg_color, fg=price_color)
+            price_lbl.pack()
+            price_lbl.bind("<Button-1>", click_cmd)
+            
+            bar = tk.Frame(card, bg=price_color, height=3)
+            bar.pack(fill='x', side='bottom')
+            bar.bind("<Button-1>", click_cmd)
+            
+            col += 1
+            if col >= MAX_COLS:
+                col = 0
+                row += 1
+        self.scrollable_frame.update_idletasks()
+        self.canvas_products.configure(scrollregion=self.canvas_products.bbox("all"))
+    def add_product_to_cart(self, pid, name, price, weight_based, suggestions, color):
+        if weight_based:
+            NumericKeypad(self.root, lambda weight: self.add_weight_item(pid, name, price, weight, suggestions, color))
+        else:
+            self.add_regular_item(pid, name, price, suggestions, color)
+    def add_regular_item(self, pid, name, price, suggestions, color):
+        for item in self.cart:
+            if item['id'] == pid and not item['weight_based']:
+                item['qty'] += 1
+                item['total'] = item['qty'] * price
+                self.update_cart_view()
+                return
+        self.cart.append({"id": pid, "name": name, "qty": 1, "price": price, "total": price, "weight_based": False, "note": "", "suggestions": suggestions, "color": color})
+        self.update_cart_view()
+    def add_weight_item(self, pid, name, price, weight, suggestions, color):
+        self.cart.append({"id": pid, "name": name, "qty": weight, "price": price, "total": weight * price, "weight_based": True, "note": "", "suggestions": suggestions, "color": color})
+        self.update_cart_view()
+    def update_cart_view(self):
+        for item in self.tree.get_children():
+            self.tree.delete(item)
+        grand_total = 0
+        for item in self.cart:
+            qty_fmt = f"{item['qty']:.3f}" if item['weight_based'] else str(item['qty'])
+            note_display = f"📝 {item['note']}" if item['note'] else ""
+            
+            row_color = item.get('color', '#FFFFFF')
+            
+            self.tree.insert('', 'end', values=(item['name'], qty_fmt, f"{item['price']:,.0f}", f"{item['total']:,.0f}", note_display, "❌"), tags=(row_color,))
+            self.tree.tag_configure(row_color, background=row_color)
+            grand_total += item['total']
+        self.lbl_total.config(text=f"المجموع: {grand_total:,.0f} د.ع")
+    def clear_cart(self):
+        self.cart = []
+        self.general_notes_var.set("")
+        self.update_cart_view()
+    def retrieve_order_dialog(self):
+        oid = simpledialog.askinteger("إرجاع فاتورة", "أدخل رقم الفاتورة:")
+        if not oid: return
+        
+        conn = sqlite3.connect(self.db_name)
+        c = conn.cursor()
+        c.execute("SELECT * FROM orders WHERE id=?", (oid,))
+        order = c.fetchone()
+        conn.close()
+        
+        if not order:
+            messagebox.showerror("خطأ", "الفاتورة غير موجودة")
+            return
+            
+        msg = f"رقم الفاتورة: {order[0]}\nالتاريخ: {order[1]}\nالزبون: {order[2]}\nالهاتف: {order[3]}\n"
+        msg += f"التفاصيل: {order[5]}\nالمبلغ: {order[6]:,.0f} د.ع\nالحالة: {order[8]}\n"
+        
+        if order[8] == "مرتجع":
+             messagebox.showinfo("معلومات", msg + "\n\n⚠️ هذه الفاتورة تم إرجاعها مسبقاً.")
+             return
+        if messagebox.askyesno("تفاصيل الفاتورة", msg + "\n\nهل تريد استرجاع (إلغاء) هذه الفاتورة؟"):
+            self.process_return(oid, order[6])
+    def reprint_order_dialog(self):
+        oid = simpledialog.askinteger("إعادة طباعة", "أدخل رقم الفاتورة التي تريد طباعتها:")
+        if not oid: return
+        
+        conn = sqlite3.connect(self.db_name)
+        c = conn.cursor()
+        c.execute("SELECT * FROM orders WHERE id=?", (oid,))
+        order = c.fetchone()
+        conn.close()
+        
+        if not order:
+            messagebox.showerror("خطأ", "الفاتورة غير موجودة")
+            return
+        
+        order_type_val = order[4]
+        time_val = order[9]
+        addr_val = order[10]
+        self.print_receipt(
+            oid=order[0],
+            name=order[2],
+            phone=order[3],
+            order_type=order_type_val,
+            time_str=time_val,
+            address_str=addr_val,
+            cart_items=order[5],
+            total=order[6],
+            status=order[8],
+            g_note=order[7],
+            is_reprint=True
+        )
+    def process_return(self, oid, amount):
+        conn = sqlite3.connect(self.db_name)
+        c = conn.cursor()
+        c.execute("UPDATE orders SET status='مرتجع' WHERE id=?", (oid,))
+        now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        c.execute("INSERT INTO sales (date, order_id, amount, type) VALUES (?, ?, ?, ?)",
+                  (now, oid, -amount, "return"))
+        conn.commit()
+        conn.close()
+        messagebox.showinfo("نجاح", f"تم استرجاع الفاتورة رقم {oid} بنجاح.")
+        self.load_reports()
+    def checkout(self):
+        if not self.cart:
+            messagebox.showwarning("تنبيه", "السلة فارغة")
+            return
+        phone = self.phone_var.get()
+        name = self.customer_name_var.get()
+        
+        if len(phone) != 11 and phone != "":
+             if not messagebox.askyesno("تنبيه", "رقم الهاتف غير مكتمل (يجب أن يكون 11 رقم). متابعة؟"): return
+        if not name.strip(): name = "زبون عام"
+        
+        current_order_type = self.order_type.get()
+        address = self.address_var.get() if current_order_type == 'delivery' else ""
+        pickup_time = self.pickup_time_var.get()
+        
+        conn = sqlite3.connect(self.db_name)
+        c = conn.cursor()
+        now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        
+        if phone:
+            c.execute("INSERT OR REPLACE INTO customers (phone, name, address, last_order_date) VALUES (?, ?, ?, ?)", (phone, name, address, now))
+        
+        total_val = sum(x['total'] for x in self.cart)
+        
+        details_list = []
+        for x in self.cart:
+            item_str = f"{x['name']} ({x['qty']}{' كغم' if x['weight_based'] else ''})"
+            if x['note']:
+                item_str += f" [ملاحظة: {x['note']}]"
+            details_list.append(item_str)
+        details = ", ".join(details_list)
+        
+        is_paid_status = self.payment_status_var.get()
+        status_text = "واصل" if is_paid_status == "paid" else "غير واصل"
+        general_note = self.general_notes_var.get()
+        
+        c.execute('''INSERT INTO orders (date, customer_name, phone, type, details, total, notes, status, pickup_time, address, payment_status)
+                     VALUES (?,?,?,?,?,?,?,?,?,?,?)''',
+                  (now, name, phone, current_order_type, details, total_val, general_note, status_text, pickup_time, address, is_paid_status))
+        
+        order_id = c.lastrowid
+        
+        for x in self.cart:
+            c.execute("INSERT INTO order_items (order_id, product_name, qty, price, total) VALUES (?, ?, ?, ?, ?)",
+                      (order_id, x['name'], x['qty'], x['price'], x['total']))
+        
+        c.execute("INSERT INTO sales (date, order_id, amount, type) VALUES (?, ?, ?, ?)", (now, order_id, total_val, "order"))
+        conn.commit()
+        conn.close()
+        
+        self.print_receipt(order_id, name, phone, current_order_type, pickup_time, address, self.cart, total_val, status_text, general_note)
+        self.clear_cart()
+        self.pickup_time_var.set("")
+        self.customer_name_var.set("")
+        self.phone_var.set("")
+    # --- دالة الطباعة المباشرة الجديدة (بدون PDF) ---
+    def print_receipt(self, oid, name, phone, order_type, time_str, address_str, cart_items, total, status, g_note, is_reprint=False):
+        try:
+            # 1. إعداد أبعاد الصورة (عرض الورقة الحرارية القياسي 80مم هو حوالي 550-570 بكسل)
+            PAPER_WIDTH = 570
+            
+            # حساب الطول التقديري للفاتورة
+            items_count = len(cart_items) if isinstance(cart_items, list) else len(str(cart_items).split(','))
+            estimated_height = 400 + (items_count * 50) + 400 # رأس + عناصر + تذييل
+            
+            # إنشاء صورة بيضاء في الذاكرة
+            img = Image.new('RGB', (PAPER_WIDTH, estimated_height), color='white')
+            draw = ImageDraw.Draw(img)
+            
+            # تحميل الخطوط (Arial هو الأضمن للعربية في ويندوز)
+            try:
+                font_path = "C:\\Windows\\Fonts\\arial.ttf"
+                font_header = ImageFont.truetype(font_path, 30)
+                font_bold = ImageFont.truetype(font_path, 22)
+                font_reg = ImageFont.truetype(font_path, 20)
+                font_small = ImageFont.truetype(font_path, 18)
+            except:
+                font_header = ImageFont.load_default()
+                font_bold = ImageFont.load_default()
+                font_reg = ImageFont.load_default()
+                font_small = ImageFont.load_default()
+            # دالة مساعدة لرسم النص العربي
+            def draw_text_centered(text, y, font, color='black'):
+                reshaped_text = arabic_reshaper.reshape(str(text))
+                bidi_text = get_display(reshaped_text)
+                bbox = draw.textbbox((0, 0), bidi_text, font=font)
+                text_width = bbox[2] - bbox[0]
+                x = (PAPER_WIDTH - text_width) / 2
+                draw.text((x, y), bidi_text, font=font, fill=color)
+                return y + font.size + 10
+            def draw_text_right(text, y, font, margin=20, color='black'):
+                reshaped_text = arabic_reshaper.reshape(str(text))
+                bidi_text = get_display(reshaped_text)
+                bbox = draw.textbbox((0, 0), bidi_text, font=font)
+                text_width = bbox[2] - bbox[0]
+                x = PAPER_WIDTH - margin - text_width
+                draw.text((x, y), bidi_text, font=font, fill=color)
+            def draw_text_left(text, y, font, margin=20, color='black'):
+                draw.text((margin, y), str(text), font=font, fill=color)
+            # --- البدء بالرسم ---
+            y = 20
+            
+            # 1. اللوكو (اختياري)
+            logo_path = self.settings.get('logo_path', '')
+            if self.settings['receipt_design']['show_logo'] and logo_path and os.path.exists(logo_path):
+                try:
+                    logo = Image.open(logo_path)
+                    basewidth = 200
+                    wpercent = (basewidth / float(logo.size[0]))
+                    hsize = int((float(logo.size[1]) * float(wpercent)))
+                    logo = logo.resize((basewidth, hsize), Image.Resampling.LANCZOS)
+                    img.paste(logo, (int((PAPER_WIDTH - basewidth)/2), y))
+                    y += hsize + 20
+                except: pass
+            # 2. رأس الفاتورة
+            header_text = self.settings['receipt_design']['header_text']
+            y = draw_text_centered(header_text, y, font_header)
+            y = draw_text_centered("07736161216", y, font_bold)
+            
+            draw.line((20, y, PAPER_WIDTH-20, y), fill="black", width=2)
+            y += 15
+            
+            order_type_txt = "سفري (استلام)" if order_type == "takeaway" else "توصيل خارجي"
+            draw_text_right(f"رقم الفاتورة: {oid}", y, font_bold)
+            draw_text_left(datetime.datetime.now().strftime("%I:%M %p"), y, font_small)
+            y += 35
+            y = draw_text_centered(f"-- {order_type_txt} --", y, font_bold)
+            y += 10
+            # 3. جدول المواد
+            draw.rectangle((10, y, PAPER_WIDTH-10, y+35), fill="#EEE")
+            draw_text_right("المادة", y+5, font_bold, margin=30)
+            draw_text_centered("الكمية", y+5, font_bold)
+            draw_text_left("الإجمالي", y+5, font_bold, margin=30)
+            y += 45
+            def draw_row(name, qty, price, total_item, note=""):
+                nonlocal y
+                
+                # الكمية والإجمالي
+                draw_text_left(f"{total_item:,.0f}", y, font_reg, margin=30)
+                
+                qty_txt = str(qty)
+                bbox = draw.textbbox((0, 0), qty_txt, font=font_reg)
+                q_w = bbox[2] - bbox[0]
+                draw.text(((PAPER_WIDTH/2) - (q_w/2), y), qty_txt, font=font_reg, fill="black")
+                # الاسم
+                max_name_width = 250
+                if len(name) > 25: 
+                    name = name[:25] + "..."
+                draw_text_right(name, y, font_reg, margin=30)
+                
+                y += 30
+                if note:
+                    draw_text_right(f"({note})", y, font_small, margin=30, color="#555")
+                    y += 25
+                
+                draw.line((30, y, PAPER_WIDTH-30, y), fill="#DDD", width=1)
+                y += 10
+            grand_total = 0
+            if isinstance(cart_items, list):
+                for item in cart_items:
+                    qty_disp = f"{item['qty']:.2f}" if item['weight_based'] else str(item['qty'])
+                    draw_row(item['name'], qty_disp, item['price'], item['total'], item.get('note', ''))
+                    grand_total += item['total']
+            else:
+                 items_str = str(cart_items).split(',')
+                 for item_str in items_str:
+                     draw_row(item_str, "-", "-", 0, "")
+            # 4. المجموع
+            y += 10
+            draw.rectangle((10, y, PAPER_WIDTH-10, y+50), outline="black", width=2)
+            draw_text_right("المبلغ النهائي:", y+10, font_header, margin=40)
+            draw_text_left(f"{total:,.0f}", y+10, font_header, margin=40)
+            y += 70
+            draw_text_right(f"الزبون: {name}", y, font_bold)
+            y += 30
+            if phone:
+                draw_text_right(f"هاتف: {phone}", y, font_bold)
+                y += 30
+            if address_str:
+                addr_reshaped = get_display(arabic_reshaper.reshape(f"العنوان: {address_str}"))
+                draw.text((PAPER_WIDTH - 20 - draw.textlength(addr_reshaped, font_reg), y), addr_reshaped, font=font_reg, fill="black")
+                y += 30
+            
+            if time_str:
+                y += 10
+                draw.rectangle((50, y, PAPER_WIDTH-50, y+40), fill="black")
+                reshaped_time = get_display(arabic_reshaper.reshape(f"الوقت: {time_str}"))
+                w_time = draw.textlength(reshaped_time, font_bold)
+                draw.text(((PAPER_WIDTH-w_time)/2, y+5), reshaped_time, font=font_bold, fill="white")
+                y += 50
+            if g_note:
+                draw_text_centered(f"ملاحظات: {g_note}", y, font_small)
+                y += 25
+            # 5. التذييل
+            y += 20
+            footer_text = self.settings['receipt_design']['footer_text']
+            draw_text_centered(footer_text, y, font_reg)
+            y += 40 
+            # قص الصورة
+            final_img = img.crop((0, 0, PAPER_WIDTH, y))
+            self.send_image_to_printer(final_img)
+        except Exception as e:
+            messagebox.showerror("خطأ في الطباعة", str(e))
+            print(e)
+    def generate_daily_report(self):
+        try:
+            conn = sqlite3.connect(self.db_name)
+            c = conn.cursor()
+            
+            c.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='order_items'")
+            if not c.fetchone():
+                messagebox.showerror("تنبيه", "جدول تفاصيل الطلبات غير موجود.\nيجب عمل طلب جديد واحد على الأقل.")
+                conn.close()
+                return
+            now_date = datetime.datetime.now().strftime("%Y-%m-%d")
+            
+            c.execute("SELECT COUNT(*), SUM(total) FROM orders WHERE date LIKE ? AND status != 'مرتجع'", (f"{now_date}%",))
+            summary = c.fetchone()
+            total_orders = summary[0] if summary[0] else 0
+            total_sales = summary[1] if summary[1] else 0
+            
+            c.execute('''
+                SELECT product_name, SUM(qty), SUM(order_items.total)
+                FROM order_items
+                JOIN orders ON order_items.order_id = orders.id
+                WHERE orders.date LIKE ? AND orders.status != 'مرتجع'
+                GROUP BY product_name
+            ''', (f"{now_date}%",))
+            
+            items_summary = c.fetchall()
+            conn.close()
+            
+            if total_orders == 0:
+                messagebox.showinfo("تنبيه", "لا توجد مبيعات مسجلة لهذا اليوم حتى الآن.")
+                return
+            msg = f"تقرير إغلاق اليوم ({now_date})\n--------------------------------\n"
+            msg += f"عدد الفواتير: {total_orders}\nإجمالي المبيعات: {total_sales:,.0f} د.ع\n--------------------------------\n"
+            msg += "هل تريد طباعة التقرير التفصيلي؟"
+            
+            if messagebox.askyesno("إنهاء اليوم", msg):
+                self.print_daily_report_image(now_date, total_orders, total_sales, items_summary)
+                
+        except Exception as e:
+            messagebox.showerror("خطأ في التقرير", f"حدث خطأ أثناء جلب البيانات: {str(e)}")
+    # --- طباعة التقرير اليومي كصورة (بدون PDF) ---
+    def print_daily_report_image(self, date_str, total_orders, total_sales, items_summary):
+        try:
+            PAPER_WIDTH = 570
+            estimated_height = 400 + (len(items_summary) * 40) + 200
+            
+            img = Image.new('RGB', (PAPER_WIDTH, estimated_height), color='white')
+            draw = ImageDraw.Draw(img)
+            
+            try:
+                font_path = "C:\\Windows\\Fonts\\arial.ttf"
+                font_header = ImageFont.truetype(font_path, 30)
+                font_bold = ImageFont.truetype(font_path, 22)
+                font_reg = ImageFont.truetype(font_path, 20)
+            except:
+                font_header = ImageFont.load_default()
+                font_bold = ImageFont.load_default()
+                font_reg = ImageFont.load_default()
+            def draw_text_centered(text, y, font, color='black'):
+                reshaped_text = arabic_reshaper.reshape(str(text))
+                bidi_text = get_display(reshaped_text)
+                bbox = draw.textbbox((0, 0), bidi_text, font=font)
+                text_width = bbox[2] - bbox[0]
+                x = (PAPER_WIDTH - text_width) / 2
+                draw.text((x, y), bidi_text, font=font, fill=color)
+                return y + font.size + 10
+            
+            y = 20
+            y = draw_text_centered("تقرير إغلاق اليوم", y, font_header)
+            y = draw_text_centered(date_str, y, font_reg)
+            
+            draw.line((20, y, PAPER_WIDTH-20, y), fill="black", width=2)
+            y += 20
+            
+            reshaped_summary = get_display(arabic_reshaper.reshape(f"عدد الفواتير: {total_orders}"))
+            draw.text((PAPER_WIDTH - 20 - draw.textlength(reshaped_summary, font_bold), y), reshaped_summary, font=font_bold, fill="black")
+            y += 30
+            
+            reshaped_sales = get_display(arabic_reshaper.reshape(f"المبيعات: {total_sales:,.0f}"))
+            draw.text((PAPER_WIDTH - 20 - draw.textlength(reshaped_sales, font_bold), y), reshaped_sales, font=font_bold, fill="black")
+            y += 30
+            
+            draw.rectangle((10, y, PAPER_WIDTH-10, y+30), fill="#EEE")
+            reshaped_h1 = get_display(arabic_reshaper.reshape("المادة"))
+            draw.text((PAPER_WIDTH - 30 - draw.textlength(reshaped_h1, font_bold), y+5), reshaped_h1, font=font_bold, fill="black")
+            draw.text((20, y+5), get_display(arabic_reshaper.reshape("المجموع")), font=font_bold, fill="black")
+            y += 40
+            
+            for name, qty, total in items_summary:
+                name_fixed = get_display(arabic_reshaper.reshape(name))
+                draw.text((PAPER_WIDTH - 30 - draw.textlength(name_fixed, font_reg), y), name_fixed, font=font_reg, fill="black")
+                draw.text((20, y), f"{total:,.0f}", font=font_reg, fill="black")
+                draw.text(((PAPER_WIDTH/2), y), str(qty), font=font_reg, fill="gray")
+                y += 30
+                draw.line((20, y, PAPER_WIDTH-20, y), fill="#EEE")
+                y += 5
+                
+            y += 20
+            final_img = img.crop((0, 0, PAPER_WIDTH, y))
+            self.send_image_to_printer(final_img)
+            
+        except Exception as e:
+            messagebox.showerror("خطأ", str(e))
+    def send_image_to_printer(self, image):
+        """إرسال كائن صورة PIL مباشرة لطابعة ويندوز"""
+        try:
+            selected_printers = self.settings.get('printers', ["Default"])
+            printer_name = selected_printers[0]
+            if printer_name == "Default" or printer_name == "Default Printer":
+                printer_name = win32print.GetDefaultPrinter()
+            hDC = win32ui.CreateDC()
+            hDC.CreatePrinterDC(printer_name)
+            
+            hDC.StartDoc("Receipt")
+            hDC.StartPage()
+            dib = ImageWin.Dib(image)
+            dib.draw(hDC.GetHandleOutput(), (0, 0, image.size[0], image.size[1]))
+            hDC.EndPage()
+            hDC.EndDoc()
+            hDC.DeleteDC()
+        except Exception as e:
+            messagebox.showerror("خطأ طابعة", f"لم نتمكن من الوصول للطابعة.\n{str(e)}")
+    def build_products_tab(self):
+        main_frame = tk.Frame(self.products_frame, bg=BG_MAIN_COLOR, padx=20, pady=20)
+        main_frame.pack(fill='both', expand=True)
+        
+        side_panel = tk.Frame(main_frame, bg=PANEL_COLOR, width=350, relief='raised', bd=1, padx=15, pady=15)
+        side_panel.pack(side='right', fill='y', padx=(10, 0))
+        side_panel.pack_propagate(False)
+        
+        tk.Label(side_panel, text="➕ إضافة وجبة", font=FONT_TITLE, bg=PANEL_COLOR, fg="white").pack(pady=(0, 20))
+        
+        self.p_name = tk.StringVar()
+        self.p_price = tk.DoubleVar()
+        self.p_weight_based = tk.BooleanVar()
+        self.p_card_color = tk.StringVar(value="أبيض (افتراضي)")
+        self.p_suggestions = tk.StringVar()
+        self.p_image_path = None
+        
+        tk.Label(side_panel, text="اسم الوجبة", bg=PANEL_COLOR, font=FONT_BOLD, fg="white").pack(anchor='e')
+        tk.Entry(side_panel, textvariable=self.p_name, font=FONT_MAIN, bg="#F9F9F9").pack(fill='x', pady=(5, 10), ipady=5)
+        
+        tk.Label(side_panel, text="السعر", bg=PANEL_COLOR, font=FONT_BOLD, fg="white").pack(anchor='e')
+        tk.Entry(side_panel, textvariable=self.p_price, font=FONT_MAIN, bg="#F9F9F9").pack(fill='x', pady=(5, 10), ipady=5)
+        
+        tk.Label(side_panel, text="لون بطاقة الوجبة 🎨", bg=PANEL_COLOR, font=FONT_BOLD, fg="white").pack(anchor='e')
+        cb_colors = ttk.Combobox(side_panel, textvariable=self.p_card_color, values=list(CARD_COLORS.keys()), state="readonly", font=FONT_MAIN)
+        cb_colors.pack(fill='x', pady=(5, 10))
+        cb_colors.current(0)
+        
+        tk.Label(side_panel, text="اقتراحات الملاحظات (افصل بفاصلة)", bg=PANEL_COLOR, font=FONT_BOLD, fg="white").pack(anchor='e')
+        tk.Entry(side_panel, textvariable=self.p_suggestions, font=("Segoe UI", 10), bg="#F9F9F9").pack(fill='x', pady=(5, 10), ipady=5)
+        
+        tk.Checkbutton(side_panel, text="بيع بالوزن (كغم) ⚖️", variable=self.p_weight_based, bg=PANEL_COLOR, font=FONT_MAIN, fg="white", selectcolor=PANEL_COLOR).pack(anchor='e', pady=10)
+        
+        tk.Button(side_panel, text="تحميل صورة 🖼️", command=self.upload_image, bg=SECONDARY_COLOR, fg="white", font=FONT_MAIN, relief='flat').pack(fill='x', pady=5)
+        self.lbl_img_path = tk.Label(side_panel, text="لم يتم اختيار صورة", bg=PANEL_COLOR, fg="#DDD")
+        self.lbl_img_path.pack()
+        
+        save_btn = tk.Button(side_panel, text="💾 حـفـظ الـوجـبـة", command=self.save_product,
+                             bg=SUCCESS_COLOR, fg="white", font=("Segoe UI", 20, "bold"),
+                             height=1, relief='raised', bd=2, cursor="hand2")
+        save_btn.pack(fill='x', pady=0)
+        
+        list_frame = tk.Frame(main_frame, bg=BG_MAIN_COLOR)
+        list_frame.pack(side='left', fill='both', expand=True)
+        
+        tk.Label(list_frame, text="قائمة الوجبات الحالية", font=FONT_TITLE, bg=BG_MAIN_COLOR, fg=TEXT_COLOR).pack(anchor='e', pady=10)
+        
+        cols = ('id', 'name', 'price', 'type')
+        self.products_tree = ttk.Treeview(list_frame, columns=cols, show='headings')
+        self.products_tree.heading('id', text='#')
+        self.products_tree.heading('name', text='اسم الوجبة')
+        self.products_tree.heading('price', text='السعر')
+        self.products_tree.heading('type', text='النوع')
+        
+        self.products_tree.column('id', width=50, anchor='center')
+        self.products_tree.pack(fill='both', expand=True)
+        
+        btn_frame = tk.Frame(list_frame, bg=BG_MAIN_COLOR, pady=10)
+        btn_frame.pack(fill='x')
+        tk.Button(btn_frame, text="تحديث القائمة 🔄", command=self.load_products_list, font=FONT_MAIN, bg="white").pack(side='right', padx=5)
+        tk.Button(btn_frame, text="حذف المحدد ❌", command=self.delete_product, font=FONT_MAIN, bg=DANGER_COLOR, fg="white").pack(side='right', padx=5)
+        
+        self.load_products_list()
+    def upload_image(self):
+        path = filedialog.askopenfilename(filetypes=[("Images", "*.jpg *.png *.jpeg")])
+        if path:
+            self.p_image_path = path
+            self.lbl_img_path.config(text=os.path.basename(path))
+    def save_product(self):
+        if not self.p_name.get() or self.p_price.get() <= 0:
+            messagebox.showerror("خطأ", "تأكد من البيانات")
+            return
+        img = None
+        try:
+            if self.p_image_path:
+                with open(self.p_image_path, 'rb') as f: img = f.read()
+        except: img = None
+        
+        color_hex = CARD_COLORS.get(self.p_card_color.get(), "#FFFFFF")
+        suggestions_txt = self.p_suggestions.get()
+        
+        conn = sqlite3.connect(self.db_name)
+        c = conn.cursor()
+        c.execute("INSERT INTO products (name, price, image, category, weight_based, card_color, suggestions) VALUES (?,?,?,?,?,?,?)",
+                  (self.p_name.get(), self.p_price.get(), img, "عام", 1 if self.p_weight_based.get() else 0, color_hex, suggestions_txt))
+        conn.commit()
+        conn.close()
+        
+        self.search_var.set("")
+        self.load_products_list()
+        self.load_products_grid()
+        
+        self.p_name.set("")
+        self.p_price.set(0)
+        self.p_weight_based.set(False)
+        self.p_suggestions.set("")
+        self.p_card_color.set("أبيض (افتراضي)")
+        self.lbl_img_path.config(text="لم يتم اختيار صورة")
+        self.p_image_path = None
+        messagebox.showinfo("تم", "تم حفظ الوجبة وتحديث القائمة")
+    def load_products_list(self):
+        for i in self.products_tree.get_children(): self.products_tree.delete(i)
+        conn = sqlite3.connect(self.db_name)
+        c = conn.cursor()
+        c.execute("SELECT id, name, price, weight_based FROM products")
+        for r in c.fetchall():
+            t = "وزن" if r[3] else "قطعة"
+            self.products_tree.insert('', 'end', values=(r[0], r[1], r[2], t))
+        conn.close()
+    def delete_product(self):
+        sel = self.products_tree.selection()
+        if not sel: return
+        pid = self.products_tree.item(sel[0])['values'][0]
+        if messagebox.askyesno("تأكيد", "حذف الوجبة؟"):
+            conn = sqlite3.connect(self.db_name)
+            conn.cursor().execute("DELETE FROM products WHERE id=?", (pid,))
+            conn.commit()
+            conn.close()
+            self.load_products_list()
+            self.load_products_grid()
+    def build_reports_tab(self):
+        main_frame = tk.Frame(self.reports_frame, bg="#E6EBEF")
+        main_frame.pack(fill='both', expand=True, padx=0, pady=0)
+        
+        header_frame = tk.Frame(main_frame, bg="#CAD6DC", pady=10, padx=20, relief='raised', bd=1)
+        header_frame.pack(fill='x')
+        tk.Label(header_frame, text="تقرير الفواتير", font=("Segoe UI", 16, "bold", "underline"), bg="#CAD6DC", fg="#333").pack(side='top', pady=(0,5))
+        
+        filter_frame = tk.Frame(header_frame, bg="#CAD6DC")
+        filter_frame.pack(side='top', fill='x')
+        
+        self.report_period = tk.StringVar(value="today")
+        modes = [("اليوم", "today"), ("أسبوع", "week"), ("شهر", "month"), ("سنة", "year"), ("الكل", "all")]
+        
+        tk.Label(filter_frame, text="عرض حسب:", bg="#CAD6DC", font=FONT_BOLD).pack(side='right', padx=10)
+        
+        for txt, val in modes:
+            rb = tk.Radiobutton(filter_frame, text=txt, variable=self.report_period, value=val,
+                                command=self.load_reports, bg="#CAD6DC", font=FONT_MAIN,
+                                selectcolor="white", indicatoron=0, width=8, relief='groove')
+            rb.pack(side='right', padx=2)
+            
+        tk.Button(filter_frame, text="تصدير 📄", command=self.export_report, bg=SUCCESS_COLOR, fg="white", font=FONT_BOLD).pack(side='left', padx=10)
+        tk.Button(filter_frame, text="تحديث 🔄", command=self.load_reports, bg=PRIMARY_COLOR, fg="white", font=FONT_BOLD).pack(side='left', padx=10)
+        
+        tk.Button(filter_frame, text="إنهاء اليوم (تقرير جرد) 🏁", command=self.generate_daily_report,
+                  bg="#FF9800", fg="white", font=FONT_BOLD, relief='raised', bd=2).pack(side='left', padx=20)
+        
+        tree_frame = tk.Frame(main_frame, bg="white", padx=10, pady=10)
+        tree_frame.pack(fill='both', expand=True)
+        
+        cols = ('seq', 'date', 'type', 'cust', 'total')
+        self.report_tree = ttk.Treeview(tree_frame, columns=cols, show='headings')
+        
+        self.report_tree.heading('seq', text='ت')
+        self.report_tree.heading('date', text='التاريخ والوقت')
+        self.report_tree.heading('type', text='نوع الطلب')
+        self.report_tree.heading('cust', text='الزبون')
+        self.report_tree.heading('total', text='المبلغ')
+        
+        self.report_tree.column('seq', width=50, anchor='center')
+        self.report_tree.column('date', width=150, anchor='center')
+        self.report_tree.column('type', width=100, anchor='center')
+        self.report_tree.column('cust', width=150, anchor='center')
+        self.report_tree.column('total', width=100, anchor='center')
+        
+        scrollbar = ttk.Scrollbar(tree_frame, orient="vertical", command=self.report_tree.yview)
+        self.report_tree.configure(yscrollcommand=scrollbar.set)
+        scrollbar.pack(side='right', fill='y')
+        self.report_tree.pack(fill='both', expand=True)
+        
+        summary_container = tk.Frame(main_frame, bg="#D5DBDB", pady=10, padx=20, relief='raised', bd=2)
+        summary_container.pack(fill='x', side='bottom')
+        
+        net_frame = tk.Frame(summary_container, bg="#D5DBDB", borderwidth=1, relief="solid")
+        net_frame.pack(side='left', padx=10, fill='y')
+        tk.Label(net_frame, text="الصافي", bg="#95A5A6", fg="white", font=("Segoe UI", 12, "bold"), width=15).pack(fill='x')
+        self.lbl_net_profit = tk.Label(net_frame, text="0", bg="white", font=("Segoe UI", 14, "bold"), fg="#2C3E50", height=2)
+        self.lbl_net_profit.pack(fill='x')
+        
+        exp_frame = tk.Frame(summary_container, bg="#D5DBDB", borderwidth=1, relief="solid")
+        exp_frame.pack(side='left', padx=10, fill='y')
+        tk.Label(exp_frame, text="المصاريف", bg="#95A5A6", fg="white", font=("Segoe UI", 12, "bold"), width=15).pack(fill='x')
+        self.lbl_expenses = tk.Label(exp_frame, text="0", bg="white", font=("Segoe UI", 14, "bold"), fg=DANGER_COLOR, height=2)
+        self.lbl_expenses.pack(fill='x')
+        
+        disc_frame = tk.Frame(summary_container, bg="#D5DBDB", borderwidth=1, relief="solid")
+        disc_frame.pack(side='left', padx=10, fill='y')
+        tk.Label(disc_frame, text="عدد الفواتير", bg="#95A5A6", fg="white", font=("Segoe UI", 12, "bold"), width=15).pack(fill='x')
+        self.lbl_count = tk.Label(disc_frame, text="0", bg="white", font=("Segoe UI", 14, "bold"), fg="#2C3E50", height=2)
+        self.lbl_count.pack(fill='x')
+        
+        total_frame = tk.Frame(summary_container, bg="#D5DBDB", borderwidth=1, relief="solid")
+        total_frame.pack(side='left', padx=10, fill='y')
+        tk.Label(total_frame, text="إجمالي المبلغ", bg="#95A5A6", fg="white", font=("Segoe UI", 12, "bold"), width=15).pack(fill='x')
+        self.lbl_total_sales = tk.Label(total_frame, text="0", bg="white", font=("Segoe UI", 14, "bold"), fg=SUCCESS_COLOR, height=2)
+        self.lbl_total_sales.pack(fill='x')
+        
+        self.load_reports()
+    def load_reports(self):
+        for i in self.report_tree.get_children(): self.report_tree.delete(i)
+        conn = sqlite3.connect(self.db_name)
+        c = conn.cursor()
+        
+        period = self.report_period.get()
+        now = datetime.datetime.now()
+        
+        query = "SELECT id, date, type, customer_name, total, status FROM orders WHERE 1=1"
+        params = []
+        
+        if period == "today":
+            date_filter = now.strftime("%Y-%m-%d")
+            query += " AND date LIKE ?"
+            params.append(f"{date_filter}%")
+        elif period == "week":
+            d = (now - datetime.timedelta(days=7)).strftime("%Y-%m-%d")
+            query += " AND date >= ?"
+            params.append(d)
+        elif period == "month":
+            d = (now - datetime.timedelta(days=30)).strftime("%Y-%m-%d")
+            query += " AND date >= ?"
+            params.append(d)
+        elif period == "year":
+            d = (now - datetime.timedelta(days=365)).strftime("%Y-%m-%d")
+            query += " AND date >= ?"
+            params.append(d)
+        
+        query += " ORDER BY id DESC"
+        
+        c.execute(query, params)
+        rows = c.fetchall()
+        
+        total_sum = 0
+        count = 0
+        
+        for idx, r in enumerate(rows):
+            t_type = "سفري" if r[2] == "takeaway" else "توصيل"
+            if r[5] == "مرتجع": t_type += " (مرتجع)"
+            
+            self.report_tree.insert('', 'end', values=(idx+1, r[1][:16], t_type, r[3], f"{r[4]:,.0f}"))
+            
+            if r[5] != "مرتجع":
+                total_sum += r[4]
+            count += 1
+            
+        conn.close()
+        
+        self.lbl_total_sales.config(text=f"{total_sum:,.0f}")
+        self.lbl_count.config(text=str(count))
+        self.lbl_net_profit.config(text=f"{total_sum:,.0f}")
+        self.lbl_expenses.config(text="0")
+    def export_report(self):
+        path = filedialog.asksaveasfilename(defaultextension=".txt")
+        if path:
+            with open(path, 'w', encoding='utf-8') as f:
+                f.write("تقرير المبيعات\n")
+                f.write(f"الفترة: {self.report_period.get()}\n")
+                f.write("-" * 50 + "\n")
+                for item in self.report_tree.get_children():
+                    vals = self.report_tree.item(item)['values']
+                    f.write(f"{vals}\n")
+                f.write("-" * 50 + "\n")
+                f.write(f"المجموع الكلي: {self.lbl_total_sales.cget('text')}\n")
+            messagebox.showinfo("تم", "تم التصدير")
+    def build_settings_tab(self):
+        frame = tk.Frame(self.settings_frame, bg=BG_MAIN_COLOR, padx=30, pady=30)
+        frame.pack(fill='both', expand=True)
+        
+        p_frame = tk.LabelFrame(frame, text=" إعدادات الطابعات ", font=FONT_BOLD, bg=BG_MAIN_COLOR, padx=20, pady=20)
+        p_frame.pack(fill='x', pady=10)
+        
+        try:
+            printers = [p[2] for p in win32print.EnumPrinters(win32print.PRINTER_ENUM_LOCAL)]
+        except: printers = ["Default"]
+        
+        self.printer_list = tk.Listbox(p_frame, selectmode='single', height=6, font=FONT_MAIN)
+        self.printer_list.pack(fill='x', pady=5)
+        for p in printers: self.printer_list.insert('end', p)
+        
+        tk.Button(p_frame, text="حفظ الطابعة المحددة كطابعة الفواتير 💾", command=self.save_printers, bg=PRIMARY_COLOR, fg="white", font=FONT_MAIN).pack(pady=5)
+        
+        r_frame = tk.LabelFrame(frame, text=" تصميم الفاتورة ", font=FONT_BOLD, bg=BG_MAIN_COLOR, padx=20, pady=20)
+        r_frame.pack(fill='x', pady=10)
+        
+        tk.Label(r_frame, text="عنوان الفاتورة", bg=BG_MAIN_COLOR).pack(anchor='e')
+        self.h_text = tk.Entry(r_frame, font=FONT_MAIN)
+        self.h_text.insert(0, self.settings['receipt_design']['header_text'])
+        self.h_text.pack(fill='x')
+        
+        tk.Label(r_frame, text="تذييل الفاتورة", bg=BG_MAIN_COLOR).pack(anchor='e')
+        self.f_text = tk.Entry(r_frame, font=FONT_MAIN)
+        self.f_text.insert(0, self.settings['receipt_design']['footer_text'])
+        self.f_text.pack(fill='x')
+        
+        tk.Button(r_frame, text="اختيار شعار", command=self.choose_logo, bg=SECONDARY_COLOR, fg="white").pack(pady=5)
+        self.s_logo_lbl = tk.Label(r_frame, text=self.settings['logo_path'], bg=BG_MAIN_COLOR)
+        self.s_logo_lbl.pack()
+        
+        tk.Button(r_frame, text="حفظ التصميم 💾", command=self.save_design, bg=SUCCESS_COLOR, fg="white", font=FONT_BOLD).pack(pady=10)
+    def save_printers(self):
+        idxs = self.printer_list.curselection()
+        if not idxs:
+             messagebox.showwarning("تنبيه", "يرجى اختيار طابعة أولاً")
+             return
+        
+        selected_printer = self.printer_list.get(idxs[0])
+        self.settings['printers'] = [selected_printer]
+        self.save_settings()
+        messagebox.showinfo("تم", f"تم تحديد الطابعة: {selected_printer}")
+    def choose_logo(self):
+        p = filedialog.askopenfilename()
+        if p:
+            self.settings['logo_path'] = p
+            self.s_logo_lbl.config(text=p)
+    def save_design(self):
+        self.settings['receipt_design']['header_text'] = self.h_text.get()
+        self.settings['receipt_design']['footer_text'] = self.f_text.get()
+        self.save_settings()
+        messagebox.showinfo("تم", "حفظ التصميم")
+def start_app():
+    root = tk.Tk()
+    app = RestaurantPOS(root)
+    root.mainloop()
+if __name__ == "__main__":
+    l_root = tk.Tk()
+    LoginWindow(l_root, start_app)
+    l_root.mainloop() اريد تضيف حاسبة واجه تسجيل الدخول لكتابة الرمز واري كيبور فقط احرف اللغة العربية عند الضغط للكتابة اسم الزبون وعنوان الزبون واريد تضهر حاسبة عند كتابة وقت الاستلام والتسليم وارجاع واعادة طباعة الفاتورة واريد عند البيع بلوزن مثلا 1 كيلو يضهر بطباعة 1 وليس 1000 واريد تضيف في حاسبة الوزن 1\2 و1\4و3\4 وتضهر كما هي في الفاتورة وارسل الكود كامل بعد التعديل دون نقص مع الحفاظ على الكود وتصميمه
