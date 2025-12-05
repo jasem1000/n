@@ -6,11 +6,13 @@ import io
 import os
 import json
 import time
+
 # --- مكتبات الطباعة والصور ---
 from PIL import Image, ImageTk, ImageDraw, ImageFont, ImageWin
 import win32print
 import win32ui
 import win32con
+
 # --- مكتبات معالجة اللغة العربية ---
 try:
     import arabic_reshaper
@@ -21,6 +23,23 @@ except ImportError:
     class arabic_reshaper:
         @staticmethod
         def reshape(text): return text
+
+# --- مكتبات PDF (ReportLab) ---
+try:
+    from reportlab.lib.pagesizes import A4
+    from reportlab.pdfgen import canvas
+    from reportlab.pdfbase.ttfonts import TTFont
+    from reportlab.pdfbase import pdfmetrics
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+    from reportlab.lib import colors
+    from reportlab.lib.units import mm
+    from reportlab.lib.enums import TA_CENTER, TA_RIGHT, TA_LEFT
+except ImportError:
+    print("يرجى تثبيت مكتبة reportlab: pip install reportlab")
+    def save_daily_report_pdf(*args):
+        messagebox.showerror("خطأ", "مكتبة reportlab غير مثبتة.")
+
 # --- إعدادات الألوان والتصميم ---
 BG_MAIN_COLOR = "#F4F7F6"
 PANEL_COLOR = "#3F6287"
@@ -32,171 +51,106 @@ DANGER_COLOR = "#dc3545"
 TEXT_COLOR = "#0099FF"
 TEXT_SECONDARY = "#6c757d"
 CARD_COLORS = {
-    "أبيض (افتراضي)": "#FFFFFF",
-    "أحمر فاتح": "#FFEBEE",
-    "أخضر فاتح": "#E8F5E9",
-    "أزرق فاتح": "#E3F2FD",
-    "أصفر فاتح": "#FFFDE7",
-    "برتقالي فاتح": "#FFF3E0",
-    "رمادي فاتح": "#F5F5F5"
+    "أبيض (افتراضي)": "#FFFFFF", "أحمر فاتح": "#FFEBEE", "أخضر فاتح": "#E8F5E9",
+    "أزرق فاتح": "#E3F2FD", "أصفر فاتح": "#FFFDE7", "برتقالي فاتح": "#FFF3E0", "رمادي فاتح": "#F5F5F5"
 }
 FONT_MAIN = ("Segoe UI", 12)
 FONT_BOLD = ("Segoe UI", 12, "bold")
 FONT_HEADER = ("Segoe UI", 20, "bold")
 FONT_TITLE = ("Segoe UI", 14, "bold")
 
+# ================= فئات الواجهة المساعدة =================
+
 class CustomInputDialog:
-    """نافذة منبثقة لإدخال نص مع لوحة مفاتيح (عربية أو رقمية)"""
     def __init__(self, parent, title, prompt, initial_value="", input_type="text"):
         self.result = None
         self.window = tk.Toplevel(parent)
         self.window.title(title)
-        self.window.geometry("600x450")
+        self.window.geometry("500x400")
         self.window.configure(bg="#FFFFFF")
         self.window.resizable(False, False)
         self.window.transient(parent)
         self.window.grab_set()
-        
-        x = parent.winfo_rootx() + (parent.winfo_width() // 2) - 300
-        y = parent.winfo_rooty() + (parent.winfo_height() // 2) - 225
+        x = parent.winfo_rootx() + (parent.winfo_width() // 2) - 250
+        y = parent.winfo_rooty() + (parent.winfo_height() // 2) - 200
         self.window.geometry(f"+{x}+{y}")
-        
         main_frame = tk.Frame(self.window, bg=PANEL_COLOR, padx=20, pady=20, relief='raised', bd=1)
         main_frame.pack(expand=True, fill='both', padx=10, pady=10)
-        
         tk.Label(main_frame, text=prompt, font=FONT_BOLD, bg=PANEL_COLOR, fg="white").pack(pady=(0, 10))
-        
         self.input_var = tk.StringVar(value=initial_value)
-        self.entry = tk.Entry(main_frame, textvariable=self.input_var, font=("Segoe UI", 16), bg="#F9F9F9", justify='center')
-        self.entry.pack(fill='x', pady=5, ipady=10)
+        self.entry = tk.Entry(main_frame, textvariable=self.input_var, font=("Segoe UI", 14), bg="#F9F9F9", justify='center')
+        self.entry.pack(fill='x', pady=5, ipady=5)
         self.entry.focus_set()
-        
-        # لوحة المفاتيح
         keypad_frame = tk.Frame(main_frame, bg=PANEL_COLOR)
-        keypad_frame.pack(fill='both', expand=True, pady=10)
-
-        if input_type == "arabic":
-            self.build_arabic_keypad(keypad_frame)
-        elif input_type == "numeric":
-            self.build_numeric_keypad(keypad_frame)
-        elif input_type == "time":
-            self.build_time_keypad(keypad_frame)
-        
+        keypad_frame.pack(fill='both', expand=True, pady=2)
+        if input_type == "arabic": self.build_arabic_keypad(keypad_frame)
+        elif input_type == "numeric": self.build_numeric_keypad(keypad_frame)
+        elif input_type == "time": self.build_time_keypad(keypad_frame)
         btn_frame = tk.Frame(main_frame, bg=PANEL_COLOR)
-        btn_frame.pack(fill='x', pady=10)
-        
-        tk.Button(btn_frame, text="إلغاء ❌", command=self.window.destroy, bg=DANGER_COLOR, fg="white", font=FONT_BOLD, relief='flat', width=10).pack(side='left', padx=5)
-        tk.Button(btn_frame, text="تأكيد ✅", command=self.confirm, bg=SUCCESS_COLOR, fg="white", font=FONT_BOLD, relief='flat', width=15).pack(side='right', padx=5)
-        
+        btn_frame.pack(fill='x', pady=0)
+        tk.Button(btn_frame, text="إلغاء ❌", command=self.window.destroy, bg=DANGER_COLOR, fg="white", font=FONT_BOLD, relief='flat', width=10).pack(side='left', padx=3)
+        tk.Button(btn_frame, text="تأكيد ✅", command=self.confirm, bg=SUCCESS_COLOR, fg="white", font=FONT_BOLD, relief='flat', width=15).pack(side='right', padx=3)
         self.window.wait_window()
         
     def build_arabic_keypad(self, parent):
-        keys = [
-            ('ض', 'ص', 'ث', 'ق', 'ف', 'غ', 'ع', 'ه', 'خ', 'ح', 'ج', 'د'),
-            ('ش', 'س', 'ي', 'ب', 'ل', 'أ', 'ت', 'ن', 'م', 'ك', 'ط'),
-            ('ذ', 'ء', 'ؤ', 'ر', 'لا', 'ى', 'ة', 'و', 'ز', 'ظ'),
-            (' ', 'Back', 'Clear') # مسافة وحذف ومسح
-        ]
-        
+        keys = [('ج', 'ح', 'خ', 'ه', 'ع', 'غ', 'ف', 'ق', 'ث', 'ص', 'ض', 'ط'), ('ك', 'م', 'ن', 'ت', 'ا', 'ل', 'ب', 'ي', 'س', 'ش', 'ة'), ('و', 'ر', 'ز', 'د', 'ذ', 'ظ', 'ؤ', 'ى', 'ء', 'ئ'), (',', ' ', 'Back', 'Clear')]
         for r, row_keys in enumerate(keys):
             row_frame = tk.Frame(parent, bg=PANEL_COLOR)
             row_frame.pack(fill='x', expand=True)
             for key in row_keys:
                 cmd = lambda k=key: self.key_press(k)
-                btn_color = "#E3F2FD" if len(key) == 1 or key == 'لا' else PRIMARY_COLOR if key != 'Clear' else DANGER_COLOR
-                fg_color = "#1565C0" if len(key) == 1 or key == 'لا' else "white"
-                font = ("Segoe UI", 12) if len(key) == 1 or key == 'لا' else FONT_BOLD
+                btn_color = "#E3F2FD" if len(key) == 1 or key == 'لا' or key == '،' else PRIMARY_COLOR if key != 'Clear' else DANGER_COLOR
+                fg_color = "#1565C0" if len(key) == 1 or key == 'لا' or key == '،' else "white"
+                font = ("Segoe UI", 12) if len(key) == 1 or key == 'لا' or key == '،' else FONT_BOLD
+                tk.Button(row_frame, text=get_display(arabic_reshaper.reshape(key)), command=cmd, font=font, bg=btn_color, fg=fg_color, relief='flat', padx=2, pady=2).pack(side='right', padx=2, pady=2, fill='x', expand=True)
 
-                btn = tk.Button(row_frame, text=get_display(arabic_reshaper.reshape(key)), command=cmd,
-                                font=font, bg=btn_color, fg=fg_color, relief='flat', padx=5, pady=5)
-                btn.pack(side='right', padx=2, pady=2, fill='x', expand=True)
-                
     def build_numeric_keypad(self, parent):
-        keys = [
-            ('1', '2', '3'),
-            ('4', '5', '6'),
-            ('7', '8', '9'),
-            ('Clear', '0', 'Back')
-        ]
+        keys = [('1', '2', '3'), ('4', '5', '6'), ('7', '8', '9'), ('Clear', '0', 'Back')]
         for r, row_keys in enumerate(keys):
             row_frame = tk.Frame(parent, bg=PANEL_COLOR)
             row_frame.pack(fill='x', expand=True)
             for key in row_keys:
                 cmd = lambda k=key: self.key_press(k)
                 btn_color = DANGER_COLOR if key == 'Clear' else PRIMARY_COLOR if key != 'Back' else "#E67E22"
-                btn = tk.Button(row_frame, text=key, command=cmd,
-                                font=("Segoe UI", 18, "bold"), bg=btn_color, fg="white", relief='flat', padx=5, pady=5)
-                btn.pack(side='right', padx=2, pady=2, fill='x', expand=True)
-                
+                tk.Button(row_frame, text=key, command=cmd, font=("Segoe UI", 14, "bold"), bg=btn_color, fg="white", relief='flat', padx=5, pady=5).pack(side='right', padx=2, pady=2, fill='x', expand=True)
+
     def build_time_keypad(self, parent):
-        # لوحة مفاتيح لتنسيق الوقت: HH:MM AM/PM
-        keys_digits = [
-            ('1', '2', '3'),
-            ('4', '5', '6'),
-            ('7', '8', '9'),
-            ('AM', '0', 'PM')
-        ]
-        
-        # إطار الأرقام
+        keys_digits = [('1', '2', '3'), ('4', '5', '6'), ('7', '8', '9'), ('AM', '0', 'PM')]
         digits_frame = tk.Frame(parent, bg=PANEL_COLOR)
         digits_frame.pack(side='right', fill='both', expand=True, padx=10)
-
         for r, row_keys in enumerate(keys_digits):
             row_frame = tk.Frame(digits_frame, bg=PANEL_COLOR)
             row_frame.pack(fill='x', expand=True)
             for key in row_keys:
                 cmd = lambda k=key: self.time_key_press(k)
                 btn_color = PRIMARY_COLOR if key.isdigit() else SECONDARY_COLOR
-                btn = tk.Button(row_frame, text=key, command=cmd,
-                                font=("Segoe UI", 18, "bold"), bg=btn_color, fg="white", relief='flat', padx=5, pady=5)
-                btn.pack(side='right', padx=2, pady=2, fill='x', expand=True)
-                
-        # إطار التحكم
+                tk.Button(row_frame, text=key, command=cmd, font=("Segoe UI", 12, "bold"), bg=btn_color, fg="white", relief='flat').pack(side='right', padx=2, pady=2, fill='x', expand=True)
         control_frame = tk.Frame(parent, bg=PANEL_COLOR)
         control_frame.pack(side='left', fill='y', padx=10)
-        
-        tk.Button(control_frame, text="حذف", command=lambda: self.time_key_press('Back'),
-                  font=("Segoe UI", 18, "bold"), bg="#E67E22", fg="white", relief='flat', width=6, height=2).pack(pady=5, fill='x')
-        tk.Button(control_frame, text="مسح", command=lambda: self.time_key_press('Clear'),
-                  font=("Segoe UI", 18, "bold"), bg=DANGER_COLOR, fg="white", relief='flat', width=6, height=2).pack(pady=5, fill='x')
-        tk.Button(control_frame, text=": فاصل", command=lambda: self.time_key_press(':'),
-                  font=("Segoe UI", 18, "bold"), bg="#5D6D7E", fg="white", relief='flat', width=6, height=2).pack(pady=5, fill='x')
-        
+        tk.Button(control_frame, text="حذف", command=lambda: self.time_key_press('Back'), font=("Segoe UI", 12, "bold"), bg="#E67E22", fg="white", relief='flat', width=6).pack(pady=0, fill='x')
+        tk.Button(control_frame, text="مسح", command=lambda: self.time_key_press('Clear'), font=("Segoe UI", 12, "bold"), bg=DANGER_COLOR, fg="white", relief='flat', width=6).pack(pady=0, fill='x')
+        tk.Button(control_frame, text=": فاصل", command=lambda: self.time_key_press(':'), font=("Segoe UI", 12, "bold"), bg="#5D6D7E", fg="white", relief='flat', width=6).pack(pady=0, fill='x')
+
     def key_press(self, key):
         current = self.input_var.get()
-        if key == 'Clear':
-            self.input_var.set("")
-        elif key == 'Back':
-            self.input_var.set(current[:-1])
-        else:
-            self.input_var.set(current + key)
+        if key == 'Clear': self.input_var.set("")
+        elif key == 'Back': self.input_var.set(current[:-1])
+        else: self.input_var.set(current + key)
         self.entry.icursor(tk.END)
-        
+
     def time_key_press(self, key):
         current = self.input_var.get()
-        if key == 'Clear':
-            self.input_var.set("")
+        if key == 'Clear': self.input_var.set("")
         elif key == 'Back':
-            # حذف حرف أو AM/PM
-            if current.endswith(" AM") or current.endswith(" PM"):
-                self.input_var.set(current[:-3])
-            elif current:
-                self.input_var.set(current[:-1])
-        elif key.isdigit():
-            self.input_var.set(current + key)
+            if current.endswith(" AM") or current.endswith(" PM"): self.input_var.set(current[:-3])
+            elif current: self.input_var.set(current[:-1])
+        elif key.isdigit(): self.input_var.set(current + key)
         elif key == ':':
-            # التأكد من عدم وجود فاصلتين متتاليتين أو في النهاية
-            if not current.endswith(':') and current.strip():
-                 self.input_var.set(current + key)
+            if not current.endswith(':') and current.strip(): self.input_var.set(current + key)
         elif key in ['AM', 'PM']:
-            # إضافة AM/PM، يتم استبدال الموجود
-            if " AM" in current:
-                self.input_var.set(current.replace(" AM", f" {key}"))
-            elif " PM" in current:
-                self.input_var.set(current.replace(" PM", f" {key}"))
-            else:
-                 self.input_var.set(current + f" {key}")
-        
+            if " AM" in current: self.input_var.set(current.replace(" AM", f" {key}"))
+            elif " PM" in current: self.input_var.set(current.replace(" PM", f" {key}"))
+            else: self.input_var.set(current + f" {key}")
         self.entry.icursor(tk.END)
         
     def confirm(self):
@@ -204,8 +158,6 @@ class CustomInputDialog:
         self.window.destroy()
 
 class NoteDialog:
-    """نافذة منبثقة للملاحظات مع اقتراحات (باقي كما هي)"""
-    # ... (محتويات NoteDialog)
     def __init__(self, parent, title, prompt, initial_value="", suggestions_str=""):
         self.result = None
         self.window = tk.Toplevel(parent)
@@ -215,57 +167,39 @@ class NoteDialog:
         self.window.resizable(False, False)
         self.window.transient(parent)
         self.window.grab_set()
-        
         x = parent.winfo_rootx() + (parent.winfo_width() // 2) - 250
         y = parent.winfo_rooty() + (parent.winfo_height() // 2) - 175
         self.window.geometry(f"+{x}+{y}")
-        
         main_frame = tk.Frame(self.window, bg=PANEL_COLOR, padx=20, pady=20, relief='raised', bd=1)
         main_frame.pack(expand=True, fill='both', padx=10, pady=10)
-        
         tk.Label(main_frame, text=prompt, font=FONT_BOLD, bg=PANEL_COLOR, fg="white").pack(pady=(0, 10))
-        
         self.note_var = tk.StringVar(value=initial_value)
         self.entry = tk.Entry(main_frame, textvariable=self.note_var, font=("Segoe UI", 14), bg="#F9F9F9", justify='center')
         self.entry.pack(fill='x', pady=5, ipady=5)
         self.entry.focus_set()
         self.entry.bind('<Return>', lambda e: self.confirm())
-        
         if suggestions_str:
             suggestions_frame = tk.LabelFrame(main_frame, text="اقتراحات سريعة", bg=PANEL_COLOR, fg="white", font=("Segoe UI", 10))
             suggestions_frame.pack(fill='x', pady=10)
-            
             sug_list = [s.strip() for s in suggestions_str.split(',') if s.strip()]
-            
             grid_frame = tk.Frame(suggestions_frame, bg=PANEL_COLOR)
             grid_frame.pack(fill='both', padx=5, pady=5)
-            
             r, c = 0, 0
             for sug in sug_list:
-                btn = tk.Button(grid_frame, text=sug, font=("Segoe UI", 9),
-                                bg="#E3F2FD", fg="#1565C0", relief='flat',
-                                command=lambda s=sug: self.add_suggestion(s))
-                btn.grid(row=r, column=c, padx=2, pady=2, sticky='ew')
+                tk.Button(grid_frame, text=sug, font=("Segoe UI", 9), bg="#E3F2FD", fg="#1565C0", relief='flat', command=lambda s=sug: self.add_suggestion(s)).grid(row=r, column=c, padx=2, pady=2, sticky='ew')
                 c += 1
-                if c > 2:
-                    c = 0
-                    r += 1
+                if c > 2: c = 0; r += 1
             for i in range(3): grid_frame.columnconfigure(i, weight=1)
-            
         btn_frame = tk.Frame(main_frame, bg=PANEL_COLOR)
         btn_frame.pack(fill='x', pady=20)
-        
         tk.Button(btn_frame, text="إلغاء ❌", command=self.window.destroy, bg=DANGER_COLOR, fg="white", font=FONT_BOLD, relief='flat', width=10).pack(side='left', padx=5)
         tk.Button(btn_frame, text="حفظ الملاحظة ✅", command=self.confirm, bg=SUCCESS_COLOR, fg="white", font=FONT_BOLD, relief='flat', width=15).pack(side='right', padx=5)
-        
         self.window.wait_window()
         
     def add_suggestion(self, text):
         current = self.note_var.get()
-        if current:
-            self.note_var.set(current + "، " + text)
-        else:
-            self.note_var.set(text)
+        if current: self.note_var.set(current + "، " + text)
+        else: self.note_var.set(text)
         self.entry.focus_set()
         self.entry.icursor(tk.END)
         
@@ -274,14 +208,11 @@ class NoteDialog:
         self.window.destroy()
 
 class PhoneKeypad:
-    """لوحة المفاتيح لإدخال رقم الهاتف (باقي كما هي)"""
-    # ... (محتويات PhoneKeypad)
     def __init__(self, parent, callback, initial_value=""):
         self.parent = parent
         self.callback = callback
         self.value = tk.StringVar(value=initial_value)
         self.setup_ui()
-        
     def setup_ui(self):
         self.window = tk.Toplevel(self.parent)
         self.window.title("إدخال رقم الهاتف")
@@ -289,225 +220,122 @@ class PhoneKeypad:
         self.window.configure(bg="#2C3E50")
         self.window.transient(self.parent)
         self.window.grab_set()
-        
         x = self.parent.winfo_rootx() + (self.parent.winfo_width() // 2) - 175
         y = self.parent.winfo_rooty() + (self.parent.winfo_height() // 2) - 250
         self.window.geometry(f"+{x}+{y}")
-        
         main_frame = tk.Frame(self.window, bg="#2C3E50", padx=10, pady=10)
         main_frame.pack(fill='both', expand=True)
-        
         display_frame = tk.Frame(main_frame, bg="#ECF0F1", pady=10, padx=10, relief='sunken', bd=2)
         display_frame.pack(fill='x', pady=(0, 15))
-        
-        self.display = tk.Label(display_frame, textvariable=self.value,
-                               font=("Consolas", 28, "bold"), bg="#ECF0F1",
-                               fg="#2C3E50", height=1, anchor='center')
+        self.display = tk.Label(display_frame, textvariable=self.value, font=("Consolas", 28, "bold"), bg="#ECF0F1", fg="#2C3E50", height=1, anchor='center')
         self.display.pack(fill='x')
-        
         keypad_frame = tk.Frame(main_frame, bg="#2C3E50")
         keypad_frame.pack(fill='both', expand=True)
-        
-        buttons = [
-            ('1', '2', '3'),
-            ('4', '5', '6'),
-            ('7', '8', '9'),
-            ('C', '0', '⌫')
-        ]
-        
+        buttons = [('1', '2', '3'), ('4', '5', '6'), ('7', '8', '9'), ('C', '0', '⌫')]
         for r, row_vals in enumerate(buttons):
             for c, char in enumerate(row_vals):
-                btn_color = "#34495E"
-                fg_color = "white"
-                
+                btn_color = "#E74C3C" if char == 'C' else "#E67E22" if char == '⌫' else "#34495E"
                 cmd = lambda k=char: self.button_click(k)
-                
-                if char == 'C':
-                    btn_color = "#E74C3C"
-                elif char == '⌫':
-                    btn_color = "#E67E22"
-                
-                btn = tk.Button(keypad_frame, text=char, command=cmd,
-                                font=("Segoe UI", 18, "bold"), bg=btn_color, fg=fg_color,
-                                relief='flat', activebackground="#95A5A6")
-                btn.grid(row=r, column=c, padx=3, pady=3, sticky="nsew")
-        
-        confirm_btn = tk.Button(main_frame, text="تأكيــد ✅", command=self.confirm,
-                                bg="#27AE60", fg="white", font=("Segoe UI", 16, "bold"),
-                                height=1, relief='flat', cursor="hand2")
-        confirm_btn.pack(fill='x', pady=(10, 0))
-        
+                tk.Button(keypad_frame, text=char, command=cmd, font=("Segoe UI", 18, "bold"), bg=btn_color, fg="white", relief='flat').grid(row=r, column=c, padx=3, pady=3, sticky="nsew")
+        tk.Button(main_frame, text="تأكيــد ✅", command=self.confirm, bg="#27AE60", fg="white", font=("Segoe UI", 16, "bold"), height=1, relief='flat').pack(fill='x', pady=(10, 0))
         for i in range(3): keypad_frame.columnconfigure(i, weight=1)
         for i in range(4): keypad_frame.rowconfigure(i, weight=1)
-    
     def button_click(self, key):
         current = self.value.get()
-        if key == 'C':
-            self.value.set("")
-        elif key == '⌫':
-            self.value.set(current[:-1])
-        else:
-            if len(current) < 11:
-                self.value.set(current + key)
-    
+        if key == 'C': self.value.set("")
+        elif key == '⌫': self.value.set(current[:-1])
+        elif len(current) < 11: self.value.set(current + key)
     def confirm(self):
         self.callback(self.value.get())
         self.window.destroy()
 
 class LoginWindow:
-    """نافذة تسجيل الدخول مع لوحة مفاتيح رقمية للرمز"""
-    # ... (محتويات LoginWindow)
     def __init__(self, root, callback):
         self.root = root
         self.callback = callback
         self.password_var = tk.StringVar()
         self.setup_ui()
-        
     def setup_ui(self):
         self.root.title("تسجيل الدخول - قصابة ومشويات الحسن")
-        self.root.geometry("450x600") # تعديل الحجم لاستيعاب لوحة المفاتيح
+        self.root.geometry("450x600")
         self.root.configure(bg=BG_MAIN_COLOR)
         self.root.resizable(False, False)
-        
         screen_width = self.root.winfo_screenwidth()
         screen_height = self.root.winfo_screenheight()
         x = (screen_width/2) - (450/2)
         y = (screen_height/2) - (600/2)
         self.root.geometry('%dx%d+%d+%d' % (450, 600, x, y))
-        
         main_frame = tk.Frame(self.root, bg=PANEL_COLOR, padx=30, pady=20, relief='raised', bd=1)
         main_frame.place(relx=0.5, rely=0.5, anchor='center')
-        
         tk.Label(main_frame, text="🍖", font=("Segoe UI", 40), bg=PANEL_COLOR).pack()
-        tk.Label(main_frame, text="قصابة ومشويات الحسن",
-                 font=("Segoe UI", 18, "bold"), bg=PANEL_COLOR, fg="white").pack(pady=5)
-        
+        tk.Label(main_frame, text="قصابة ومشويات الحسن", font=("Segoe UI", 18, "bold"), bg=PANEL_COLOR, fg="white").pack(pady=5)
         tk.Label(main_frame, text="أدخل رمز الدخول:", font=("Segoe UI", 14), bg=PANEL_COLOR, fg="white").pack(pady=(10, 5))
-
-        # حقل عرض كلمة المرور
-        self.password_display = tk.Label(main_frame, textvariable=self.password_var,
-                                         font=("Arial", 24), bg="#F2F2F7", fg=PANEL_COLOR,
-                                         width=15, anchor='center', relief='flat', bd=5)
+        self.password_display = tk.Label(main_frame, textvariable=self.password_var, font=("Arial", 24), bg="#F2F2F7", fg=PANEL_COLOR, width=15, anchor='center', relief='flat', bd=5)
         self.password_display.pack(pady=5, ipady=5)
-        
-        # لوحة المفاتيح الرقمية
         keypad_frame = tk.Frame(main_frame, bg=PANEL_COLOR)
         keypad_frame.pack(pady=15, padx=10)
-
-        buttons = [
-            ('1', '2', '3'),
-            ('4', '5', '6'),
-            ('7', '8', '9'),
-            ('مسح', '0', 'حذف')
-        ]
-        
+        buttons = [('1', '2', '3'), ('4', '5', '6'), ('7', '8', '9'), ('مسح', '0', 'حذف')]
         for r, row_vals in enumerate(buttons):
             row_frame = tk.Frame(keypad_frame, bg=PANEL_COLOR)
             row_frame.pack(fill='x')
             for c, char in enumerate(row_vals):
                 cmd = lambda k=char: self.keypad_press(k)
                 btn_color = PRIMARY_COLOR if char.isdigit() else DANGER_COLOR if char == 'مسح' else "#E67E22"
-                
-                btn = tk.Button(row_frame, text=char, command=cmd,
-                                font=("Segoe UI", 14, "bold"), bg=btn_color, fg="white",
-                                relief='flat', width=6, height=1)
-                btn.pack(side='right', padx=2, pady=2)
-
-        login_btn = tk.Button(main_frame, text="دخول للنظام 🔓", command=self.check_password,
-                              bg="#FFFFFF", fg=PANEL_COLOR, font=FONT_BOLD,
-                              width=20, height=2, relief='flat', cursor="hand2")
-        login_btn.pack(pady=20)
-
+                tk.Button(row_frame, text=char, command=cmd, font=("Segoe UI", 14, "bold"), bg=btn_color, fg="white", relief='flat', width=6, height=1).pack(side='right', padx=2, pady=2)
+        tk.Button(main_frame, text="دخول للنظام 🔓", command=self.check_password, bg="#FFFFFF", fg=PANEL_COLOR, font=FONT_BOLD, width=20, height=2, relief='flat').pack(pady=20)
     def keypad_press(self, key):
         current = self.password_var.get()
-        if key == 'مسح':
-            self.password_var.set("")
-        elif key == 'حذف':
-            self.password_var.set(current[:-1])
-        elif key.isdigit() and len(current) < 10:
-            self.password_var.set(current + key)
-
+        if key == 'مسح': self.password_var.set("")
+        elif key == 'حذف': self.password_var.set(current[:-1])
+        elif key.isdigit() and len(current) < 10: self.password_var.set(current + key)
     def check_password(self):
-        if self.password_var.get() == "1":
+        if self.password_var.get() == "622563":
             self.root.destroy()
             self.callback()
         else:
             messagebox.showerror("خطأ", "كلمة المرور غير صحيحة!")
 
 class NumericKeypad:
-    """لوحة المفاتيح لإدخال الوزن (مع إضافة الكسور)"""
-    # ... (محتويات NumericKeypad)
     def __init__(self, parent, callback):
         self.parent = parent
         self.callback = callback
         self.value = tk.StringVar(value="0")
         self.setup_ui()
-        
     def setup_ui(self):
         self.window = tk.Toplevel(self.parent)
         self.window.title("أدخل الوزن (كغم)")
-        self.window.geometry("400x650") # تعديل الحجم لاستيعاب صف إضافي
+        self.window.geometry("400x650")
         self.window.configure(bg=BG_MAIN_COLOR)
         self.window.transient(self.parent)
         self.window.grab_set()
-        
         x = self.parent.winfo_x() + (self.parent.winfo_width() // 2) - 200
         y = self.parent.winfo_y() + (self.parent.winfo_height() // 2) - 325
         self.window.geometry(f"+{x}+{y}")
-        
         main_frame = tk.Frame(self.window, bg=BG_MAIN_COLOR, padx=15, pady=15)
         main_frame.pack(fill='both', expand=True)
-        
-        self.display = tk.Label(main_frame, textvariable=self.value,
-                               font=("Consolas", 40, "bold"), bg="white",
-                               fg=TEXT_COLOR, height=2, anchor='e', padx=10)
+        self.display = tk.Label(main_frame, textvariable=self.value, font=("Consolas", 40, "bold"), bg="white", fg=TEXT_COLOR, height=2, anchor='e', padx=10)
         self.display.pack(fill='x', pady=(0, 15))
-        
         keypad_frame = tk.Frame(main_frame, bg=BG_MAIN_COLOR)
         keypad_frame.pack(fill='both', expand=True)
-        
-        # أزرار لوحة المفاتيح
-        buttons = [
-            ('7', '8', '9'),
-            ('4', '5', '6'),
-            ('1', '2', '3'),
-            ('0', '.', 'C')
-        ]
-        
+        buttons = [('7', '8', '9'), ('4', '5', '6'), ('1', '2', '3'), ('0', '.', 'C')]
         row, col = 0, 0
         for button in buttons:
             for b in button:
                 cmd = lambda x=b: self.button_click(x)
                 color = "#FFCDD2" if b == 'C' else PANEL_COLOR
                 fg_col = DANGER_COLOR if b == 'C' else "white"
-                btn = tk.Button(keypad_frame, text=b, command=cmd,
-                                font=("Segoe UI", 22, "bold"), bg=color, fg=fg_col, relief='flat')
-                btn.grid(row=row, column=col, padx=4, pady=4, sticky="nsew")
+                tk.Button(keypad_frame, text=b, command=cmd, font=("Segoe UI", 22, "bold"), bg=color, fg=fg_col, relief='flat').grid(row=row, column=col, padx=4, pady=4, sticky="nsew")
                 col += 1
-            col = 0
-            row += 1
-
-        # صف الكسور
+            col = 0; row += 1
         frac_frame = tk.Frame(keypad_frame, bg=BG_MAIN_COLOR)
         frac_frame.grid(row=row, column=0, columnspan=3, sticky='ew', pady=(5,0))
-        
         fractions = [("1/4", 0.25), ("1/2", 0.5), ("3/4", 0.75)]
         for txt, val in fractions:
-            cmd = lambda v=val: self.fraction_click(v)
-            btn = tk.Button(frac_frame, text=txt, command=cmd,
-                            font=("Segoe UI", 18, "bold"), bg=SECONDARY_COLOR, fg="white", relief='flat')
-            btn.pack(side='right', fill='x', expand=True, padx=4, pady=4)
-
+            tk.Button(frac_frame, text=txt, command=lambda v=val: self.fraction_click(v), font=("Segoe UI", 18, "bold"), bg=SECONDARY_COLOR, fg="white", relief='flat').pack(side='right', fill='x', expand=True, padx=4, pady=4)
         row += 1
-        
-        confirm_btn = tk.Button(main_frame, text="تأكيــد الـوزن ✅", command=self.confirm,
-                                bg="#00C853", fg="white", font=("Segoe UI", 18, "bold"),
-                                height=2, relief='raised', bd=3, cursor="hand2")
-        confirm_btn.pack(fill='x', pady=(15, 5))
-        
+        tk.Button(main_frame, text="تأكيــد الـوزن ✅", command=self.confirm, bg="#00C853", fg="white", font=("Segoe UI", 18, "bold"), height=2, relief='raised', bd=3).pack(fill='x', pady=(15, 5))
         for i in range(3): keypad_frame.columnconfigure(i, weight=1)
         for i in range(row): keypad_frame.rowconfigure(i, weight=1)
-    
     def button_click(self, key):
         if key == 'C': self.value.set("0")
         else:
@@ -516,25 +344,19 @@ class NumericKeypad:
             else:
                 if key == '.' and '.' in current: return
                 self.value.set(current + key)
-
     def fraction_click(self, val):
         current = self.value.get()
         try:
             current_val = float(current)
-            self.value.set(f"{current_val + val:.3f}") # 3 خانات لضمان دقة 0.25
-        except ValueError:
-            self.value.set(f"{val:.3f}")
-    
+            self.value.set(f"{current_val + val:.3f}")
+        except ValueError: self.value.set(f"{val:.3f}")
     def confirm(self):
         try:
             weight = float(self.value.get())
-            if weight > 0:
-                self.callback(weight)
-                self.window.destroy()
+            if weight > 0: self.callback(weight); self.window.destroy()
         except ValueError: pass
 
-# تم حذف DateTimePicker واستبدال وظيفته بـ CustomInputDialog مع نمط "time"
-# class DateTimePicker(simpledialog.Dialog): ...
+# ================= الفئة الرئيسية للنظام =================
 
 class RestaurantPOS:
     def __init__(self, root):
@@ -554,7 +376,7 @@ class RestaurantPOS:
         self.phone_var = tk.StringVar()
         self.customer_name_var = tk.StringVar()
         self.address_var = tk.StringVar()
-        self.pickup_time_var = tk.StringVar(value=datetime.datetime.now().strftime("%I:%M %p")) # وقت افتراضي
+        self.pickup_time_var = tk.StringVar(value="")
         self.payment_status_var = tk.StringVar(value="paid")
         self.search_var = tk.StringVar()
         self.general_notes_var = tk.StringVar()
@@ -574,16 +396,10 @@ class RestaurantPOS:
         style.configure("Treeview.Heading", font=("Segoe UI", 11, "bold"), background=SECONDARY_COLOR, foreground="white")
     
     def load_settings(self):
-        default_settings = {
-            "printers": ["Default Printer"],
-            "logo_path": "",
-            "receipt_design": {"header_text": "قصابة ومشويات الحسن", "show_logo": True, "footer_text": "أهلاً وسهلاً بكم"},
-            "last_closing_date": "" # سجل آخر تاريخ تم فيه الجرد
-        }
+        default_settings = {"printers": ["Default Printer"], "logo_path": "", "receipt_design": {"header_text": "قصابة ومشويات الحسن", "show_logo": True, "footer_text": "أهلاً وسهلاً بكم"}, "last_closing_date": ""}
         try:
             with open(self.settings_file, 'r', encoding='utf-8') as f: self.settings = json.load(f)
-        except:
-            self.settings = default_settings
+        except: self.settings = default_settings
             
     def save_settings(self):
         with open(self.settings_file, 'w', encoding='utf-8') as f: json.dump(self.settings, f, ensure_ascii=False, indent=4)
@@ -591,63 +407,50 @@ class RestaurantPOS:
     def init_db(self):
         conn = sqlite3.connect(self.db_name)
         c = conn.cursor()
-        c.execute('''CREATE TABLE IF NOT EXISTS products (
-            id INTEGER PRIMARY KEY,
-            name TEXT,
-            price REAL,
-            image BLOB,
-            category TEXT,
-            weight_based INTEGER DEFAULT 0,
-            card_color TEXT DEFAULT '#FFFFFF',
-            suggestions TEXT DEFAULT ''
-        )''')
         
-        try:
-            c.execute("ALTER TABLE products ADD COLUMN card_color TEXT DEFAULT '#FFFFFF'")
+        # --- المنتجات ---
+        c.execute('''CREATE TABLE IF NOT EXISTS products (id INTEGER PRIMARY KEY, name TEXT, price REAL, image BLOB, category TEXT, weight_based INTEGER DEFAULT 0, card_color TEXT DEFAULT '#FFFFFF', suggestions TEXT DEFAULT '')''')
+        try: c.execute("ALTER TABLE products ADD COLUMN card_color TEXT DEFAULT '#FFFFFF'")
         except: pass
-        try:
-            c.execute("ALTER TABLE products ADD COLUMN suggestions TEXT DEFAULT ''")
+        try: c.execute("ALTER TABLE products ADD COLUMN suggestions TEXT DEFAULT ''")
         except: pass
         
+        # --- الزبائن ---
         c.execute('''CREATE TABLE IF NOT EXISTS customers (phone TEXT PRIMARY KEY, name TEXT, address TEXT, last_order_date TEXT)''')
-        c.execute('''CREATE TABLE IF NOT EXISTS orders (id INTEGER PRIMARY KEY, date TEXT, customer_name TEXT, phone TEXT, type TEXT, details TEXT, total REAL, notes TEXT, status TEXT, pickup_time TEXT, address TEXT, payment_status TEXT)''')
+        
+        # --- الطلبات (إضافة daily_id و is_closed) ---
+        c.execute('''CREATE TABLE IF NOT EXISTS orders (id INTEGER PRIMARY KEY, daily_id INTEGER DEFAULT 1, date TEXT, customer_name TEXT, phone TEXT, type TEXT, details TEXT, total REAL, notes TEXT, status TEXT, pickup_time TEXT, address TEXT, payment_status TEXT, is_closed INTEGER DEFAULT 0)''')
+        try: c.execute("ALTER TABLE orders ADD COLUMN daily_id INTEGER DEFAULT 1")
+        except: pass
+        
+        # العمود المسؤول عن معرفة هل الفاتورة تم جردها أم لا
+        try: c.execute("ALTER TABLE orders ADD COLUMN is_closed INTEGER DEFAULT 0")
+        except: pass
+
         c.execute('''CREATE TABLE IF NOT EXISTS sales (id INTEGER PRIMARY KEY, date TEXT, order_id INTEGER, amount REAL, type TEXT)''')
         
-        c.execute('''CREATE TABLE IF NOT EXISTS order_items (
-            id INTEGER PRIMARY KEY,
-            order_id INTEGER,
-            product_name TEXT,
-            qty REAL,
-            price REAL,
-            total REAL,
-            note TEXT DEFAULT '',
-            FOREIGN KEY(order_id) REFERENCES orders(id)
-        )''')
-        try:
-            c.execute("ALTER TABLE order_items ADD COLUMN note TEXT DEFAULT ''")
+        c.execute('''CREATE TABLE IF NOT EXISTS order_items (id INTEGER PRIMARY KEY, order_id INTEGER, product_name TEXT, qty REAL, price REAL, total REAL, note TEXT DEFAULT '', FOREIGN KEY(order_id) REFERENCES orders(id))''')
+        try: c.execute("ALTER TABLE order_items ADD COLUMN note TEXT DEFAULT ''")
         except: pass
         
-        c.execute('''CREATE TABLE IF NOT EXISTS daily_closings (date TEXT PRIMARY KEY, total_sales REAL, total_orders INTEGER)''')
-
+        # --- جدول الجرد (الشفتات) ---
+        c.execute('''CREATE TABLE IF NOT EXISTS daily_shifts (id INTEGER PRIMARY KEY AUTOINCREMENT, closing_time TEXT, total_sales REAL, total_orders INTEGER, report_date TEXT)''')
+        
         conn.commit()
         conn.close()
         
     def setup_ui(self):
         self.notebook = ttk.Notebook(self.root)
         self.notebook.pack(fill='both', expand=True, padx=5, pady=5)
-        
         self.pos_frame = ttk.Frame(self.notebook)
         self.notebook.add(self.pos_frame, text=" 🛒 نقطة البيع ")
         self.build_pos_tab()
-        
         self.products_frame = ttk.Frame(self.notebook)
         self.notebook.add(self.products_frame, text=" 🥩 إدارة الوجبات ")
         self.build_products_tab()
-        
         self.reports_frame = ttk.Frame(self.notebook)
         self.notebook.add(self.reports_frame, text=" 📊 التقارير ")
         self.build_reports_tab()
-        
         self.settings_frame = ttk.Frame(self.notebook)
         self.notebook.add(self.settings_frame, text=" ⚙️ الإعدادات ")
         self.build_settings_tab()
@@ -656,1280 +459,845 @@ class RestaurantPOS:
         top_control_frame = tk.Frame(self.pos_frame, bg=BG_MAIN_COLOR, pady=5)
         top_control_frame.pack(side='top', fill='x')
         style_toggle = {"font": ("Segoe UI", 12, "bold"), "indicatoron": 0, "width": 15, "relief": "flat", "bd": 0, "selectcolor": PRIMARY_COLOR, "fg": "#333"}
-        
         center_toggle = tk.Frame(top_control_frame, bg=BG_MAIN_COLOR)
         center_toggle.pack(anchor='center')
-        rb_takeaway = tk.Radiobutton(center_toggle, text="🛍️ سفري (استلام)", variable=self.order_type, value="takeaway", **style_toggle)
-        rb_takeaway.pack(side='left', padx=2)
+        tk.Radiobutton(center_toggle, text="🛍️ سفري (استلام)", variable=self.order_type, value="takeaway", **style_toggle).pack(side='left', padx=2)
+        tk.Radiobutton(center_toggle, text="🛵 توصيل خارجي", variable=self.order_type, value="delivery", **style_toggle).pack(side='left', padx=2)
         
-        rb_delivery = tk.Radiobutton(center_toggle, text="🛵 توصيل خارجي", variable=self.order_type, value="delivery", **style_toggle)
-        rb_delivery.pack(side='left', padx=2)
-        # شريط بيانات الزبون
         customer_bar = tk.Frame(self.pos_frame, bg="white", padx=10, pady=8, relief='raised', bd=1)
         customer_bar.pack(side='top', fill='x', pady=(0, 5))
-        
         right_frame = tk.Frame(customer_bar, bg="white")
         right_frame.pack(side='right')
-        
         tk.Label(right_frame, text="📱", font=("Segoe UI", 12), bg="white").pack(side='right', padx=(5,0))
         self.phone_entry = tk.Entry(right_frame, textvariable=self.phone_var, font=("Segoe UI", 11, "bold"), width=15, bg="#F9F9F9", justify='center')
         self.phone_entry.pack(side='right', padx=5)
         self.phone_entry.bind("<Button-1>", self.open_phone_keypad)
-        
         tk.Label(right_frame, text="👤", font=("Segoe UI", 12), bg="white").pack(side='right', padx=(5,0))
         self.cust_name_entry = tk.Entry(right_frame, textvariable=self.customer_name_var, font=("Segoe UI", 11), width=20, bg="#F9F9F9", justify='right')
         self.cust_name_entry.pack(side='right', padx=5)
         self.cust_name_entry.bind("<Button-1>", lambda e: self.open_text_keypad(self.customer_name_var, "أدخل اسم الزبون", "arabic"))
-        
         self.dynamic_fields_frame = tk.Frame(customer_bar, bg="white")
         self.dynamic_fields_frame.pack(side='right', padx=20)
-        
         self.addr_container = tk.Frame(self.dynamic_fields_frame, bg="white")
         tk.Label(self.addr_container, text="العنوان:", bg="white", font=("Segoe UI", 10, "bold")).pack(side='right')
         self.addr_entry = tk.Entry(self.addr_container, textvariable=self.address_var, font=("Segoe UI", 10), width=25, bg="#F9F9F9")
         self.addr_entry.pack(side='right', padx=5)
         self.addr_entry.bind("<Button-1>", lambda e: self.open_text_keypad(self.address_var, "أدخل العنوان", "arabic"))
-
-        
         self.time_container = tk.Frame(self.dynamic_fields_frame, bg="white")
         self.lbl_time = tk.Label(self.time_container, text="وقت الاستلام:", bg="white", font=("Segoe UI", 10, "bold"))
         self.lbl_time.pack(side='right')
         self.time_entry = tk.Entry(self.time_container, textvariable=self.pickup_time_var, font=("Segoe UI", 10), width=15, bg="#F9F9F9")
         self.time_entry.pack(side='right', padx=5)
-        self.time_entry.bind("<Button-1>", self.open_time_keypad) # تم التعديل هنا
-        
+        self.time_entry.bind("<Button-1>", self.open_time_keypad)
         left_frame = tk.Frame(customer_bar, bg="white")
         left_frame.pack(side='left')
+        tk.Button(left_frame, text="إرجاع فاتورة ↩️", command=lambda: self.retrieve_order_dialog(use_keypad=True), bg="#607D8B", fg="white", font=("Segoe UI", 9, "bold"), relief='flat').pack(side='left', padx=5)
+        tk.Button(left_frame, text="إعادة طباعة 🖨️", command=lambda: self.reprint_order_dialog(use_keypad=True), bg="#795548", fg="white", font=("Segoe UI", 9, "bold"), relief='flat').pack(side='left', padx=5)
         
-        # ربط الأزرار بالدوال بعد فتح لوحة المفاتيح
-        tk.Button(left_frame, text="إرجاع فاتورة ↩️", command=lambda: self.retrieve_order_dialog(use_keypad=True),
-                  bg="#607D8B", fg="white", font=("Segoe UI", 9, "bold"), relief='flat').pack(side='left', padx=5)
-        
-        tk.Button(left_frame, text="إعادة طباعة 🖨️", command=lambda: self.reprint_order_dialog(use_keypad=True),
-                  bg="#795548", fg="white", font=("Segoe UI", 9, "bold"), relief='flat').pack(side='left', padx=5)
-        # منطقة العمل الرئيسية
         paned = tk.PanedWindow(self.pos_frame, orient=tk.HORIZONTAL, bg=BG_MAIN_COLOR, sashwidth=6)
         paned.pack(fill='both', expand=True, pady=5)
-        
-        # === اليسار: الفاتورة والسلة ===
         left_cart_frame = tk.Frame(paned, bg=PANEL_COLOR, relief='sunken', bd=1)
         paned.add(left_cart_frame, minsize=420, stretch="always")
-        
         footer_frame = tk.Frame(left_cart_frame, bg="#F8F9FA")
         footer_frame.pack(side='bottom', fill='x')
-        
         action_btns = tk.Frame(footer_frame, bg="#F8F9FA", padx=2, pady=2)
         action_btns.pack(side='bottom', fill='x')
-        
         sub_btns = tk.Frame(action_btns, bg="#F8F9FA")
         sub_btns.pack(fill='x', pady=(0, 2))
-        
         tk.Button(sub_btns, text="تفريغ السلة ♻️", command=self.clear_cart, bg=DANGER_COLOR, fg="white", font=("Segoe UI", 9), relief='flat', height=1).pack(side='left', fill='x', expand=True)
         tk.Button(action_btns, text="طباعة وإنهاء 🖨️", command=self.checkout, bg=SUCCESS_COLOR, fg="white", font=("Segoe UI", 11, "bold"), height=1, relief='flat').pack(fill='x', pady=1)
-        
         total_frame = tk.Frame(footer_frame, bg="#343A40", pady=2)
         total_frame.pack(side='bottom', fill='x')
         self.lbl_total = tk.Label(total_frame, text="المجموع: 0 د.ع", font=("Arial", 16, "bold"), bg="#343A40", fg=SUCCESS_COLOR)
         self.lbl_total.pack()
-        
         pay_opts = tk.Frame(footer_frame, bg="#F8F9FA", pady=2)
         pay_opts.pack(side='bottom', fill='x')
-        
-        self.btn_paid = tk.Button(pay_opts, text="✅ واصل", font=("Segoe UI", 10, "bold"),
-                                  relief='raised', bd=1, width=12, cursor="hand2",
-                                  command=lambda: self.set_payment_status("paid"))
+        self.btn_paid = tk.Button(pay_opts, text="✅ واصل", font=("Segoe UI", 10, "bold"), relief='raised', bd=1, width=12, command=lambda: self.set_payment_status("paid"))
         self.btn_paid.pack(side='right', padx=10, expand=True)
-        
-        self.btn_unpaid = tk.Button(pay_opts, text="⏳ غير واصل", font=("Segoe UI", 10, "bold"),
-                                    relief='raised', bd=1, width=12, cursor="hand2",
-                                    command=lambda: self.set_payment_status("unpaid"))
+        self.btn_unpaid = tk.Button(pay_opts, text="⏳ غير واصل", font=("Segoe UI", 10, "bold"), relief='raised', bd=1, width=12, command=lambda: self.set_payment_status("unpaid"))
         self.btn_unpaid.pack(side='left', padx=10, expand=True)
-        
         self.set_payment_status("paid")
-        
         general_note_frame = tk.Frame(footer_frame, bg="#F8F9FA", padx=5, pady=2)
         general_note_frame.pack(side='bottom', fill='x')
         self.general_note_entry = tk.Entry(general_note_frame, textvariable=self.general_notes_var, font=("Segoe UI", 10), bg="white", relief='solid', bd=1)
         self.general_note_entry.pack(fill='x', ipady=2)
         self.general_note_entry.bind("<Button-1>", lambda e: self.open_text_keypad(self.general_notes_var, "ملاحظات عامة", "arabic"))
         tk.Label(general_note_frame, text="ملاحظات عامة:", bg="#F8F9FA", font=("Segoe UI", 9, "bold"), fg=TEXT_SECONDARY).pack(anchor='ne')
-        
-        # جدول الفاتورة
         tk.Label(left_cart_frame, text="🧾 تفاصيل الفاتورة", font=FONT_BOLD, bg=PANEL_COLOR, fg="white").pack(pady=(5,0))
-        
         cols = ('item', 'qty', 'price', 'total', 'note', 'action')
         self.tree = ttk.Treeview(left_cart_frame, columns=cols, show='headings', selectmode='browse')
-        self.tree.heading('item', text='الصنف')
-        self.tree.heading('qty', text='الكمية')
-        self.tree.heading('price', text='السعر')
-        self.tree.heading('total', text='الإجمالي')
-        self.tree.heading('note', text='ملاحظات')
-        self.tree.heading('action', text='')
-        
-        self.tree.column('item', width=120, anchor='e')
-        self.tree.column('qty', width=50, anchor='center')
-        self.tree.column('price', width=70, anchor='center')
-        self.tree.column('total', width=70, anchor='center')
-        self.tree.column('note', width=90, anchor='e')
-        self.tree.column('action', width=40, anchor='center')
-        
+        self.tree.heading('item', text='الصنف'); self.tree.heading('qty', text='الكمية'); self.tree.heading('price', text='السعر'); self.tree.heading('total', text='الإجمالي'); self.tree.heading('note', text='الملاحظات'); self.tree.heading('action', text='')
+        self.tree.column('item', width=120, anchor='e'); self.tree.column('qty', width=50, anchor='center'); self.tree.column('price', width=70, anchor='center'); self.tree.column('total', width=70, anchor='center'); self.tree.column('note', width=90, anchor='e'); self.tree.column('action', width=40, anchor='center')
         self.tree.pack(fill='both', expand=True, padx=5)
         self.tree.bind("<Button-1>", self.on_tree_click)
         self.tree.bind("<Double-1>", self.on_item_double_click)
-        
-        # === اليمين: المنتجات والبحث ===
         right_products_frame = tk.Frame(paned, bg=BG_MAIN_COLOR)
         paned.add(right_products_frame, minsize=550)
-        
         search_frame = tk.Frame(right_products_frame, bg=PANEL_COLOR, padx=10, pady=10)
         search_frame.pack(fill='x', pady=(0, 5))
         tk.Label(search_frame, text="🔍 بحث:", bg=PANEL_COLOR, font=FONT_BOLD, fg="white").pack(side='right', padx=5)
         tk.Entry(search_frame, textvariable=self.search_var, font=FONT_MAIN, bg="#F2F2F7", relief='flat').pack(side='right', fill='x', expand=True, ipady=3)
-        
         products_container = tk.Frame(right_products_frame, bg=BG_MAIN_COLOR)
         products_container.pack(fill='both', expand=True)
-        
         self.canvas_products = tk.Canvas(products_container, bg=BG_MAIN_COLOR, highlightthickness=0)
         self.scroll_y = ttk.Scrollbar(products_container, orient="vertical", command=self.canvas_products.yview)
-        
         self.scrollable_frame = tk.Frame(self.canvas_products, bg=BG_MAIN_COLOR)
         self.scrollable_frame.bind("<Configure>", lambda e: self.canvas_products.configure(scrollregion=self.canvas_products.bbox("all")))
-        
         self.canvas_products.create_window((0, 0), window=self.scrollable_frame, anchor="ne")
         self.canvas_products.configure(yscrollcommand=self.scroll_y.set)
-        
         self.scroll_y.pack(side="left", fill="y")
         self.canvas_products.pack(side="right", fill="both", expand=True)
-        
         self.load_products_grid()
         self.toggle_fields()
 
-    # --- دوال لوحات المفاتيح والمدخلات المخصصة ---
-    def open_phone_keypad(self, event):
-        PhoneKeypad(self.root, self.update_phone_from_keypad, self.phone_var.get())
-        return "break"
-    
-    def update_phone_from_keypad(self, val):
-        self.phone_var.set(val)
-
+    # --- دوال لوحات المفاتيح والمدخلات ---
+    def open_phone_keypad(self, event): PhoneKeypad(self.root, self.update_phone_from_keypad, self.phone_var.get()); return "break"
+    def update_phone_from_keypad(self, val): self.phone_var.set(val)
     def open_text_keypad(self, var_obj, title, input_type):
         dlg = CustomInputDialog(self.root, title, title, var_obj.get(), input_type)
-        if dlg.result is not None:
-            var_obj.set(dlg.result)
+        if dlg.result is not None: var_obj.set(dlg.result)
         return "break"
-
-    # دالة جديدة للوقت باستخدام لوحة المفاتيح المخصصة
     def open_time_keypad(self, event):
         dlg = CustomInputDialog(self.root, "تحديد وقت الاستلام/التوصيل", "أدخل الوقت (HH:MM AM/PM)", self.pickup_time_var.get(), "time")
-        if dlg.result:
-            self.pickup_time_var.set(dlg.result)
+        if dlg.result: self.pickup_time_var.set(dlg.result)
         return "break"
-
     def set_payment_status(self, status):
         self.payment_status_var.set(status)
-        if status == "paid":
-            self.btn_paid.config(bg=SUCCESS_COLOR, fg="white", state="normal", relief="sunken")
-            self.btn_unpaid.config(bg="#E0E0E0", fg="#666", state="normal", relief="raised")
-            self.lbl_total.config(fg=SUCCESS_COLOR)
-        else:
-            self.btn_paid.config(bg="#E0E0E0", fg="#666", state="normal", relief="raised")
-            self.btn_unpaid.config(bg=DANGER_COLOR, fg="white", state="normal", relief="sunken")
-            self.lbl_total.config(fg=DANGER_COLOR)
-            
+        if status == "paid": self.btn_paid.config(bg=SUCCESS_COLOR, fg="white", state="normal", relief="sunken"); self.btn_unpaid.config(bg="#E0E0E0", fg="#666", state="normal", relief="raised"); self.lbl_total.config(fg=SUCCESS_COLOR)
+        else: self.btn_paid.config(bg="#E0E0E0", fg="#666", state="normal", relief="raised"); self.btn_unpaid.config(bg=DANGER_COLOR, fg="white", state="normal", relief="sunken"); self.lbl_total.config(fg=DANGER_COLOR)
     def on_tree_click(self, event):
         region = self.tree.identify_region(event.x, event.y)
-        if region == "cell":
-            column = self.tree.identify_column(event.x)
-            if column == '#6':
-                item_id = self.tree.identify_row(event.y)
-                if item_id:
-                    index = self.tree.index(item_id)
-                    if 0 <= index < len(self.cart):
-                        self.cart.pop(index)
-                        self.update_cart_view()
-                        
+        if region == "cell" and self.tree.identify_column(event.x) == '#6':
+            item_id = self.tree.identify_row(event.y)
+            if item_id: self.cart.pop(self.tree.index(item_id)); self.update_cart_view()
     def on_item_double_click(self, event):
-        column = self.tree.identify_column(event.x)
-        if column == '#6': return
+        if self.tree.identify_column(event.x) == '#6': return
         item_id = self.tree.identify_row(event.y)
-        if not item_id:
-            return
-        
-        index = self.tree.index(item_id)
-        if 0 <= index < len(self.cart):
-            current_item = self.cart[index]
-            current_note = current_item.get('note', '')
-            sugs = current_item.get('suggestions', '')
-            
-            dlg = NoteDialog(self.root, "ملاحظة وجبة", f"أضف ملاحظة لـ ({current_item['name']}):", current_note, suggestions_str=sugs)
-            
-            if dlg.result is not None:
-                self.cart[index]['note'] = dlg.result
-                self.update_cart_view()
-
+        if item_id:
+            index = self.tree.index(item_id)
+            current = self.cart[index]
+            dlg = NoteDialog(self.root, "ملاحظة وجبة", f"أضف ملاحظة لـ ({current['name']}):", current['note'], suggestions_str=current.get('suggestions', ''))
+            if dlg.result is not None: self.cart[index]['note'] = dlg.result; self.update_cart_view()
     def on_phone_change(self, *args):
         phone = self.phone_var.get()
-        if not phone.isdigit() and phone != "":
-            self.phone_var.set(''.join(filter(str.isdigit, phone)))
-            return
-        
-        if len(phone) == 11:
-            self.phone_entry.config(fg=SUCCESS_COLOR)
-            self.fetch_customer_data(phone)
-        else:
-            self.phone_entry.config(fg="black")
-        
-        if len(phone) > 11:
-            self.phone_var.set(phone[:11])
-            self.phone_entry.config(fg=SUCCESS_COLOR)
-            
-    def on_search_change(self, *args):
-        self.load_products_grid()
-        
+        if not phone.isdigit() and phone != "": self.phone_var.set(''.join(filter(str.isdigit, phone))); return
+        if len(phone) == 11: self.phone_entry.config(fg=SUCCESS_COLOR); self.fetch_customer_data(phone)
+        else: self.phone_entry.config(fg="black")
+        if len(phone) > 11: self.phone_var.set(phone[:11]); self.phone_entry.config(fg=SUCCESS_COLOR)
+    def on_search_change(self, *args): self.load_products_grid()
     def fetch_customer_data(self, phone):
-        conn = sqlite3.connect(self.db_name)
-        c = conn.cursor()
+        conn = sqlite3.connect(self.db_name); c = conn.cursor()
         c.execute("SELECT name, address FROM customers WHERE phone=?", (phone,))
-        res = c.fetchone()
-        conn.close()
-        if res:
-            self.customer_name_var.set(res[0])
-            self.address_var.set(res[1] if res[1] else "")
-        else:
-            self.customer_name_var.set("")
-            self.address_var.set("")
-            
+        res = c.fetchone(); conn.close()
+        if res: self.customer_name_var.set(res[0]); self.address_var.set(res[1] if res[1] else "")
+        else: self.customer_name_var.set(""); self.address_var.set("")
     def toggle_fields(self):
         val = self.order_type.get()
-        self.addr_container.pack_forget()
-        self.time_container.pack_forget()
-        
+        self.addr_container.pack_forget(); self.time_container.pack_forget()
         self.time_container.pack(side='right', padx=5)
-        
-        if val == "takeaway":
-            self.lbl_time.config(text="وقت الاستلام:")
+        if val == "takeaway": self.lbl_time.config(text="وقت الاستلام:")
         else:
-            self.lbl_time.config(text="وقت التوصيل:")
-            self.addr_container.pack(side='right', padx=5)
-            if len(self.phone_var.get()) == 11:
-                self.fetch_customer_data(self.phone_var.get())
-                
+            self.lbl_time.config(text="وقت التوصيل:"); self.addr_container.pack(side='right', padx=5)
+            if len(self.phone_var.get()) == 11: self.fetch_customer_data(self.phone_var.get())
     def load_products_grid(self):
         for widget in self.scrollable_frame.winfo_children(): widget.destroy()
-        conn = sqlite3.connect(self.db_name)
-        c = conn.cursor()
+        conn = sqlite3.connect(self.db_name); c = conn.cursor()
         search_term = self.search_var.get()
-        
         query = "SELECT id, name, price, image, weight_based, card_color, suggestions FROM products"
         params = []
-        if search_term:
-            query += " WHERE name LIKE ?"
-            params = [f'%{search_term}%']
-            
+        if search_term: query += " WHERE name LIKE ?"; params = [f'%{search_term}%']
         c.execute(query, params)
-        products = c.fetchall()
-        conn.close()
-        
-        MAX_COLS = 5
-        row = 0
-        col = 0
-        
+        products = c.fetchall(); conn.close()
+        MAX_COLS = 5; row = 0; col = 0
         for pid, name, price, img_blob, weight_based, card_color, suggestions in products:
             bg_color = card_color if card_color else "#FFFFFF"
-            
             card = tk.Frame(self.scrollable_frame, bg=bg_color, bd=0, relief="flat", highlightbackground="#E0E0E0", highlightthickness=1)
             card.grid(row=row, column=MAX_COLS - 1 - col, padx=4, pady=4, sticky="nsew")
-            
             click_cmd = lambda e, p=pid, n=name, pr=price, w=weight_based, s=suggestions, c=bg_color: self.add_product_to_cart(p, n, pr, w, s, c)
             card.bind("<Button-1>", click_cmd)
-            
-            img_frame = tk.Frame(card, bg=bg_color, height=80, width=120)
-            img_frame.pack_propagate(False)
-            img_frame.pack()
+            img_frame = tk.Frame(card, bg=bg_color, height=80, width=120); img_frame.pack_propagate(False); img_frame.pack()
             img_frame.bind("<Button-1>", click_cmd)
-            
             if img_blob:
                 try:
-                    image = Image.open(io.BytesIO(img_blob))
-                    image = image.resize((120, 80), Image.Resampling.LANCZOS)
-                    photo = ImageTk.PhotoImage(image)
-                    lbl = tk.Label(img_frame, image=photo, bg=bg_color)
-                    lbl.image = photo
-                    lbl.pack()
-                    lbl.bind("<Button-1>", click_cmd)
-                except:
-                    lbl_icon = tk.Label(img_frame, text="🍖", font=("Segoe UI", 24), bg=bg_color, fg="#CCC")
-                    lbl_icon.pack(expand=True, fill='both')
-                    lbl_icon.bind("<Button-1>", click_cmd)
-            else:
-                lbl_icon = tk.Label(img_frame, text="🍖", font=("Segoe UI", 24), bg=bg_color, fg="#CCC")
-                lbl_icon.pack(expand=True, fill='both')
-                lbl_icon.bind("<Button-1>", click_cmd)
-            
-            info_frame = tk.Frame(card, bg=bg_color, pady=2)
-            info_frame.pack(fill='x')
-            info_frame.bind("<Button-1>", click_cmd)
-            
-            name_lbl = tk.Label(info_frame, text=name, font=("Segoe UI", 10, "bold"), bg=bg_color, fg=TEXT_COLOR, wraplength=110)
-            name_lbl.pack()
-            name_lbl.bind("<Button-1>", click_cmd)
-            
-            unit = "كغم" if weight_based else "قطعة"
+                    image = Image.open(io.BytesIO(img_blob)); image = image.resize((120, 80), Image.Resampling.LANCZOS); photo = ImageTk.PhotoImage(image)
+                    lbl = tk.Label(img_frame, image=photo, bg=bg_color); lbl.image = photo; lbl.pack(); lbl.bind("<Button-1>", click_cmd)
+                except: lbl = tk.Label(img_frame, text="🍖", font=("Segoe UI", 24), bg=bg_color, fg="#CCC"); lbl.pack(expand=True, fill='both'); lbl.bind("<Button-1>", click_cmd)
+            else: lbl = tk.Label(img_frame, text="🍖", font=("Segoe UI", 24), bg=bg_color, fg="#CCC"); lbl.pack(expand=True, fill='both'); lbl.bind("<Button-1>", click_cmd)
+            info_frame = tk.Frame(card, bg=bg_color, pady=2); info_frame.pack(fill='x'); info_frame.bind("<Button-1>", click_cmd)
+            name_lbl = tk.Label(info_frame, text=name, font=("Segoe UI", 10, "bold"), bg=bg_color, fg=TEXT_COLOR, wraplength=110); name_lbl.pack(); name_lbl.bind("<Button-1>", click_cmd)
             price_color = ACCENT_COLOR if weight_based else SUCCESS_COLOR
-            price_lbl = tk.Label(info_frame, text=f"{price:,.0f} د.ع", font=("Segoe UI", 9), bg=bg_color, fg=price_color)
-            price_lbl.pack()
-            price_lbl.bind("<Button-1>", click_cmd)
-            
-            bar = tk.Frame(card, bg=price_color, height=3)
-            bar.pack(fill='x', side='bottom')
-            bar.bind("<Button-1>", click_cmd)
-            
+            price_lbl = tk.Label(info_frame, text=f"{price:,.0f} د.ع", font=("Segoe UI", 9), bg=bg_color, fg=price_color); price_lbl.pack(); price_lbl.bind("<Button-1>", click_cmd)
+            bar = tk.Frame(card, bg=price_color, height=3); bar.pack(fill='x', side='bottom'); bar.bind("<Button-1>", click_cmd)
             col += 1
-            if col >= MAX_COLS:
-                col = 0
-                row += 1
+            if col >= MAX_COLS: col = 0; row += 1
         self.scrollable_frame.update_idletasks()
         self.canvas_products.configure(scrollregion=self.canvas_products.bbox("all"))
         
     def add_product_to_cart(self, pid, name, price, weight_based, suggestions, color):
-        if weight_based:
-            NumericKeypad(self.root, lambda weight: self.add_weight_item(pid, name, price, weight, suggestions, color))
-        else:
-            self.add_regular_item(pid, name, price, suggestions, color)
-            
+        if weight_based: NumericKeypad(self.root, lambda weight: self.add_weight_item(pid, name, price, weight, suggestions, color))
+        else: self.add_regular_item(pid, name, price, suggestions, color)
     def add_regular_item(self, pid, name, price, suggestions, color):
         for item in self.cart:
             if item['id'] == pid and not item['weight_based']:
-                item['qty'] += 1
-                item['total'] = item['qty'] * price
-                self.update_cart_view()
-                return
+                item['qty'] += 1; item['total'] = item['qty'] * price; self.update_cart_view(); return
         self.cart.append({"id": pid, "name": name, "qty": 1, "price": price, "total": price, "weight_based": False, "note": "", "suggestions": suggestions, "color": color})
         self.update_cart_view()
-        
     def add_weight_item(self, pid, name, price, weight, suggestions, color):
         self.cart.append({"id": pid, "name": name, "qty": weight, "price": price, "total": weight * price, "weight_based": True, "note": "", "suggestions": suggestions, "color": color})
         self.update_cart_view()
-        
     def update_cart_view(self):
-        for item in self.tree.get_children():
-            self.tree.delete(item)
+        for item in self.tree.get_children(): self.tree.delete(item)
         grand_total = 0
         for item in self.cart:
-            qty_val = item['qty']
-            qty_fmt = str(int(qty_val)) if qty_val == int(qty_val) else f"{qty_val:.3f}"
-            
-            # --- تعديل عرض الكمية الوزنية في جدول الـ POS ---
+            qty_val = item['qty']; qty_fmt = str(int(qty_val)) if abs(qty_val - int(qty_val)) < 0.001 else f"{qty_val:.3f}"
             if item['weight_based']:
-                int_part = int(qty_val)
-                frac_part = qty_val - int_part
-                
-                # إذا كانت كمية صحيحة فقط (1، 2، 3...)
-                if abs(frac_part) < 0.001:
-                    qty_fmt = str(int_part)
+                int_part = int(qty_val); frac_part = qty_val - int_part
+                if abs(frac_part) < 0.001: qty_fmt = str(int_part)
                 else:
-                    # للكميات مثل 1.5, 1.25, 1.75
-                    frac_str = ""
-                    if abs(frac_part - 0.25) < 0.001:
-                        frac_str = "1/4"
-                    elif abs(frac_part - 0.5) < 0.001:
-                        frac_str = "1/2"
-                    elif abs(frac_part - 0.75) < 0.001:
-                        frac_str = "3/4"
-                    else:
-                        frac_str = f"{frac_part:.3f}"
-                        
-                    if int_part > 0:
-                        qty_fmt = f"{int_part} و {frac_str}"
-                    else:
-                        qty_fmt = frac_str
-                
-                # للتأكد من عرض "1" بدلاً من "1.000"
+                    frac_str = "1/4" if abs(frac_part - 0.25) < 0.001 else "1/2" if abs(frac_part - 0.5) < 0.001 else "3/4" if abs(frac_part - 0.75) < 0.001 else f"{frac_part:.3f}"
+                    qty_fmt = f"{int_part} و {frac_str}" if int_part > 0 else frac_str
                 if qty_fmt == "1 و 0.000": qty_fmt = "1"
-            # --- نهاية تعديل عرض الكمية الوزنية ---
-
             note_display = f"📝 {item['note']}" if item['note'] else ""
-            
             row_color = item.get('color', '#FFFFFF')
-            
             self.tree.insert('', 'end', values=(item['name'], qty_fmt, f"{item['price']:,.0f}", f"{item['total']:,.0f}", note_display, "❌"), tags=(row_color,))
             self.tree.tag_configure(row_color, background=row_color)
             grand_total += item['total']
         self.lbl_total.config(text=f"المجموع: {grand_total:,.0f} د.ع")
         
     def clear_cart(self):
-        self.cart = []
-        self.general_notes_var.set("")
-        self.update_cart_view()
-        
+        self.cart = []; self.general_notes_var.set(""); self.update_cart_view()
+    
     def retrieve_order_dialog(self, use_keypad=False):
-        if use_keypad:
-            dlg = CustomInputDialog(self.root, "إرجاع فاتورة", "أدخل رقم الفاتورة:", input_type="numeric")
-            oid = dlg.result
-            if oid:
-                try:
-                    oid = int(oid)
-                except ValueError:
-                    messagebox.showerror("خطأ", "رقم فاتورة غير صالح")
-                    return
-        else:
-            oid = simpledialog.askinteger("إرجاع فاتورة", "أدخل رقم الفاتورة:")
-
-        if not oid: return
+        dlg = CustomInputDialog(self.root, "إرجاع فاتورة", "أدخل رقم الفاتورة:", initial_value="", input_type="numeric")
+        if not dlg.result: return
+        oid = int(dlg.result)
+        conn = sqlite3.connect(self.db_name); c = conn.cursor()
+        c.execute("SELECT * FROM orders WHERE daily_id=?", (oid,)) # البحث برقم اليوم
+        order = c.fetchone(); conn.close()
+        if not order: messagebox.showerror("خطأ", "الفاتورة غير موجودة"); return
+        msg = f"رقم الفاتورة: {order[1]}\nالتاريخ: {order[2]}\nالزبون: {order[3]}\nالمبلغ: {order[7]:,.0f} د.ع\n"
+        if order[9] == "مرتجع": messagebox.showinfo("معلومات", msg + "\n\n⚠️ هذه الفاتورة تم إرجاعها مسبقاً."); return
+        if messagebox.askyesno("تفاصيل الفاتورة", msg + "\n\nهل تريد استرجاع (إلغاء) هذه الفاتورة؟"): self.process_return(order[0], order[7])
         
-        conn = sqlite3.connect(self.db_name)
-        c = conn.cursor()
-        c.execute("SELECT * FROM orders WHERE id=?", (oid,))
-        order = c.fetchone()
-        conn.close()
-        
-        if not order:
-            messagebox.showerror("خطأ", "الفاتورة غير موجودة")
-            return
-            
-        msg = f"رقم الفاتورة: {order[0]}\nالتاريخ: {order[1]}\nالزبون: {order[2]}\nالهاتف: {order[3]}\n"
-        msg += f"التفاصيل: {order[5]}\nالمبلغ: {order[6]:,.0f} د.ع\nالحالة: {order[8]}\n"
-        
-        if order[8] == "مرتجع":
-             messagebox.showinfo("معلومات", msg + "\n\n⚠️ هذه الفاتورة تم إرجاعها مسبقاً.")
-             return
-        if messagebox.askyesno("تفاصيل الفاتورة", msg + "\n\nهل تريد استرجاع (إلغاء) هذه الفاتورة؟"):
-            self.process_return(oid, order[6])
-            
     def reprint_order_dialog(self, use_keypad=False):
-        if use_keypad:
-            dlg = CustomInputDialog(self.root, "إعادة طباعة", "أدخل رقم الفاتورة:", input_type="numeric")
-            oid = dlg.result
-            if oid:
-                try:
-                    oid = int(oid)
-                except ValueError:
-                    messagebox.showerror("خطأ", "رقم فاتورة غير صالح")
-                    return
-        else:
-            oid = simpledialog.askinteger("إعادة طباعة", "أدخل رقم الفاتورة التي تريد طباعتها:")
-
-        if not oid: return
-        
-        conn = sqlite3.connect(self.db_name)
-        c = conn.cursor()
-        c.execute("SELECT * FROM orders WHERE id=?", (oid,))
+        dlg = CustomInputDialog(self.root, "إعادة طباعة", "أدخل رقم الفاتورة (اليومي):", initial_value="", input_type="numeric")
+        if not dlg.result: return
+        try: daily_oid = int(dlg.result)
+        except: return
+        conn = sqlite3.connect(self.db_name); c = conn.cursor()
+        # نبحث فقط في الفواتير غير المجرودة لإعادة الطباعة بنفس الرقم، أو بشكل عام
+        # هنا سنبحث بشكل عام عن آخر فاتورة بهذا الرقم
+        c.execute("SELECT * FROM orders WHERE daily_id=? ORDER BY id DESC LIMIT 1", (daily_oid,))
         order = c.fetchone()
-        c.execute("SELECT product_name, qty, price, total, note FROM order_items WHERE order_id=?", (oid,))
-        items = c.fetchall()
-        conn.close()
-        
-        if not order:
-            messagebox.showerror("خطأ", "الفاتورة غير موجودة")
-            return
-        
-        # تحويل البيانات إلى تنسيق السلة (Cart format)
+        if not order: messagebox.showerror("خطأ", "الفاتورة غير موجودة"); conn.close(); return
+        c.execute("SELECT product_name, qty, price, total, note FROM order_items WHERE order_id=?", (order[0],))
+        items = c.fetchall(); conn.close()
         cart_items_for_print = []
         for name, qty, price, total, note in items:
-             # نحتاج إلى تحديد ما إذا كانت وزنية لغرض الطباعة فقط
-             # الطريقة الأفضل هي استرجاع قيمة weight_based من جدول المنتجات
-             # لتبسيط الأمر، سنفترض أنها ليست وزنية ما لم نجد طريقة لتحديدها
-             # لكن دالة print_receipt تستطيع التعامل مع الأرقام الآن
-             is_weight = qty != int(qty)
-             cart_items_for_print.append({"name": name, "qty": qty, "price": price, "total": total, "weight_based": is_weight, "note": note})
-        
-        order_type_val = order[4]
-        time_val = order[9]
-        addr_val = order[10]
-        self.print_receipt(
-            oid=order[0],
-            name=order[2],
-            phone=order[3],
-            order_type=order_type_val,
-            time_str=time_val,
-            address_str=addr_val,
-            cart_items=cart_items_for_print,
-            total=order[6],
-            status=order[8],
-            g_note=order[7],
-            is_reprint=True
-        )
+            cart_items_for_print.append({"name": name, "qty": qty, "price": price, "total": total, "weight_based": qty != int(qty), "note": note})
+        self.print_receipt(daily_oid, order[3], order[4], order[5], order[10], order[11], cart_items_for_print, order[7], order[9], order[8], is_reprint=True)
 
     def process_return(self, oid, amount):
-        conn = sqlite3.connect(self.db_name)
-        c = conn.cursor()
+        conn = sqlite3.connect(self.db_name); c = conn.cursor()
         c.execute("UPDATE orders SET status='مرتجع' WHERE id=?", (oid,))
         now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        c.execute("INSERT INTO sales (date, order_id, amount, type) VALUES (?, ?, ?, ?)",
-                  (now, oid, -amount, "return"))
-        conn.commit()
-        conn.close()
-        messagebox.showinfo("نجاح", f"تم استرجاع الفاتورة رقم {oid} بنجاح.")
+        c.execute("INSERT INTO sales (date, order_id, amount, type) VALUES (?, ?, ?, ?)", (now, oid, -amount, "return"))
+        conn.commit(); conn.close()
+        messagebox.showinfo("نجاح", f"تم استرجاع الفاتورة بنجاح.")
         self.load_reports()
-        
+
     def checkout(self):
-        if not self.cart:
-            messagebox.showwarning("تنبيه", "السلة فارغة")
-            return
-        phone = self.phone_var.get()
-        name = self.customer_name_var.get()
-        
+        if not self.cart: messagebox.showwarning("تنبيه", "السلة فارغة"); return
+        phone = self.phone_var.get(); name = self.customer_name_var.get()
         if len(phone) != 11 and phone != "":
-              if not messagebox.askyesno("تنبيه", "رقم الهاتف غير مكتمل (يجب أن يكون 11 رقم). متابعة؟"): return
+             if not messagebox.askyesno("تنبيه", "رقم الهاتف غير مكتمل. متابعة؟"): return
         if not name.strip(): name = "زبون عام"
-        
         current_order_type = self.order_type.get()
         address = self.address_var.get() if current_order_type == 'delivery' else ""
         pickup_time = self.pickup_time_var.get()
         
-        conn = sqlite3.connect(self.db_name)
-        c = conn.cursor()
-        now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        conn = sqlite3.connect(self.db_name); c = conn.cursor()
+        now_dt = datetime.datetime.now()
+        now = now_dt.strftime("%Y-%m-%d %H:%M:%S")
+        today_str = now_dt.strftime("%Y-%m-%d")
         
-        if phone:
-            c.execute("INSERT OR REPLACE INTO customers (phone, name, address, last_order_date) VALUES (?, ?, ?, ?)", (phone, name, address, now))
-        
+        # --- حساب التسلسل اليومي بناء على الفواتير المفتوحة فقط ---
+        c.execute("SELECT MAX(daily_id) FROM orders WHERE date LIKE ? AND is_closed = 0", (f"{today_str}%",))
+        max_daily = c.fetchone()[0]
+        daily_id = 1 if max_daily is None else max_daily + 1
+        # -----------------------------------------------
+
+        if phone: c.execute("INSERT OR REPLACE INTO customers (phone, name, address, last_order_date) VALUES (?, ?, ?, ?)", (phone, name, address, now))
         total_val = sum(x['total'] for x in self.cart)
-        
-        details_list = []
-        for x in self.cart:
-            qty_val = x['qty']
-            qty_fmt = str(int(qty_val)) if abs(qty_val - int(qty_val)) < 0.001 else f"{qty_val:.3f}"
-            
-            item_str = f"{x['name']} ({qty_fmt}{' كغم' if x['weight_based'] else ''})"
-            if x['note']:
-                item_str += f" [ملاحظة: {x['note']}]"
-            details_list.append(item_str)
+        details_list = [f"{x['name']} ({x['qty']})" for x in self.cart]
         details = ", ".join(details_list)
-        
         is_paid_status = self.payment_status_var.get()
         status_text = "واصل" if is_paid_status == "paid" else "غير واصل"
         general_note = self.general_notes_var.get()
         
-        c.execute('''INSERT INTO orders (date, customer_name, phone, type, details, total, notes, status, pickup_time, address, payment_status)
-                  VALUES (?,?,?,?,?,?,?,?,?,?,?)''',
-                  (now, name, phone, current_order_type, details, total_val, general_note, status_text, pickup_time, address, is_paid_status))
-        
+        c.execute('''INSERT INTO orders (daily_id, date, customer_name, phone, type, details, total, notes, status, pickup_time, address, payment_status, is_closed)
+                    VALUES (?,?,?,?,?,?,?,?,?,?,?,?, 0)''', (daily_id, now, name, phone, current_order_type, details, total_val, general_note, status_text, pickup_time, address, is_paid_status))
         order_id = c.lastrowid
-        
         for x in self.cart:
-            c.execute("INSERT INTO order_items (order_id, product_name, qty, price, total, note) VALUES (?, ?, ?, ?, ?, ?)",
-                      (order_id, x['name'], x['qty'], x['price'], x['total'], x['note']))
-        
+            c.execute("INSERT INTO order_items (order_id, product_name, qty, price, total, note) VALUES (?, ?, ?, ?, ?, ?)", (order_id, x['name'], x['qty'], x['price'], x['total'], x['note']))
         c.execute("INSERT INTO sales (date, order_id, amount, type) VALUES (?, ?, ?, ?)", (now, order_id, total_val, "order"))
-        conn.commit()
-        conn.close()
+        conn.commit(); conn.close()
         
-        self.print_receipt(order_id, name, phone, current_order_type, pickup_time, address, self.cart, total_val, status_text, general_note)
-        self.clear_cart()
-        self.pickup_time_var.set(datetime.datetime.now().strftime("%I:%M %p")) # إعادة ضبط الوقت الافتراضي
-        self.customer_name_var.set("")
-        self.phone_var.set("")
-        
-    # --- دالة الطباعة المباشرة الجديدة (تم تعديل تنسيق الوزن) ---
+        self.print_receipt(daily_id, name, phone, current_order_type, pickup_time, address, self.cart, total_val, status_text, general_note)
+        self.clear_cart(); self.pickup_time_var.set(""); self.customer_name_var.set(""); self.phone_var.set("")
+
     def print_receipt(self, oid, name, phone, order_type, time_str, address_str, cart_items, total, status, g_note, is_reprint=False):
         try:
-            # 1. إعداد أبعاد الصورة (عرض الورقة الحرارية القياسي 80مم هو حوالي 570 بكسل)
             PAPER_WIDTH = 570
+            MARGIN = 10
             
-            # حساب الطول التقديري للفاتورة
-            items_count = len(cart_items)
-            estimated_height = 400 + (items_count * 50) + 400 # رأس + عناصر + تذييل
-            
-            # إنشاء صورة بيضاء في الذاكرة
-            img = Image.new('RGB', (PAPER_WIDTH, estimated_height), color='white')
-            draw = ImageDraw.Draw(img)
-            
-            # تحميل الخطوط
+            # --- تحميل الخطوط ---
             try:
-                font_path = "C:\\Windows\\Fonts\\arial.ttf"
-                font_header = ImageFont.truetype(font_path, 30)
-                font_bold = ImageFont.truetype(font_path, 22)
-                font_reg = ImageFont.truetype(font_path, 20)
-                font_small = ImageFont.truetype(font_path, 18)
+                font_path_bold = "C:\\Windows\\Fonts\\arialbd.ttf"
+                font_path_reg = "C:\\Windows\\Fonts\\arial.ttf"
+                
+                font_header = ImageFont.truetype(font_path_bold, 45)
+                font_subheader = ImageFont.truetype(font_path_bold, 24)
+                font_receipt_no = ImageFont.truetype(font_path_bold, 60)
+                font_title = ImageFont.truetype(font_path_bold, 26)
+                font_details = ImageFont.truetype(font_path_bold, 28)
+                font_table_header = ImageFont.truetype(font_path_bold, 24)
+                font_table_row = ImageFont.truetype(font_path_bold, 24)
+                font_note_item = ImageFont.truetype(font_path_reg, 20) # خط خاص لملاحظة الوجبة
+                font_total = ImageFont.truetype(font_path_bold, 50)
+                font_footer = ImageFont.truetype(font_path_bold, 20)
+                font_time_large = ImageFont.truetype(font_path_bold, 50)
+                font_order_type = ImageFont.truetype(font_path_bold, 38)
             except:
-                font_header = ImageFont.load_default()
-                font_bold = ImageFont.load_default()
-                font_reg = ImageFont.load_default()
-                font_small = ImageFont.load_default()
-                
-            # دالة مساعدة لرسم النص العربي
-            def draw_text_centered(text, y, font, color='black'):
-                reshaped_text = arabic_reshaper.reshape(str(text))
-                bidi_text = get_display(reshaped_text)
-                bbox = draw.textbbox((0, 0), bidi_text, font=font)
-                text_width = bbox[2] - bbox[0]
-                x = (PAPER_WIDTH - text_width) / 2
-                draw.text((x, y), bidi_text, font=font, fill=color)
-                return y + font.size + 10
+                # خطوط احتياطية في حال عدم العثور على الخطوط
+                default_font = ImageFont.load_default()
+                font_header = font_subheader = font_receipt_no = font_title = default_font
+                font_details = font_table_header = font_table_row = font_note_item = default_font
+                font_total = font_footer = font_time_large = font_order_type = default_font
+
+            # --- حساب الأبعاد ---
+            header_h = 450
+            # تقدير ارتفاع الجدول بزيادة احتياطية للملاحظات
+            table_h = (len(cart_items) * 100) + 100 
+            footer_h = 800 # زيادة مساحة التذييل للملاحظات العامة
             
-            def draw_text_right(text, y, font, margin=20, color='black'):
-                reshaped_text = arabic_reshaper.reshape(str(text))
-                bidi_text = get_display(reshaped_text)
+            # إنشاء الصورة القماشية (Canvas)
+            img = Image.new('RGB', (PAPER_WIDTH, header_h + table_h + footer_h), color='white')
+            draw = ImageDraw.Draw(img)
+
+            # --- دالة مساعدة رسم النصوص العربية ---
+            def draw_text_align(text, x, y, font, align='center', color='black'):
+                if not text: return
+                bidi_text = get_display(arabic_reshaper.reshape(str(text)))
                 bbox = draw.textbbox((0, 0), bidi_text, font=font)
-                text_width = bbox[2] - bbox[0]
-                x = PAPER_WIDTH - margin - text_width
-                draw.text((x, y), bidi_text, font=font, fill=color)
-                
-            def draw_text_left(text, y, font, margin=20, color='black'):
-                draw.text((margin, y), str(text), font=font, fill=color)
-                
-            # --- البدء بالرسم ---
+                w = bbox[2] - bbox[0]
+                if align == 'center':
+                    draw.text((x - (w / 2), y), bidi_text, font=font, fill=color)
+                elif align == 'right':
+                    draw.text((x - w, y), bidi_text, font=font, fill=color)
+                else:
+                    draw.text((x, y), bidi_text, font=font, fill=color)
+
             y = 20
-            
-            # 1. اللوكو (اختياري)
+
+            # --- رسم اللوجو ---
             logo_path = self.settings.get('logo_path', '')
             if self.settings['receipt_design']['show_logo'] and logo_path and os.path.exists(logo_path):
-                try:
-                    logo = Image.open(logo_path)
-                    basewidth = 200
-                    wpercent = (basewidth / float(logo.size[0]))
-                    hsize = int((float(logo.size[1]) * float(wpercent)))
-                    logo = logo.resize((basewidth, hsize), Image.Resampling.LANCZOS)
-                    img.paste(logo, (int((PAPER_WIDTH - basewidth)/2), y))
-                    y += hsize + 20
-                except: pass
-                
-            # 2. رأس الفاتورة
-            header_text = self.settings['receipt_design']['header_text']
-            y = draw_text_centered(header_text, y, font_header)
-            y = draw_text_centered("07736161216", y, font_bold)
-            
-            draw.line((20, y, PAPER_WIDTH-20, y), fill="black", width=2)
-            y += 15
-            
-            order_type_txt = "سفري (استلام)" if order_type == "takeaway" else "توصيل خارجي"
-            draw_text_right(f"رقم الفاتورة: {oid}", y, font_bold)
-            draw_text_left(datetime.datetime.now().strftime("%I:%M %p"), y, font_small)
-            y += 35
-            y = draw_text_centered(f"-- {order_type_txt} --", y, font_bold)
-            y += 10
-            
-            # 3. جدول المواد
-            draw.rectangle((10, y, PAPER_WIDTH-10, y+35), fill="#EEE")
-            draw_text_right("المادة", y+5, font_bold, margin=30)
-            draw_text_centered("الكمية", y+5, font_bold)
-            draw_text_left("الإجمالي", y+5, font_bold, margin=30)
-            y += 45
-            
-            def draw_row(name, qty, price, total_item, note="", weight_based=False):
-                nonlocal y
-                
-                qty_val = qty
-                
-                # --- تعديل عرض الكمية الوزنية في الطباعة ---
-                qty_txt = str(int(qty_val)) if abs(qty_val - int(qty_val)) < 0.001 else f"{qty_val:.3f}"
-                
-                if weight_based:
-                    int_part = int(qty_val)
-                    frac_part = qty_val - int_part
-                    
-                    if abs(frac_part) < 0.001:
-                        qty_txt = str(int_part) # 1 بدلاً من 1.000
-                    else:
-                        frac_str = ""
-                        if abs(frac_part - 0.25) < 0.001:
-                            frac_str = "1/4"
-                        elif abs(frac_part - 0.5) < 0.001:
-                            frac_str = "1/2"
-                        elif abs(frac_part - 0.75) < 0.001:
-                            frac_str = "3/4"
-                        else:
-                            frac_str = f"{frac_part:.3f}"
-                            
-                        if int_part > 0:
-                            qty_txt = f"{int_part} و {frac_str}"
-                        else:
-                            qty_txt = frac_str
-                # --- نهاية تعديل عرض الكمية الوزنية في الطباعة ---
-                
-                # الكمية والإجمالي
-                draw_text_left(f"{total_item:,.0f}", y, font_reg, margin=30)
-                
-                bbox = draw.textbbox((0, 0), qty_txt, font=font_reg)
-                q_w = bbox[2] - bbox[0]
-                draw.text(((PAPER_WIDTH/2) - (q_w/2), y), qty_txt, font=font_reg, fill="black")
-                
-                # الاسم
-                max_name_width = 250
-                name_disp = name
-                name_reshaped = get_display(arabic_reshaper.reshape(name))
-                if draw.textlength(name_reshaped, font_reg) > max_name_width:
-                     name_disp = name[:25] + "..."
-                draw_text_right(name_disp, y, font_reg, margin=30)
-                
-                y += 30
-                if note:
-                    draw_text_right(f"({note})", y, font_small, margin=30, color="#555")
-                    y += 25
-                
-                draw.line((30, y, PAPER_WIDTH-30, y), fill="#DDD", width=1)
-                y += 10
-                
-            grand_total = 0
-            if isinstance(cart_items, list):
-                for item in cart_items:
-                    draw_row(item['name'], item['qty'], item['price'], item['total'], item.get('note', ''), item.get('weight_based', False))
-                    grand_total += item['total']
-            else: # في حالة إعادة الطباعة حيث التفاصيل قد تكون سلسلة نصية
-                 # في حالة التفاصيل كسلسلة، لا يمكننا الحصول على weight_based، ولكن يمكننا عرضها
-                items_str = str(cart_items).split(',')
-                for item_str in items_str:
-                     name_part = item_str.split('(')[0].strip()
-                     draw_row(name_part, "-", 0, 0, item_str) # وضع التفاصيل كنص ملاحظة
+                 try:
+                     logo = Image.open(logo_path)
+                     basewidth = 160
+                     wpercent = (basewidth / float(logo.size[0]))
+                     hsize = int((float(logo.size[1]) * float(wpercent)))
+                     logo = logo.resize((basewidth, hsize), Image.Resampling.LANCZOS)
+                     img.paste(logo, (int((PAPER_WIDTH - basewidth)/2), y))
+                     y += hsize + 15
+                 except: pass
 
-            # 4. المجموع
-            y += 10
-            draw.rectangle((10, y, PAPER_WIDTH-10, y+50), outline="black", width=2)
-            draw_text_right("المبلغ النهائي:", y+10, font_header, margin=40)
-            draw_text_left(f"{total:,.0f}", y+10, font_header, margin=40)
+            # --- ترويسة الفاتورة ---
+            draw_text_align(self.settings['receipt_design']['header_text'], PAPER_WIDTH/2, y, font_header, 'center')
+            y += 60
+            draw_text_align("07736161216", PAPER_WIDTH/2, y, font_subheader, 'center')
+            y += 50
+
+            # --- مربع رقم الفاتورة ---
+            rect_x = MARGIN
+            rect_y = y
+            rect_w = 160
+            rect_h = 90
+            draw.rectangle((rect_x, rect_y, rect_x + rect_w, rect_y + rect_h), outline="black", width=5)
+            draw_text_align(str(oid), rect_x + (rect_w/2), rect_y + 10, font_receipt_no, 'center')
+
+            # --- معلومات الكاشير والوقت ---
+            current_time = datetime.datetime.now().strftime("%I:%M %p")
+            draw_text_align("الكاشير: كاشير", PAPER_WIDTH - MARGIN, y + 10, font_title, 'right')
+            draw_text_align(current_time, PAPER_WIDTH - MARGIN, y + 50, font_title, 'right')
+            y += 110
+
+            # --- نوع الطلب ---
+            order_title = "توصيل خارجي" if order_type == 'delivery' else "سفري (استلام)"
+            if is_reprint: order_title += " (نسخة مكررة)"
+            draw.rectangle((MARGIN, y, PAPER_WIDTH - MARGIN, y + 60), fill="#DDDDDD")
+            draw_text_align(order_title, PAPER_WIDTH/2, y + 10, font_order_type, 'center')
             y += 70
+
+            # --- إعدادات أعمدة الجدول ---
+            col_x_start = MARGIN
+            col_x_end = PAPER_WIDTH - MARGIN
             
-            draw_text_right(f"الزبون: {name}", y, font_bold)
-            y += 30
+            x_total_line = 130
+            x_price_line = 230
+            x_qty_line = 340
+            x_name_line = 480
+
+            # --- رسم رأس الجدول ---
+            header_row_h = 60
+            draw.rectangle((col_x_start, y, col_x_end, y + header_row_h), outline="black", width=3, fill="#EEEEEE")
+            for x_line in [x_total_line, x_price_line, x_qty_line, x_name_line]:
+                draw.line((x_line, y, x_line, y + header_row_h), fill="black", width=3)
+
+            draw_text_align("ت", (x_name_line + col_x_end)/2, y+15, font_table_header, 'center')
+            draw_text_align("المادة", (x_qty_line + x_name_line)/2, y+15, font_table_header, 'center')
+            draw_text_align("الكمية", (x_price_line + x_qty_line)/2, y+15, font_table_header, 'center')
+            draw_text_align("السعر", (x_total_line + x_price_line)/2, y+15, font_table_header, 'center')
+            draw_text_align("اجمالي", (col_x_start + x_total_line)/2, y+15, font_table_header, 'center')
+            
+            y += header_row_h
+
+            # --- رسم سطور المواد (مع الملاحظات) ---
+            for idx, item in enumerate(cart_items):
+                # تحديد ارتفاع السطر: 60 بيكسل عادي، ويضاف 35 بيكسل إذا وجدت ملاحظة
+                base_row_h = 60
+                has_note = item.get('note') and str(item.get('note')).strip() != ""
+                current_row_h = base_row_h + (35 if has_note else 0)
+
+                # رسم إطار السطر
+                draw.rectangle((col_x_start, y, col_x_end, y + current_row_h), outline="black", width=2)
+                
+                # رسم الخطوط العمودية
+                for x_line in [x_total_line, x_price_line, x_qty_line, x_name_line]:
+                    draw.line((x_line, y, x_line, y + current_row_h), fill="black", width=2)
+
+                # 1. التسلسل
+                draw_text_align(str(idx + 1), (x_name_line + col_x_end)/2, y+15, font_table_row, 'center')
+
+                # 2. اسم المادة والملاحظة
+                # رسم الاسم
+                draw_text_align(item['name'], (x_qty_line + x_name_line)/2, y+15, font_table_row, 'center')
+                # رسم الملاحظة إن وجدت
+                if has_note:
+                    note_text = f"({item['note']})"
+                    # نرسم الملاحظة أسفل الاسم بقليل وبخط أصغر
+                    # تم تغيير اللون إلى الأسود (black) حسب الطلب
+                    draw_text_align(note_text, (x_qty_line + x_name_line)/2, y+50, font_note_item, 'center', color='black')
+
+                # 3. الكمية
+                qty_val = item['qty']
+                int_part = int(qty_val)
+                frac_part = qty_val - int_part
+                frac_str = ""
+                if abs(frac_part - 0.25) < 0.01: frac_str = "1/4"
+                elif abs(frac_part - 0.50) < 0.01: frac_str = "1/2"
+                elif abs(frac_part - 0.75) < 0.01: frac_str = "3/4"
+                elif frac_part > 0.001: frac_str = f"{frac_part:.2f}"
+                
+                qty_str = f"{int_part} و {frac_str}" if int_part > 0 and frac_str else str(int_part) if int_part > 0 else frac_str
+                draw_text_align(qty_str, (x_price_line + x_qty_line)/2, y+15, font_table_row, 'center')
+
+                # 4. السعر
+                draw_text_align(f"{item['price']:,.0f}", (x_total_line + x_price_line)/2, y+15, font_table_row, 'center')
+
+                # 5. الإجمالي
+                draw_text_align(f"{item['total']:,.0f}", (col_x_start + x_total_line)/2, y+15, font_table_row, 'center')
+
+                y += current_row_h
+
+            y += 20
+
+            # --- المجموع النهائي ---
+            total_box_h = 90
+            draw.rectangle((col_x_start, y, col_x_end, y + total_box_h), outline="black", width=4)
+            draw_text_align(": المبلغ الصافي", col_x_end - 20, y + 25, font_title, 'right')
+            draw_text_align(f"{total:,.0f}", col_x_start + 40, y + 15, font_total, 'left')
+            y += total_box_h + 30
+
+            # --- تفاصيل الفاتورة السفلية ---
+            draw_text_align(f"الحالة: {status}", PAPER_WIDTH/2, y, font_title, 'center')
+            y += 40
+
+            # الملاحظات العامة (General Notes) تظهر هنا بوضوح
+            if g_note and str(g_note).strip() != "":
+                # تم تغيير اللون إلى الأسود (black) وإزالة الخلفية حسب الطلب
+                draw_text_align(f"ملاحظات الطلب: {g_note}", col_x_end, y, font_details, 'right', color='black')
+                y += 50
+            
+            if name:
+                draw_text_align(f"الزبون : {name}", col_x_end, y, font_details, 'right')
+                y += 40
+            
+            if address_str and order_type == 'delivery':
+                draw_text_align(f"العنوان : {address_str}", col_x_end, y, font_details, 'right')
+                y += 40
+                
             if phone:
-                draw_text_right(f"هاتف: {phone}", y, font_bold)
-                y += 30
-            if address_str:
-                addr_reshaped = get_display(arabic_reshaper.reshape(f"العنوان: {address_str}"))
-                draw.text((PAPER_WIDTH - 20 - draw.textlength(addr_reshaped, font_reg), y), addr_reshaped, font=font_reg, fill="black")
-                y += 30
-            
+                draw_text_align(f"هاتف الزبون : {phone}", col_x_end, y, font_details, 'right')
+                y += 50
+
+            # وقت التوصيل/الاستلام الكبير
             if time_str:
                 y += 10
-                draw.rectangle((50, y, PAPER_WIDTH-50, y+40), fill="black")
-                reshaped_time = get_display(arabic_reshaper.reshape(f"الوقت: {time_str}"))
-                w_time = draw.textlength(reshaped_time, font_bold)
-                draw.text(((PAPER_WIDTH-w_time)/2, y+5), reshaped_time, font=font_bold, fill="white")
-                y += 50
-                
-            if g_note:
-                draw_text_centered(f"ملاحظات: {g_note}", y, font_small)
-                y += 25
-                
-            # 5. التذييل
-            y += 20
-            footer_text = self.settings['receipt_design']['footer_text']
-            draw_text_centered(footer_text, y, font_reg)
-            y += 40
-            
-            # قص الصورة
+                time_box_h = 80
+                draw.rectangle((MARGIN, y, PAPER_WIDTH - MARGIN, y + time_box_h), fill="black")
+                draw_text_align(f"على الساعة {time_str}", PAPER_WIDTH/2, y + 10, font_time_large, 'center', color='white')
+                y += time_box_h + 30
+
+            # --- التذييل ---
+            draw.line((col_x_start, y, col_x_end, y), fill="black", width=3)
+            y += 10
+            draw_text_align(self.settings['receipt_design']['footer_text'], PAPER_WIDTH/2, y, font_footer, 'center')
+            y += 35
+            draw_text_align("حي الجهاد - الأطباء - شارع جامع شنشل - قرب مدرسة الازهار", PAPER_WIDTH/2, y, font_footer, 'center')
+            y += 50
+
+            # --- قص الصورة للطول الفعلي ---
             final_img = img.crop((0, 0, PAPER_WIDTH, y))
             self.send_image_to_printer(final_img)
-            
+
         except Exception as e:
             messagebox.showerror("خطأ في الطباعة", str(e))
-            print(e)
 
-    # ... (بقية دوال RestaurantPOS)
     def generate_daily_report(self):
         try:
-            conn = sqlite3.connect(self.db_name)
-            c = conn.cursor()
-            
-            c.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='order_items'")
-            if not c.fetchone():
-                messagebox.showerror("تنبيه", "جدول تفاصيل الطلبات غير موجود.\nيجب عمل طلب جديد واحد على الأقل.")
-                conn.close()
-                return
-                
-            now_date = datetime.datetime.now().strftime("%Y-%m-%d")
-            
-            # التحقق من وجود إغلاق لهذا اليوم
-            c.execute("SELECT date FROM daily_closings WHERE date=?", (now_date,))
-            if c.fetchone():
-                messagebox.showwarning("تنبيه", f"⚠️ تم جرد يوم **{now_date}** مسبقاً.\n\nلن يتم طباعة تقرير مبيعات اليوم مرة أخرى.")
-                conn.close()
-                return
-            
-            # جلب مبيعات اليوم فقط
-            c.execute("SELECT COUNT(*), SUM(total) FROM orders WHERE date LIKE ? AND status != 'مرتجع'", (f"{now_date}%",))
+            conn = sqlite3.connect(self.db_name); c = conn.cursor()
+            now_dt = datetime.datetime.now()
+            now_date = now_dt.strftime("%Y-%m-%d")
+            now_time = now_dt.strftime("%Y-%m-%d %H:%M:%S")
+
+            # البحث عن الفواتير غير المجرودة (is_closed = 0) لهذا اليوم
+            c.execute("SELECT COUNT(*), IFNULL(SUM(CASE WHEN status != 'مرتجع' THEN total ELSE 0 END), 0) FROM orders WHERE date LIKE ? AND is_closed = 0", (f"{now_date}%",))
             summary = c.fetchone()
             total_orders = summary[0] if summary[0] else 0
             total_sales = summary[1] if summary[1] else 0
-            
-            c.execute('''
-                SELECT product_name, SUM(qty), SUM(order_items.total)
-                FROM order_items
-                JOIN orders ON order_items.order_id = orders.id
-                WHERE orders.date LIKE ? AND orders.status != 'مرتجع'
-                GROUP BY product_name
-            ''', (f"{now_date}%",))
-            
+
+            # جلب تفاصيل المواد للفواتير غير المجرودة
+            c.execute('''SELECT product_name, SUM(qty), SUM(order_items.total) 
+                         FROM order_items 
+                         JOIN orders ON order_items.order_id = orders.id 
+                         WHERE orders.date LIKE ? AND orders.status != 'مرتجع' AND orders.is_closed = 0
+                         GROUP BY product_name''', (f"{now_date}%",))
             items_summary = c.fetchall()
-            
+
             if total_orders == 0:
-                messagebox.showinfo("تنبيه", "لا توجد مبيعات مسجلة لهذا اليوم حتى الآن.")
-                conn.close()
-                return
-                
-            msg = f"تقرير إغلاق اليوم ({now_date})\n--------------------------------\n"
-            msg += f"عدد الفواتير: {total_orders}\nإجمالي المبيعات: {total_sales:,.0f} د.ع\n--------------------------------\n"
-            msg += "هل تريد طباعة التقرير التفصيلي؟\n(سيتم ختم اليوم ومنع إعادة الجرد)."
+                messagebox.showinfo("تنبيه", "لا توجد مبيعات جديدة (غير مجرودة) لإغلاقها."); conn.close(); return
+
+            msg = f"تقرير إغلاق شيفت/فترة ({now_time})\nعدد الفواتير الجديدة: {total_orders}\nمبيعات الفترة: {total_sales:,.0f} د.ع\n\nهل تريد حفظ الجرد وتصفير العداد للفترة القادمة؟"
             
-            if messagebox.askyesno("إنهاء اليوم", msg):
-                self.print_daily_report_image(now_date, total_orders, total_sales, items_summary)
-                # إضافة ختم الإغلاق بعد الطباعة
-                c.execute("INSERT INTO daily_closings (date, total_sales, total_orders) VALUES (?, ?, ?)", (now_date, total_sales, total_orders))
+            if messagebox.askyesno("إغلاق الفترة", msg):
+                # حفظ PDF
+                report_name = f"{now_date}_Shift_{datetime.datetime.now().strftime('%H-%M')}"
+                self.save_daily_report_pdf(report_name, total_orders, total_sales, items_summary)
+                
+                # تسجيل الجرد
+                c.execute("INSERT INTO daily_shifts (closing_time, total_sales, total_orders, report_date) VALUES (?, ?, ?, ?)", (now_time, total_sales, total_orders, now_date))
+                
+                # إغلاق الفواتير
+                c.execute("UPDATE orders SET is_closed = 1 WHERE date LIKE ? AND is_closed = 0", (f"{now_date}%",))
+                
                 conn.commit()
-                messagebox.showinfo("نجاح", f"تم إغلاق وجرد يوم **{now_date}** بنجاح.")
-                
+                messagebox.showinfo("نجاح", f"تم جرد الفترة بنجاح.\nسيبدأ عداد الفواتير من رقم 1 للفترة القادمة.")
+            
             conn.close()
-                
         except Exception as e:
-            messagebox.showerror("خطأ في التقرير", f"حدث خطأ أثناء جلب البيانات: {str(e)}")
-            
-    # --- طباعة التقرير اليومي كصورة (بدون PDF) ---
-    def print_daily_report_image(self, date_str, total_orders, total_sales, items_summary):
+            messagebox.showerror("خطأ", f"حدث خطأ: {str(e)}")
+
+    def save_daily_report_pdf(self, report_name, total_orders, total_sales, items_summary):
+        # --- إنشاء مجلد للحفظ ---
+        folder_name = "DailyReports"
+        if not os.path.exists(folder_name): os.makedirs(folder_name)
+        filename = f"{report_name}.pdf"
+        filepath = os.path.join(folder_name, filename)
+
         try:
-            PAPER_WIDTH = 570
-            estimated_height = 400 + (len(items_summary) * 40) + 200
-            
-            img = Image.new('RGB', (PAPER_WIDTH, estimated_height), color='white')
-            draw = ImageDraw.Draw(img)
-            
-            try:
-                font_path = "C:\\Windows\\Fonts\\arial.ttf"
-                font_header = ImageFont.truetype(font_path, 30)
-                font_bold = ImageFont.truetype(font_path, 22)
-                font_reg = ImageFont.truetype(font_path, 20)
-            except:
-                font_header = ImageFont.load_default()
-                font_bold = ImageFont.load_default()
-                font_reg = ImageFont.load_default()
-                
-            def draw_text_centered(text, y, font, color='black'):
-                reshaped_text = arabic_reshaper.reshape(str(text))
-                bidi_text = get_display(reshaped_text)
-                bbox = draw.textbbox((0, 0), bidi_text, font=font)
-                text_width = bbox[2] - bbox[0]
-                x = (PAPER_WIDTH - text_width) / 2
-                draw.text((x, y), bidi_text, font=font, fill=color)
-                return y + font.size + 10
-            
-            y = 20
-            y = draw_text_centered("تقرير إغلاق اليوم", y, font_header)
-            y = draw_text_centered(date_str, y, font_reg)
-            
-            draw.line((20, y, PAPER_WIDTH-20, y), fill="black", width=2)
-            y += 20
-            
-            # الملخص أولاً
-            draw.rectangle((10, y, PAPER_WIDTH-10, y+80), outline="#007AFF", width=2)
-            
-            reshaped_orders = get_display(arabic_reshaper.reshape(f"عدد الفواتير: {total_orders}"))
-            draw.text((PAPER_WIDTH - 30 - draw.textlength(reshaped_orders, font_bold), y+10), reshaped_orders, font=font_bold, fill="black")
-            
-            reshaped_sales = get_display(arabic_reshaper.reshape(f"الإجمالي: {total_sales:,.0f} د.ع"))
-            draw.text((PAPER_WIDTH - 30 - draw.textlength(reshaped_sales, font_bold), y+40), reshaped_sales, font=font_bold, fill="#28a745")
-            y += 100
-            
-            draw.line((20, y, PAPER_WIDTH-20, y), fill="black", width=2)
-            y += 20
-            
-            # جدول التفاصيل
-            draw.rectangle((10, y, PAPER_WIDTH-10, y+30), fill="#EEE")
-            reshaped_h1 = get_display(arabic_reshaper.reshape("المادة"))
-            draw.text((PAPER_WIDTH - 30 - draw.textlength(reshaped_h1, font_bold), y+5), reshaped_h1, font=font_bold, fill="black")
-            draw.text((20, y+5), get_display(arabic_reshaper.reshape("المجموع")), font=font_bold, fill="black")
-            draw.text(((PAPER_WIDTH/2 - 20), y+5), get_display(arabic_reshaper.reshape("الكمية")), font=font_bold, fill="gray")
-            y += 40
-            
-            for name, qty, total in items_summary:
-                name_fixed = get_display(arabic_reshaper.reshape(name))
-                draw.text((PAPER_WIDTH - 30 - draw.textlength(name_fixed, font_reg), y), name_fixed, font=font_reg, fill="black")
-                draw.text((20, y), f"{total:,.0f}", font=font_reg, fill="black")
-                
-                # تنسيق الكمية الوزنية
-                qty_val = qty
-                qty_txt = str(int(qty_val)) if abs(qty_val - int(qty_val)) < 0.001 else f"{qty_val:.3f}"
-                draw.text(((PAPER_WIDTH/2 - 20), y), qty_txt, font=font_reg, fill="gray")
-                
-                y += 30
-                draw.line((20, y, PAPER_WIDTH-20, y), fill="#EEE")
-                y += 5
-                
-            y += 20
-            draw_text_centered("شكراً لعملكم الشاق!", y, font_reg)
-            y += 40
-            
-            final_img = img.crop((0, 0, PAPER_WIDTH, y))
-            self.send_image_to_printer(final_img)
-            
+            pdfmetrics.registerFont(TTFont('ArabicFont', 'C:\\Windows\\Fonts\\arial.ttf'))
+            pdfmetrics.registerFont(TTFont('ArabicBold', 'C:\\Windows\\Fonts\\arialbd.ttf'))
+            ARABIC_FONT = 'ArabicFont'; ARABIC_BOLD = 'ArabicBold'
+        except: ARABIC_FONT = 'Helvetica'; ARABIC_BOLD = 'Helvetica-Bold'
+
+        # --- إعداد الصفحة بحجم 80 مم ---
+        PAGE_WIDTH = 80 * mm
+        PAGE_HEIGHT = (150 * mm) + (len(items_summary) * 8 * mm)
+        
+        doc = SimpleDocTemplate(filepath, pagesize=(PAGE_WIDTH, PAGE_HEIGHT), 
+                                rightMargin=2*mm, leftMargin=2*mm, topMargin=5*mm, bottomMargin=5*mm)
+        elements = []
+        
+        def ar(text): return get_display(arabic_reshaper.reshape(str(text)))
+
+        # انماط الخطوط
+        style_header = ParagraphStyle('Header', fontName=ARABIC_BOLD, fontSize=16, alignment=TA_CENTER)
+        style_sub = ParagraphStyle('Sub', fontName=ARABIC_BOLD, fontSize=10, alignment=TA_CENTER)
+        style_bold_row = ParagraphStyle('Row', fontName=ARABIC_BOLD, fontSize=10, alignment=TA_CENTER)
+        
+        # الرأس
+        elements.append(Paragraph(ar("تقرير إغلاق فترة (Z-Report)"), style_header))
+        elements.append(Spacer(1, 3*mm))
+        
+        now_time = datetime.datetime.now().strftime("%Y-%m-%d  %I:%M %p")
+        elements.append(Paragraph(ar(f"توقيت الجرد: {now_time}"), style_sub))
+        elements.append(Paragraph(ar(f"عدد الفواتير: {total_orders}"), style_sub))
+        elements.append(Spacer(1, 4*mm))
+        
+        # الجدول
+        table_data = [[ar("اجمالي"), ar("العدد"), ar("المادة")]]
+        
+        for name, qty, total in items_summary:
+            qty_txt = str(int(qty)) if qty == int(qty) else f"{qty:.2f}"
+            row = [
+                ar(f"{total:,.0f}"),
+                ar(qty_txt),
+                ar(name)
+            ]
+            table_data.append(row)
+
+        col_widths = [22*mm, 13*mm, 35*mm]
+        t = Table(table_data, colWidths=col_widths)
+        t.setStyle(TableStyle([
+            ('FONT', (0, 0), (-1, -1), ARABIC_BOLD, 9),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('GRID', (0, 0), (-1, -1), 1, colors.black), # خطوط شبكة واضحة
+            ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('LEFTPADDING', (0, 0), (-1, -1), 1),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 1),
+        ]))
+        elements.append(t)
+        elements.append(Spacer(1, 5*mm))
+
+        # الملخص النهائي
+        elements.append(Paragraph(ar("-" * 25), style_sub))
+        elements.append(Paragraph(ar(f"إجمالي مبيعات الفترة"), style_sub))
+        elements.append(Paragraph(ar(f"{total_sales:,.0f} د.ع"), style_header))
+        elements.append(Paragraph(ar("-" * 25), style_sub))
+
+        try:
+            doc.build(elements)
+            # فتح الملف تلقائياً
+            os.startfile(filepath)
         except Exception as e:
-            messagebox.showerror("خطأ", str(e))
-            
+            messagebox.showerror("خطأ", f"فشل إنشاء PDF: {e}")
+
     def send_image_to_printer(self, image):
-        """إرسال كائن صورة PIL مباشرة لطابعة ويندوز"""
-        try:
-            selected_printers = self.settings.get('printers', ["Default"])
-            printer_name = selected_printers[0]
-            if printer_name == "Default" or printer_name == "Default Printer":
-                printer_name = win32print.GetDefaultPrinter()
-            hDC = win32ui.CreateDC()
-            hDC.CreatePrinterDC(printer_name)
-            
-            hDC.StartDoc("Receipt")
-            hDC.StartPage()
-            dib = ImageWin.Dib(image)
-            dib.draw(hDC.GetHandleOutput(), (0, 0, image.size[0], image.size[1]))
-            hDC.EndPage()
-            hDC.EndDoc()
-            hDC.DeleteDC()
-        except Exception as e:
-            messagebox.showerror("خطأ طابعة", f"لم نتمكن من الوصول للطابعة.\n{str(e)}")
-            
+        # جلب قائمة الطابعات من الإعدادات
+        selected_printers = self.settings.get('printers', [])
+        
+        # إذا كانت القائمة فارغة أو تحتوي على "Default"، نستخدم الطابعة الافتراضية فقط
+        if not selected_printers or (len(selected_printers) == 1 and selected_printers[0] == "Default"):
+            selected_printers = [win32print.GetDefaultPrinter()]
+        
+        errors = []
+        
+        # حلقة تكرارية للطباعة على كل طابعة موجودة في القائمة
+        for printer_name in selected_printers:
+            try:
+                # التأكد من الاسم الصحيح للطابعة الافتراضية
+                target_printer = printer_name
+                if target_printer == "Default" or target_printer == "Default Printer":
+                    target_printer = win32print.GetDefaultPrinter()
+
+                # إنشاء اتصال بالطابعة
+                hDC = win32ui.CreateDC()
+                hDC.CreatePrinterDC(target_printer)
+                
+                # بدء الطباعة
+                hDC.StartDoc(f"Receipt_{target_printer}")
+                hDC.StartPage()
+                
+                # رسم الصورة
+                dib = ImageWin.Dib(image)
+                dib.draw(hDC.GetHandleOutput(), (0, 0, image.size[0], image.size[1]))
+                
+                # إنهاء الطباعة
+                hDC.EndPage()
+                hDC.EndDoc()
+                hDC.DeleteDC()
+                
+            except Exception as e:
+                # تسجيل الخطأ إن وجد ولكن لا نوقف البرنامج حتى تطبع الطابعات الأخرى
+                errors.append(f"خطأ في {printer_name}: {str(e)}")
+
+        # إذا حدثت أخطاء نعرضها
+        if errors:
+            error_msg = "\n".join(errors)
+            messagebox.showerror("تنبيه طباعة", f"حدثت بعض الأخطاء:\n{error_msg}")
+        
     def build_products_tab(self):
-        main_frame = tk.Frame(self.products_frame, bg=BG_MAIN_COLOR, padx=20, pady=20)
-        main_frame.pack(fill='both', expand=True)
-        
-        side_panel = tk.Frame(main_frame, bg=PANEL_COLOR, width=350, relief='raised', bd=1, padx=15, pady=15)
-        side_panel.pack(side='right', fill='y', padx=(10, 0))
-        side_panel.pack_propagate(False)
-        
+        main_frame = tk.Frame(self.products_frame, bg=BG_MAIN_COLOR, padx=20, pady=20); main_frame.pack(fill='both', expand=True)
+        side_panel = tk.Frame(main_frame, bg=PANEL_COLOR, width=350, relief='raised', bd=1, padx=15, pady=15); side_panel.pack(side='right', fill='y', padx=(10, 0)); side_panel.pack_propagate(False)
         tk.Label(side_panel, text="➕ إضافة وجبة", font=FONT_TITLE, bg=PANEL_COLOR, fg="white").pack(pady=(0, 20))
-        
-        self.p_name = tk.StringVar()
-        self.p_price = tk.DoubleVar()
-        self.p_weight_based = tk.BooleanVar()
-        self.p_card_color = tk.StringVar(value="أبيض (افتراضي)")
-        self.p_suggestions = tk.StringVar()
-        self.p_image_path = None
-        
+        self.p_name = tk.StringVar(); self.p_price = tk.DoubleVar(); self.p_weight_based = tk.BooleanVar(); self.p_card_color = tk.StringVar(value="أبيض (افتراضي)"); self.p_suggestions = tk.StringVar(); self.p_image_path = None
         tk.Label(side_panel, text="اسم الوجبة", bg=PANEL_COLOR, font=FONT_BOLD, fg="white").pack(anchor='e')
-        p_name_entry = tk.Entry(side_panel, textvariable=self.p_name, font=FONT_MAIN, bg="#F9F9F9")
-        p_name_entry.pack(fill='x', pady=(5, 10), ipady=5)
-        p_name_entry.bind("<Button-1>", lambda e: self.open_text_keypad(self.p_name, "اسم الوجبة", "arabic"))
-        
+        p_name_entry = tk.Entry(side_panel, textvariable=self.p_name, font=FONT_MAIN, bg="#F9F9F9"); p_name_entry.pack(fill='x', pady=(5, 10), ipady=5); p_name_entry.bind("<Button-1>", lambda e: self.open_text_keypad(self.p_name, "اسم الوجبة", "arabic"))
         tk.Label(side_panel, text="السعر", bg=PANEL_COLOR, font=FONT_BOLD, fg="white").pack(anchor='e')
         tk.Entry(side_panel, textvariable=self.p_price, font=FONT_MAIN, bg="#F9F9F9").pack(fill='x', pady=(5, 10), ipady=5)
-        
         tk.Label(side_panel, text="لون بطاقة الوجبة 🎨", bg=PANEL_COLOR, font=FONT_BOLD, fg="white").pack(anchor='e')
-        cb_colors = ttk.Combobox(side_panel, textvariable=self.p_card_color, values=list(CARD_COLORS.keys()), state="readonly", font=FONT_MAIN)
-        cb_colors.pack(fill='x', pady=(5, 10))
-        cb_colors.current(0)
-        
+        cb_colors = ttk.Combobox(side_panel, textvariable=self.p_card_color, values=list(CARD_COLORS.keys()), state="readonly", font=FONT_MAIN); cb_colors.pack(fill='x', pady=(5, 10)); cb_colors.current(0)
         tk.Label(side_panel, text="اقتراحات الملاحظات (افصل بفاصلة)", bg=PANEL_COLOR, font=FONT_BOLD, fg="white").pack(anchor='e')
-        p_sug_entry = tk.Entry(side_panel, textvariable=self.p_suggestions, font=("Segoe UI", 10), bg="#F9F9F9")
-        p_sug_entry.pack(fill='x', pady=(5, 10), ipady=5)
-        p_sug_entry.bind("<Button-1>", lambda e: self.open_text_keypad(self.p_suggestions, "اقتراحات الملاحظات", "arabic"))
-
-        
+        p_sug_entry = tk.Entry(side_panel, textvariable=self.p_suggestions, font=("Segoe UI", 10), bg="#F9F9F9"); p_sug_entry.pack(fill='x', pady=(5, 10), ipady=5); p_sug_entry.bind("<Button-1>", lambda e: self.open_text_keypad(self.p_suggestions, "اقتراحات الملاحظات", "arabic"))
         tk.Checkbutton(side_panel, text="بيع بالوزن (كغم) ⚖️", variable=self.p_weight_based, bg=PANEL_COLOR, font=FONT_MAIN, fg="white", selectcolor=PANEL_COLOR).pack(anchor='e', pady=10)
-        
         tk.Button(side_panel, text="تحميل صورة 🖼️", command=self.upload_image, bg=SECONDARY_COLOR, fg="white", font=FONT_MAIN, relief='flat').pack(fill='x', pady=5)
-        self.lbl_img_path = tk.Label(side_panel, text="لم يتم اختيار صورة", bg=PANEL_COLOR, fg="#DDD")
-        self.lbl_img_path.pack()
-        
-        save_btn = tk.Button(side_panel, text="💾 حـفـظ الـوجـبـة", command=self.save_product,
-                             bg=SUCCESS_COLOR, fg="white", font=("Segoe UI", 20, "bold"),
-                             height=1, relief='raised', bd=2, cursor="hand2")
-        save_btn.pack(fill='x', pady=0)
-        
-        list_frame = tk.Frame(main_frame, bg=BG_MAIN_COLOR)
-        list_frame.pack(side='left', fill='both', expand=True)
-        
+        self.lbl_img_path = tk.Label(side_panel, text="لم يتم اختيار صورة", bg=PANEL_COLOR, fg="#DDD"); self.lbl_img_path.pack()
+        tk.Button(side_panel, text="💾 حـفـظ الـوجـبـة", command=self.save_product, bg=SUCCESS_COLOR, fg="white", font=("Segoe UI", 20, "bold"), height=1, relief='raised', bd=2).pack(fill='x', pady=0)
+        list_frame = tk.Frame(main_frame, bg=BG_MAIN_COLOR); list_frame.pack(side='left', fill='both', expand=True)
         tk.Label(list_frame, text="قائمة الوجبات الحالية", font=FONT_TITLE, bg=BG_MAIN_COLOR, fg=TEXT_COLOR).pack(anchor='e', pady=10)
-        
-        cols = ('id', 'name', 'price', 'type')
-        self.products_tree = ttk.Treeview(list_frame, columns=cols, show='headings')
-        self.products_tree.heading('id', text='#')
-        self.products_tree.heading('name', text='اسم الوجبة')
-        self.products_tree.heading('price', text='السعر')
-        self.products_tree.heading('type', text='النوع')
-        
-        self.products_tree.column('id', width=50, anchor='center')
-        self.products_tree.pack(fill='both', expand=True)
-        
-        btn_frame = tk.Frame(list_frame, bg=BG_MAIN_COLOR, pady=10)
-        btn_frame.pack(fill='x')
+        cols = ('id', 'name', 'price', 'type'); self.products_tree = ttk.Treeview(list_frame, columns=cols, show='headings')
+        self.products_tree.heading('id', text='#'); self.products_tree.heading('name', text='اسم الوجبة'); self.products_tree.heading('price', text='السعر'); self.products_tree.heading('type', text='النوع')
+        self.products_tree.column('id', width=50, anchor='center'); self.products_tree.pack(fill='both', expand=True)
+        btn_frame = tk.Frame(list_frame, bg=BG_MAIN_COLOR, pady=10); btn_frame.pack(fill='x')
         tk.Button(btn_frame, text="تحديث القائمة 🔄", command=self.load_products_list, font=FONT_MAIN, bg="white").pack(side='right', padx=5)
         tk.Button(btn_frame, text="حذف المحدد ❌", command=self.delete_product, font=FONT_MAIN, bg=DANGER_COLOR, fg="white").pack(side='right', padx=5)
-        
         self.load_products_list()
-        
     def upload_image(self):
         path = filedialog.askopenfilename(filetypes=[("Images", "*.jpg *.png *.jpeg")])
-        if path:
-            self.p_image_path = path
-            self.lbl_img_path.config(text=os.path.basename(path))
-            
+        if path: self.p_image_path = path; self.lbl_img_path.config(text=os.path.basename(path))
     def save_product(self):
-        if not self.p_name.get() or self.p_price.get() <= 0:
-            messagebox.showerror("خطأ", "تأكد من البيانات")
-            return
+        if not self.p_name.get() or self.p_price.get() <= 0: messagebox.showerror("خطأ", "تأكد من البيانات"); return
         img = None
         try:
             if self.p_image_path:
                 with open(self.p_image_path, 'rb') as f: img = f.read()
         except: img = None
-        
-        color_hex = CARD_COLORS.get(self.p_card_color.get(), "#FFFFFF")
-        suggestions_txt = self.p_suggestions.get()
-        
-        conn = sqlite3.connect(self.db_name)
-        c = conn.cursor()
-        c.execute("INSERT INTO products (name, price, image, category, weight_based, card_color, suggestions) VALUES (?,?,?,?,?,?,?)",
-                  (self.p_name.get(), self.p_price.get(), img, "عام", 1 if self.p_weight_based.get() else 0, color_hex, suggestions_txt))
-        conn.commit()
-        conn.close()
-        
-        self.search_var.set("")
-        self.load_products_list()
-        self.load_products_grid()
-        
-        self.p_name.set("")
-        self.p_price.set(0)
-        self.p_weight_based.set(False)
-        self.p_suggestions.set("")
-        self.p_card_color.set("أبيض (افتراضي)")
-        self.lbl_img_path.config(text="لم يتم اختيار صورة")
-        self.p_image_path = None
-        messagebox.showinfo("تم", "تم حفظ الوجبة وتحديث القائمة")
-        
+        color_hex = CARD_COLORS.get(self.p_card_color.get(), "#FFFFFF"); suggestions_txt = self.p_suggestions.get()
+        conn = sqlite3.connect(self.db_name); c = conn.cursor()
+        c.execute("INSERT INTO products (name, price, image, category, weight_based, card_color, suggestions) VALUES (?,?,?,?,?,?,?)", (self.p_name.get(), self.p_price.get(), img, "عام", 1 if self.p_weight_based.get() else 0, color_hex, suggestions_txt))
+        conn.commit(); conn.close()
+        self.search_var.set(""); self.load_products_list(); self.load_products_grid()
+        self.p_name.set(""); self.p_price.set(0); self.p_weight_based.set(False); self.p_suggestions.set(""); self.p_card_color.set("أبيض (افتراضي)"); self.lbl_img_path.config(text="لم يتم اختيار صورة"); self.p_image_path = None; messagebox.showinfo("تم", "تم حفظ الوجبة وتحديث القائمة")
     def load_products_list(self):
         for i in self.products_tree.get_children(): self.products_tree.delete(i)
-        conn = sqlite3.connect(self.db_name)
-        c = conn.cursor()
+        conn = sqlite3.connect(self.db_name); c = conn.cursor()
         c.execute("SELECT id, name, price, weight_based FROM products")
-        for r in c.fetchall():
-            t = "وزن" if r[3] else "قطعة"
-            self.products_tree.insert('', 'end', values=(r[0], r[1], r[2], t))
+        for r in c.fetchall(): t = "وزن" if r[3] else "قطعة"; self.products_tree.insert('', 'end', values=(r[0], r[1], r[2], t))
         conn.close()
-        
     def delete_product(self):
         sel = self.products_tree.selection()
         if not sel: return
         pid = self.products_tree.item(sel[0])['values'][0]
         if messagebox.askyesno("تأكيد", "حذف الوجبة؟"):
-            conn = sqlite3.connect(self.db_name)
-            conn.cursor().execute("DELETE FROM products WHERE id=?", (pid,))
-            conn.commit()
-            conn.close()
-            self.load_products_list()
-            self.load_products_grid()
-            
+            conn = sqlite3.connect(self.db_name); conn.cursor().execute("DELETE FROM products WHERE id=?", (pid,)); conn.commit(); conn.close()
+            self.load_products_list(); self.load_products_grid()
     def build_reports_tab(self):
-        main_frame = tk.Frame(self.reports_frame, bg="#E6EBEF")
-        main_frame.pack(fill='both', expand=True, padx=0, pady=0)
-        
-        header_frame = tk.Frame(main_frame, bg="#CAD6DC", pady=10, padx=20, relief='raised', bd=1)
-        header_frame.pack(fill='x')
+        main_frame = tk.Frame(self.reports_frame, bg="#E6EBEF"); main_frame.pack(fill='both', expand=True, padx=0, pady=0)
+        header_frame = tk.Frame(main_frame, bg="#CAD6DC", pady=10, padx=20, relief='raised', bd=1); header_frame.pack(fill='x')
         tk.Label(header_frame, text="تقرير الفواتير", font=("Segoe UI", 16, "bold", "underline"), bg="#CAD6DC", fg="#333").pack(side='top', pady=(0,5))
-        
-        filter_frame = tk.Frame(header_frame, bg="#CAD6DC")
-        filter_frame.pack(side='top', fill='x')
-        
+        filter_frame = tk.Frame(header_frame, bg="#CAD6DC"); filter_frame.pack(side='top', fill='x')
         self.report_period = tk.StringVar(value="today")
         modes = [("اليوم", "today"), ("أسبوع", "week"), ("شهر", "month"), ("سنة", "year"), ("الكل", "all")]
-        
         tk.Label(filter_frame, text="عرض حسب:", bg="#CAD6DC", font=FONT_BOLD).pack(side='right', padx=10)
-        
-        for txt, val in modes:
-            rb = tk.Radiobutton(filter_frame, text=txt, variable=self.report_period, value=val,
-                                 command=self.load_reports, bg="#CAD6DC", font=FONT_MAIN,
-                                 selectcolor="white", indicatoron=0, width=8, relief='groove')
-            rb.pack(side='right', padx=2)
-            
+        for txt, val in modes: tk.Radiobutton(filter_frame, text=txt, variable=self.report_period, value=val, command=self.load_reports, bg="#CAD6DC", font=FONT_MAIN, selectcolor="white", indicatoron=0, width=8, relief='groove').pack(side='right', padx=2)
         tk.Button(filter_frame, text="تصدير 📄", command=self.export_report, bg=SUCCESS_COLOR, fg="white", font=FONT_BOLD).pack(side='left', padx=10)
         tk.Button(filter_frame, text="تحديث 🔄", command=self.load_reports, bg=PRIMARY_COLOR, fg="white", font=FONT_BOLD).pack(side='left', padx=10)
-        
-        tk.Button(filter_frame, text="إنهاء اليوم (تقرير جرد) 🏁", command=self.generate_daily_report,
-                  bg="#FF9800", fg="white", font=FONT_BOLD, relief='raised', bd=2).pack(side='left', padx=20)
-        
-        tree_frame = tk.Frame(main_frame, bg="white", padx=10, pady=10)
-        tree_frame.pack(fill='both', expand=True)
-        
-        cols = ('seq', 'date', 'type', 'cust', 'total')
-        self.report_tree = ttk.Treeview(tree_frame, columns=cols, show='headings', selectmode='extended')
-        
-        self.report_tree.heading('seq', text='ت')
-        self.report_tree.heading('date', text='التاريخ والوقت')
-        self.report_tree.heading('type', text='نوع الطلب')
-        self.report_tree.heading('cust', text='الزبون')
-        self.report_tree.heading('total', text='المبلغ')
-        
-        self.report_tree.column('seq', width=50, anchor='center')
-        self.report_tree.column('date', width=150, anchor='center')
-        self.report_tree.column('type', width=100, anchor='center')
-        self.report_tree.column('cust', width=150, anchor='center')
-        self.report_tree.column('total', width=100, anchor='center')
-        
-        scrollbar = ttk.Scrollbar(tree_frame, orient="vertical", command=self.report_tree.yview)
-        self.report_tree.configure(yscrollcommand=scrollbar.set)
-        scrollbar.pack(side='right', fill='y')
-        self.report_tree.pack(fill='both', expand=True)
-        
-        # أزرار حذف التقارير
-        delete_btns_frame = tk.Frame(tree_frame, bg="white", pady=5)
-        delete_btns_frame.pack(fill='x', side='bottom')
-        tk.Button(delete_btns_frame, text="حذف التقارير المحددة 🗑️", command=self.delete_selected_reports, bg=DANGER_COLOR, fg="white", font=FONT_BOLD).pack(side='right', padx=5)
-        tk.Button(delete_btns_frame, text="حذف جميع التقارير 💣", command=self.delete_all_reports, bg="#8B0000", fg="white", font=FONT_BOLD).pack(side='right', padx=5)
-
-        
-        # الملخص (أسفل)
-        summary_container = tk.Frame(main_frame, bg="#D5DBDB", pady=10, padx=20, relief='raised', bd=2)
-        summary_container.pack(fill='x', side='bottom')
-        
-        # تم تبديل الترتيب ليصبح المبلغ أولاً
-        total_frame = tk.Frame(summary_container, bg="#D5DBDB", borderwidth=2, relief="solid")
-        total_frame.pack(side='right', padx=10, fill='y')
-        tk.Label(total_frame, text="إجمالي المبلغ", bg="#95A5A6", fg="white", font=("Segoe UI", 12, "bold"), width=15).pack(fill='x')
-        self.lbl_total_sales = tk.Label(total_frame, text="0", bg="white", font=("Segoe UI", 14, "bold"), fg=SUCCESS_COLOR, height=2)
-        self.lbl_total_sales.pack(fill='x')
-
-        disc_frame = tk.Frame(summary_container, bg="#D5DBDB", borderwidth=2, relief="solid")
-        disc_frame.pack(side='right', padx=10, fill='y')
+        tk.Button(filter_frame, text="إغلاق فترة/شيفت (جرد) 🏁", command=self.generate_daily_report, bg="#FF9800", fg="white", font=FONT_BOLD, relief='raised', bd=2).pack(side='left', padx=20)
+        tree_frame = tk.Frame(main_frame, bg="white", padx=10, pady=10); tree_frame.pack(fill='both', expand=True)
+        cols = ('seq', 'date', 'type', 'cust', 'total'); self.report_tree = ttk.Treeview(tree_frame, columns=cols, show='headings', selectmode='extended')
+        self.report_tree.heading('seq', text='ت'); self.report_tree.heading('date', text='التاريخ والوقت'); self.report_tree.heading('type', text='نوع الطلب'); self.report_tree.heading('cust', text='الزبون'); self.report_tree.heading('total', text='المبلغ')
+        self.report_tree.column('seq', width=50, anchor='center'); self.report_tree.column('date', width=150, anchor='center'); self.report_tree.column('type', width=100, anchor='center'); self.report_tree.column('cust', width=150, anchor='center'); self.report_tree.column('total', width=100, anchor='center')
+        scrollbar = ttk.Scrollbar(tree_frame, orient="vertical", command=self.report_tree.yview); self.report_tree.configure(yscrollcommand=scrollbar.set); scrollbar.pack(side='right', fill='y'); self.report_tree.pack(fill='both', expand=True)
+        delete_btns_frame = tk.Frame(tree_frame, bg="white", pady=3); delete_btns_frame.pack(fill='x', side='bottom')
+        tk.Button(delete_btns_frame, text="حذف التقارير المحددة 🗑️", command=self.delete_selected_reports, bg=DANGER_COLOR, fg="white", font=FONT_BOLD).pack(side='right', padx=3)
+        tk.Button(delete_btns_frame, text="حذف جميع التقارير 💣", command=self.delete_all_reports, bg="#8B0000", fg="white", font=FONT_BOLD).pack(side='right', padx=3)
+        summary_container = tk.Frame(main_frame, bg="#D5DBDB", pady=3, padx=10, relief='raised', bd=2); summary_container.pack(fill='x', side='bottom')
+        total_frame = tk.Frame(summary_container, bg="#D5DBDB", borderwidth=2, relief="solid"); total_frame.pack(side='right', padx=10, fill='y')
+        tk.Label(total_frame, text="إجمالي المبلغ", bg="#95A5A6", fg="white", font=("Segoe UI", 8, "bold"), width=15).pack(fill='x')
+        self.lbl_total_sales = tk.Label(total_frame, text="0", bg="white", font=("Segoe UI", 12, "bold"), fg=SUCCESS_COLOR, height=2); self.lbl_total_sales.pack(fill='x')
+        disc_frame = tk.Frame(summary_container, bg="#D5DBDB", borderwidth=2, relief="solid"); disc_frame.pack(side='right', padx=10, fill='y')
         tk.Label(disc_frame, text="عدد الفواتير", bg="#95A5A6", fg="white", font=("Segoe UI", 12, "bold"), width=15).pack(fill='x')
-        self.lbl_count = tk.Label(disc_frame, text="0", bg="white", font=("Segoe UI", 14, "bold"), fg="#2C3E50", height=2)
-        self.lbl_count.pack(fill='x')
-        
-        # تم نقل الإطارات الأخرى لليمين أيضًا
-        exp_frame = tk.Frame(summary_container, bg="#D5DBDB", borderwidth=2, relief="solid")
-        exp_frame.pack(side='right', padx=10, fill='y')
+        self.lbl_count = tk.Label(disc_frame, text="0", bg="white", font=("Segoe UI", 10, "bold"), fg="#2C3E50", height=2); self.lbl_count.pack(fill='x')
+        exp_frame = tk.Frame(summary_container, bg="#D5DBDB", borderwidth=2, relief="solid"); exp_frame.pack(side='right', padx=10, fill='y')
         tk.Label(exp_frame, text="المصاريف", bg="#95A5A6", fg="white", font=("Segoe UI", 12, "bold"), width=15).pack(fill='x')
-        self.lbl_expenses = tk.Label(exp_frame, text="0", bg="white", font=("Segoe UI", 14, "bold"), fg=DANGER_COLOR, height=2)
-        self.lbl_expenses.pack(fill='x')
-        
-        net_frame = tk.Frame(summary_container, bg="#D5DBDB", borderwidth=2, relief="solid")
-        net_frame.pack(side='right', padx=10, fill='y')
+        self.lbl_expenses = tk.Label(exp_frame, text="0", bg="white", font=("Segoe UI", 10, "bold"), fg=DANGER_COLOR, height=2); self.lbl_expenses.pack(fill='x')
+        net_frame = tk.Frame(summary_container, bg="#D5DBDB", borderwidth=2, relief="solid"); net_frame.pack(side='right', padx=10, fill='y')
         tk.Label(net_frame, text="الصافي", bg="#95A5A6", fg="white", font=("Segoe UI", 12, "bold"), width=15).pack(fill='x')
-        self.lbl_net_profit = tk.Label(net_frame, text="0", bg="white", font=("Segoe UI", 14, "bold"), fg="#2C3E50", height=2)
-        self.lbl_net_profit.pack(fill='x')
-        
+        self.lbl_net_profit = tk.Label(net_frame, text="0", bg="white", font=("Segoe UI", 10, "bold"), fg="#2C3E50", height=2); self.lbl_net_profit.pack(fill='x')
         self.load_reports()
-        
     def delete_selected_reports(self):
         selected_items = self.report_tree.selection()
-        if not selected_items:
-            messagebox.showwarning("تنبيه", "الرجاء تحديد فاتورة واحدة أو أكثر للحذف.")
-            return
-            
-        if not messagebox.askyesno("تأكيد الحذف", f"هل أنت متأكد من حذف {len(selected_items)} فاتورة؟"):
-            return
-            
-        conn = sqlite3.connect(self.db_name)
-        c = conn.cursor()
-        
+        if not selected_items: messagebox.showwarning("تنبيه", "الرجاء تحديد فاتورة واحدة أو أكثر للحذف."); return
+        if not messagebox.askyesno("تأكيد الحذف", f"هل أنت متأكد من حذف {len(selected_items)} فاتورة؟"): return
+        conn = sqlite3.connect(self.db_name); c = conn.cursor()
         try:
             for item in selected_items:
                 order_id = self.report_tree.item(item)['values'][0]
-                # حذف من الجداول المرتبطة
-                c.execute("DELETE FROM orders WHERE id=?", (order_id,))
-                c.execute("DELETE FROM order_items WHERE order_id=?", (order_id,))
-                c.execute("DELETE FROM sales WHERE order_id=?", (order_id,))
-            
-            conn.commit()
-            messagebox.showinfo("نجاح", "تم حذف الفواتير المحددة بنجاح.")
-        except Exception as e:
-            conn.rollback()
-            messagebox.showerror("خطأ", f"حدث خطأ أثناء الحذف: {str(e)}")
-        finally:
-            conn.close()
-            self.load_reports()
-            
+                c.execute("DELETE FROM orders WHERE id=?", (order_id,)); c.execute("DELETE FROM order_items WHERE order_id=?", (order_id,)); c.execute("DELETE FROM sales WHERE order_id=?", (order_id,))
+            conn.commit(); messagebox.showinfo("نجاح", "تم حذف الفواتير المحددة بنجاح.")
+        except Exception as e: conn.rollback(); messagebox.showerror("خطأ", f"حدث خطأ أثناء الحذف: {str(e)}")
+        finally: conn.close(); self.load_reports()
     def delete_all_reports(self):
-        if not messagebox.askyesno("تحذير! حذف شامل", "هل أنت متأكد من حذف **جميع** الفواتير والتقارير؟ لا يمكن التراجع عن هذا الإجراء."):
-            return
-            
-        conn = sqlite3.connect(self.db_name)
-        c = conn.cursor()
-        
-        try:
-            c.execute("DELETE FROM orders")
-            c.execute("DELETE FROM order_items")
-            c.execute("DELETE FROM sales")
-            c.execute("DELETE FROM daily_closings")
-            
-            conn.commit()
-            messagebox.showinfo("نجاح", "تم حذف جميع الفواتير والسجلات بنجاح.")
-        except Exception as e:
-            conn.rollback()
-            messagebox.showerror("خطأ", f"حدث خطأ أثناء الحذف الشامل: {str(e)}")
-        finally:
-            conn.close()
-            self.load_reports()
-            
+        if not messagebox.askyesno("تحذير! حذف شامل", "هل أنت متأكد من حذف **جميع** الفواتير والتقارير؟ لا يمكن التراجع عن هذا الإجراء."): return
+        conn = sqlite3.connect(self.db_name); c = conn.cursor()
+        try: c.execute("DELETE FROM orders"); c.execute("DELETE FROM order_items"); c.execute("DELETE FROM sales"); c.execute("DELETE FROM daily_shifts"); conn.commit(); messagebox.showinfo("نجاح", "تم حذف جميع الفواتير والسجلات بنجاح.")
+        except Exception as e: conn.rollback(); messagebox.showerror("خطأ", f"حدث خطأ أثناء الحذف الشامل: {str(e)}")
+        finally: conn.close(); self.load_reports()
     def load_reports(self):
         for i in self.report_tree.get_children(): self.report_tree.delete(i)
-        conn = sqlite3.connect(self.db_name)
-        c = conn.cursor()
-        
-        period = self.report_period.get()
-        now = datetime.datetime.now()
-        
-        query = "SELECT id, date, type, customer_name, total, status FROM orders WHERE 1=1"
+        conn = sqlite3.connect(self.db_name); c = conn.cursor()
+        period = self.report_period.get(); now = datetime.datetime.now()
+        query = "SELECT id, date, type, customer_name, total, status, daily_id FROM orders WHERE 1=1"
         params = []
-        
-        if period == "today":
-            date_filter = now.strftime("%Y-%m-%d")
-            query += " AND date LIKE ?"
-            params.append(f"{date_filter}%")
-        elif period == "week":
-            d = (now - datetime.timedelta(days=7)).strftime("%Y-%m-%d")
-            query += " AND date >= ?"
-            params.append(d)
-        elif period == "month":
-            d = (now - datetime.timedelta(days=30)).strftime("%Y-%m-%d")
-            query += " AND date >= ?"
-            params.append(d)
-        elif period == "year":
-            d = (now - datetime.timedelta(days=365)).strftime("%Y-%m-%d")
-            query += " AND date >= ?"
-            params.append(d)
-        
+        if period == "today": date_filter = now.strftime("%Y-%m-%d"); query += " AND date LIKE ?"; params.append(f"{date_filter}%")
+        elif period == "week": d = (now - datetime.timedelta(days=7)).strftime("%Y-%m-%d"); query += " AND date >= ?"; params.append(d)
+        elif period == "month": d = (now - datetime.timedelta(days=30)).strftime("%Y-%m-%d"); query += " AND date >= ?"; params.append(d)
+        elif period == "year": d = (now - datetime.timedelta(days=365)).strftime("%Y-%m-%d"); query += " AND date >= ?"; params.append(d)
         query += " ORDER BY id DESC"
-        
-        c.execute(query, params)
-        rows = c.fetchall()
-        
-        total_sum = 0
-        count = 0
-        
+        c.execute(query, params); rows = c.fetchall()
+        total_sum = 0; count = 0
         for idx, r in enumerate(rows):
             t_type = "سفري" if r[2] == "takeaway" else "توصيل"
             if r[5] == "مرتجع": t_type += " (مرتجع)"
-            
-            self.report_tree.insert('', 'end', values=(r[0], r[1][:16], t_type, r[3], f"{r[4]:,.0f}"))
-            
-            if r[5] != "مرتجع":
-                total_sum += r[4]
+            display_id = r[6] if r[6] else r[0] # استخدام daily_id
+            self.report_tree.insert('', 'end', values=(display_id, r[1][:16], t_type, r[3], f"{r[4]:,.0f}"))
+            if r[5] != "مرتجع": total_sum += r[4]
             count += 1
-            
         conn.close()
-        
-        self.lbl_total_sales.config(text=f"{total_sum:,.0f}")
-        self.lbl_count.config(text=str(count))
-        self.lbl_net_profit.config(text=f"{total_sum:,.0f}")
-        self.lbl_expenses.config(text="0")
-        
+        self.lbl_total_sales.config(text=f"{total_sum:,.0f}"); self.lbl_count.config(text=str(count)); self.lbl_net_profit.config(text=f"{total_sum:,.0f}"); self.lbl_expenses.config(text="0")
     def export_report(self):
         path = filedialog.asksaveasfilename(defaultextension=".txt")
         if path:
             with open(path, 'w', encoding='utf-8') as f:
-                f.write("تقرير المبيعات\n")
-                f.write(f"الفترة: {self.report_period.get()}\n")
-                f.write("-" * 50 + "\n")
-                for item in self.report_tree.get_children():
-                    vals = self.report_tree.item(item)['values']
-                    f.write(f"{vals}\n")
-                f.write("-" * 50 + "\n")
-                f.write(f"المجموع الكلي: {self.lbl_total_sales.cget('text')}\n")
+                f.write("تقرير المبيعات\n"); f.write(f"الفترة: {self.report_period.get()}\n"); f.write("-" * 50 + "\n")
+                for item in self.report_tree.get_children(): vals = self.report_tree.item(item)['values']; f.write(f"{vals}\n")
+                f.write("-" * 50 + "\n"); f.write(f"المجموع الكلي: {self.lbl_total_sales.cget('text')}\n")
             messagebox.showinfo("تم", "تم التصدير")
-            
+    
     def build_settings_tab(self):
         frame = tk.Frame(self.settings_frame, bg=BG_MAIN_COLOR, padx=30, pady=30)
         frame.pack(fill='both', expand=True)
-        
-        p_frame = tk.LabelFrame(frame, text=" إعدادات الطابعات ", font=FONT_BOLD, bg=BG_MAIN_COLOR, padx=20, pady=20)
+
+        # --- إطار الطابعات ---
+        p_frame = tk.LabelFrame(frame, text=" إعدادات الطابعات المتعددة ", font=FONT_BOLD, bg=BG_MAIN_COLOR, padx=20, pady=20)
         p_frame.pack(fill='x', pady=10)
-        
+
         try:
+            # جلب أسماء الطابعات المثبتة في الويندوز
             printers = [p[2] for p in win32print.EnumPrinters(win32print.PRINTER_ENUM_LOCAL)]
-        except: printers = ["Default"]
-        
-        self.printer_list = tk.Listbox(p_frame, selectmode='single', height=6, font=FONT_MAIN)
+        except:
+            printers = ["Default"]
+
+        # selectmode=tk.MULTIPLE يسمح باختيار أكثر من طابعة
+        self.printer_list = tk.Listbox(p_frame, selectmode=tk.MULTIPLE, height=8, font=FONT_MAIN, bg="#FFF", activestyle='dotbox')
         self.printer_list.pack(fill='x', pady=5)
-        for p in printers: self.printer_list.insert('end', p)
+
+        # إضافة الطابعات للقائمة وتظليل المحفوظ منها سابقاً
+        saved_printers = self.settings.get('printers', [])
         
-        tk.Button(p_frame, text="حفظ الطابعة المحددة كطابعة الفواتير 💾", command=self.save_printers, bg=PRIMARY_COLOR, fg="white", font=FONT_MAIN).pack(pady=5)
-        
-        r_frame = tk.LabelFrame(frame, text=" تصميم الفاتورة ", font=FONT_BOLD, bg=BG_MAIN_COLOR, padx=20, pady=20)
+        for idx, p in enumerate(printers):
+            self.printer_list.insert('end', p)
+            # إذا كانت الطابعة موجودة في الإعدادات، قم بتحديدها
+            if p in saved_printers:
+                self.printer_list.selection_set(idx)
+
+        tk.Button(p_frame, text="حفظ الطابعات المحددة (للطباعة المتزامنة) 💾", command=self.save_printers, bg=PRIMARY_COLOR, fg="white", font=FONT_MAIN).pack(pady=5)
+
+        # --- إطار التصميم ---
+        r_frame = tk.LabelFrame(frame, text=" تصميم الفاتورة ", font=FONT_BOLD, bg=BG_MAIN_COLOR, padx=0, pady=0)
         r_frame.pack(fill='x', pady=10)
         
         tk.Label(r_frame, text="عنوان الفاتورة", bg=BG_MAIN_COLOR).pack(anchor='e')
@@ -1942,41 +1310,33 @@ class RestaurantPOS:
         self.f_text.insert(0, self.settings['receipt_design']['footer_text'])
         self.f_text.pack(fill='x')
         
-        tk.Button(r_frame, text="اختيار شعار", command=self.choose_logo, bg=SECONDARY_COLOR, fg="white").pack(pady=5)
+        tk.Button(r_frame, text="اختيار شعار", command=self.choose_logo, bg=SECONDARY_COLOR, fg="white").pack(pady=0)
         self.s_logo_lbl = tk.Label(r_frame, text=self.settings['logo_path'], bg=BG_MAIN_COLOR)
         self.s_logo_lbl.pack()
         
-        tk.Button(r_frame, text="حفظ التصميم 💾", command=self.save_design, bg=SUCCESS_COLOR, fg="white", font=FONT_BOLD).pack(pady=10)
-        
+        tk.Button(r_frame, text="حفظ التصميم 💾", command=self.save_design, bg=SUCCESS_COLOR, fg="white", font=FONT_BOLD).pack(pady=0)
+
     def save_printers(self):
         idxs = self.printer_list.curselection()
         if not idxs:
-             messagebox.showwarning("تنبيه", "يرجى اختيار طابعة أولاً")
-             return
+            messagebox.showwarning("تنبيه", "يرجى اختيار طابعة واحدة على الأقل")
+            return
         
-        selected_printer = self.printer_list.get(idxs[0])
-        self.settings['printers'] = [selected_printer]
+        selected_printers = [self.printer_list.get(i) for i in idxs]
+        self.settings['printers'] = selected_printers
         self.save_settings()
-        messagebox.showinfo("تم", f"تم تحديد الطابعة: {selected_printer}")
         
+        printers_str = "\n".join(selected_printers)
+        messagebox.showinfo("تم", f"تم حفظ الطابعات التالية:\n{printers_str}")
+
     def choose_logo(self):
         p = filedialog.askopenfilename()
-        if p:
-            self.settings['logo_path'] = p
-            self.s_logo_lbl.config(text=p)
-            
+        if p: self.settings['logo_path'] = p; self.s_logo_lbl.config(text=p)
     def save_design(self):
-        self.settings['receipt_design']['header_text'] = self.h_text.get()
-        self.settings['receipt_design']['footer_text'] = self.f_text.get()
-        self.save_settings()
-        messagebox.showinfo("تم", "حفظ التصميم")
+        self.settings['receipt_design']['header_text'] = self.h_text.get(); self.settings['receipt_design']['footer_text'] = self.f_text.get(); self.save_settings(); messagebox.showinfo("تم", "حفظ التصميم")
 
 def start_app():
-    root = tk.Tk()
-    app = RestaurantPOS(root)
-    root.mainloop()
+    root = tk.Tk(); app = RestaurantPOS(root); root.mainloop()
     
 if __name__ == "__main__":
-    l_root = tk.Tk()
-    LoginWindow(l_root, start_app)
-    l_root.mainloop()  اريد فاتورة السفري يكونان بهذا الشكل عن كتابة وقت الاستلام والتسليم امكانية تاكيد الوقت لان هذا الزر مخفي وايضا عند استعادة اعادة طباعة مخفي زر التاكيد واجعل تقرير الجرد فقط للمبيعات الحالية ويكون بشكل جميل
+    l_root = tk.Tk(); LoginWindow(l_root, start_app); l_root.mainloop()  اريد عند اضافة  اكثر من وجبة في الفاتورة امكانية رفع من خلال لمس لرؤية الوجبات البقية في الفاتورة واريد تنضف العانون بعد الطباعة واريد تضيف امكانية التعديل على الوجبة وامكانية كتابة صنف الوجبة ويضهر في نقطة البيع وصنف الكل يجمع جميع الاصناف مع الحفاظ على الكود بشكل كامل
