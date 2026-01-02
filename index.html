@@ -97,6 +97,25 @@
     --subsection-text-align: center;
 }
 
+/* --- تنسيقات الألوان لحالة النتيجة (H, L, N) --- */
+.hln-select.status-h {
+    color: blue !important;
+    font-weight: 800;
+}
+.hln-select.status-l {
+    color: red !important;
+    font-weight: 800;
+}
+.hln-select.status-n {
+    color: green !important;
+    font-weight: 800;
+}
+/* تلوين حقل الإدخال أيضاً */
+.result-input.status-h { border-bottom: 2px solid blue !important; color: blue !important; }
+.result-input.status-l { border-bottom: 2px solid red !important; color: red !important; }
+.result-input.status-n { border-bottom: 2px solid green !important; color: green !important; }
+
+
 /* تنسيق العناوين الفرعية داخل الجدول */
 .sub-section-header {
     background-color: var(--subsection-bg-color) !important;
@@ -317,6 +336,7 @@ td:nth-child(3) { width: var(--range-column-width); }
     direction: ltr;
     font-family: var(--range-font);
     background-color: var(--normal-range-bg-color);
+    white-space: pre-wrap;
 }
 .result-container {
     display: flex;
@@ -1203,7 +1223,6 @@ td:nth-child(3) { width: var(--range-column-width); }
     text-align: var(--table-header-text-align);
     font-family: var(--subtitle-font);
 }
-
 @media print {
     @page {
         size: A4;
@@ -1410,7 +1429,7 @@ td:nth-child(3) { width: var(--range-column-width); }
     .hln-select {
         width: 1cm;
         display: inline-block;
-        appearance: none !important; /* إخفاء السهم المنسدل للـ select في الطباعة */
+       appearance: none !important; /* إخفاء السهم المنسدل للـ select في الطباعة */
     }
     * {
         background-color: transparent !important;
@@ -1625,12 +1644,12 @@ td:nth-child(3) { width: var(--range-column-width); }
             <i class="fas fa-microscope"></i>
         </div>
         <div class="login-title">برنامج اوسكار للمختبرات</div>
-     
+      
         <input type="text" id="appUsername" class="login-field" placeholder="اسم المستخدم" autocomplete="off">
         <input type="password" id="appPassword" class="login-field" placeholder="كلمة المرور">
-     
+      
         <button class="btn-login-submit" onclick="checkAppLogin()">دخول للنظام</button>
-     
+      
         <div id="loginErrorMsg" class="login-error">
             <i class="fas fa-exclamation-circle"></i> بيانات الدخول غير صحيحة
         </div>
@@ -2076,7 +2095,7 @@ td:nth-child(3) { width: var(--range-column-width); }
                     <i class="fas fa-microscope"></i>
                 </div>
                 <div class="header-text">
-                    <h1 id="labTitle">  الدكتورة   </h1>
+                    <h1 id="labTitle"> مختبر الدكتورة نور جعفر التخصصي</h1>
                     <div class="doctors-container">
                         <div class="doctor-name" id="doctor1"> الاول اسم الطبيب او التقني او البايلوجي </div>
                         <div class="doctor-name" id="doctor2"> الثاني اسم الطبيب او التقني او البايلوجي </div>
@@ -2401,14 +2420,15 @@ td:nth-child(3) { width: var(--range-column-width); }
             </div>
         </div>
     </div>
-    <script>
+<script>
         // متغيرات قاعدة البيانات
         const DB_NAME = 'LabDatabase';
-        const DB_VERSION = 3; // زيادة الإصدار لدعم المراجعات المتعددة
-        const STORE_NAME = 'patientVisits'; // تغيير اسم الـ store لدعم المراجعات
+        const DB_VERSION = 3; 
+        const STORE_NAME = 'patientVisits'; 
         const STATS_STORE_NAME = 'statistics';
         let db;
-        // هيكل المختبر الافتراضي مع إضافة الأسعار والإضافات الجديدة
+
+        // هيكل المختبر الافتراضي (يتضمن قسم TORCH الجديد والتحاليل الأخرى)
         const defaultLabStructure = [
             {
                 id: 'chemicalSection',
@@ -2425,8 +2445,8 @@ td:nth-child(3) { width: var(--range-column-width); }
                     "eGFR": { type: "text", range: [">90 ml/min/1.73m²"] },
                     "Uric acid": { type: "text", range: ["mg/dl (3-6)"] },
                     "S. Calcium": { type: "text", range: ["mg/dl (8.5-10.3)"] },
-                    "S. Magnesium": { type: "text", range: ["mg/dL (1.7-2.2)"] }, // Added
-                    "S. Phosphate": { type: "text", range: ["mg/dL (2.5-4.5)"] }, // Added
+                    "S. Magnesium": { type: "text", range: ["mg/dL (1.7-2.2)"] }, 
+                    "S. Phosphate": { type: "text", range: ["mg/dL (2.5-4.5)"] }, 
                     "S. Total Protein": { type: "text", range: ["g/dl (6.6-8.0)"] },
                     "S. Albumin": { type: "text", range: ["g/dl (3.5-5.5)"] },
                     "Total Bilirubin": { type: "text", range: ["mg/dl (0.2-1.2)"] },
@@ -2440,6 +2460,37 @@ td:nth-child(3) { width: var(--range-column-width); }
                     "CK": { type: "text", range: ["U/L (20-200)"] },
                     "CK-MB": { type: "text", range: ["U/L (<25)"] },
                     "LDH": { type: "text", range: ["U/L (140-280)"] },
+                }
+            },
+            {
+                id: 'torchSection',
+                title: 'TORCH Screening',
+                icon: 'fas fa-virus',
+                tests: {
+                    // --- Anti-Toxoplasma ---
+                    "Anti-Toxoplasma assay": { type: "group_header", range: [] },
+                    "Specific Anti-Toxoplasma IgM": { type: "text", range: ["Index (< 0.9)"] },
+                    "Specific Anti-Toxoplasma IgG": { type: "text", range: ["Index (< 0.9)"] },
+
+                    // --- Anti-Rubella ---
+                    "Anti-Rubella assay": { type: "group_header", range: [] },
+                    "Specific Anti-Rubella IgM": { type: "text", range: ["Index (< 0.9)"] },
+                    "Specific Anti-Rubella IgG": { type: "text", range: ["Index (< 0.9)"] },
+
+                    // --- Anti-CMV ---
+                    "Anti-CMV assay": { type: "group_header", range: [] },
+                    "Specific Anti-CMV IgM": { type: "text", range: ["Index (< 0.9)"] },
+                    "Specific Anti-CMV IgG": { type: "text", range: ["Index (< 0.9)"] },
+
+                    // --- Anti-Herpes-I ---
+                    "Anti-Herpes-I assay": { type: "group_header", range: [] },
+                    "Specific Anti-Herpes IgM": { type: "text", range: ["Index (< 0.9)"] },
+                    "Specific Anti-Herpes IgG": { type: "text", range: ["Index (< 0.9)"] },
+
+                    // --- Anti-Herpes-II ---
+                    "Anti-Herpes-II assay": { type: "group_header", range: [] },
+                    "Specific Anti-Herpes II IgM": { type: "text", range: ["Index (< 0.9)"] },
+                    "Specific Anti-Herpes II IgG": { type: "text", range: ["Index (< 0.9)"] },
                 }
             },
             {
@@ -2475,10 +2526,10 @@ td:nth-child(3) { width: var(--range-column-width); }
                     "Monocytes": { type: "text", range: ["2 - 8 %"] },
                     "Eosinophils": { type: "text", range: ["1 - 4 %"] },
                     "Basophils": { type: "text", range: ["0.5 - 1 %"] },
-                    "ESR": { type: "text", range: ["mm/hr (Varies)"] }, // Added
+                    "ESR": { type: "text", range: ["mm/hr (Varies)"] }, 
                 }
             },
-            { // Added
+            { 
                 id: 'bloodGroupSection',
                 title: 'فصائل الدم (Blood Group)',
                 icon: 'fas fa-tint',
@@ -2568,7 +2619,7 @@ td:nth-child(3) { width: var(--range-column-width); }
                 title: 'Serology & Immunology',
                 icon: 'fas fa-vial',
                 tests: {
-                    "Widal Test": { type: "text", range: ["Titers"] }, // Added
+                    "Widal Test": { type: "text", range: ["Titers"] }, 
                     "Salmonella typhi": { type: "select", range: ["Negative"], choices: ["Positive", "Negative"] },
                     "Salmonella typhi IgG": { type: "select", range: ["Negative"], choices: ["Positive", "Negative"] },
                     "Salmonella typhi IgM": { type: "select", range: ["Negative"], choices: ["Positive", "Negative"] },
@@ -2579,8 +2630,8 @@ td:nth-child(3) { width: var(--range-column-width); }
                     "A.S.O Titer": { type: "text", range: ["IU/ml (<200)"] },
                     "Toxoplasma IgG": { type: "select", range: ["Negative"], choices: ["Positive", "Negative"] },
                     "Toxoplasma IgM": { type: "select", range: ["Negative"], choices: ["Positive", "Negative"] },
-                    "Rubella IgG": { type: "select", range: ["Negative"], choices: ["Positive", "Negative"] }, // Added
-                    "Rubella IgM": { type: "select", range: ["Negative"], choices: ["Positive", "Negative"] }, // Added
+                    "Rubella IgG": { type: "select", range: ["Negative"], choices: ["Positive", "Negative"] }, 
+                    "Rubella IgM": { type: "select", range: ["Negative"], choices: ["Positive", "Negative"] }, 
                     "Pregnancy Test": { type: "select", range: [""], choices: ["Positive", "Negative"] },
                     "CMV IgG": { type: "select", range: ["Negative"], choices: ["Positive", "Negative"] },
                     "CMV IgM": { type: "select", range: ["Negative"], choices: ["Positive", "Negative"] },
@@ -3318,6 +3369,9 @@ td:nth-child(3) { width: var(--range-column-width); }
             addEventListenersToResults();
             showSelectedSection();
         }
+
+        // --- دوال التحقق التلقائي من النطاق الطبيعي ---
+
         function addEventListenersToResults() {
             // إضافة مستمعين للـ inputs والـ selects
             document.querySelectorAll('.result-input, .result-select').forEach(input => {
@@ -3325,13 +3379,154 @@ td:nth-child(3) { width: var(--range-column-width); }
                 input.removeEventListener('change', updateFilledTests);
                 input.addEventListener('input', updateFilledTests);
                 input.addEventListener('change', updateFilledTests);
+
+                // --- الإضافة الجديدة: ربط دالة الحساب التلقائي ---
+                input.addEventListener('input', function() {
+                    autoCalculateHLN(this);
+                });
+                // التحقق عند تغيير الجنس لتحديث النطاقات المعتمدة على الجنس
+                document.getElementById('patientGender').addEventListener('change', function() {
+                    // إعادة فحص جميع الحقول المدخلة عند تغيير الجنس
+                    document.querySelectorAll('.result-input').forEach(inp => autoCalculateHLN(inp));
+                });
             });
+
             // إضافة مستمعين للـ H L N
             document.querySelectorAll('.hln-select').forEach(select => {
                 select.removeEventListener('change', updateFilledTests);
                 select.addEventListener('change', updateFilledTests);
+                
+                // تلوين اليدوي أيضاً
+                select.addEventListener('change', function() {
+                    applyColorClass(this, this.value);
+                });
             });
         }
+
+        // الدالة الرئيسية للحساب التلقائي
+        function autoCalculateHLN(inputElement) {
+            const value = parseFloat(inputElement.value);
+            const testName = inputElement.dataset.testName; // اسم التحليل المباشر من data-attribute
+            
+            // العثور على عنصر الـ Select المجاور (HLN)
+            const container = inputElement.parentElement;
+            const hlnSelect = container.querySelector('.hln-select');
+            
+            if (!hlnSelect || isNaN(value)) {
+                if(hlnSelect) {
+                    hlnSelect.value = "";
+                    applyColorClass(hlnSelect, "");
+                    inputElement.classList.remove('status-h', 'status-l', 'status-n');
+                }
+                return; 
+            }
+
+            // البحث عن بيانات التحليل في الهيكل
+            let testData = null;
+            // يجب البحث في labStructure (التي قد تحتوي على تعديلات)
+            for (const section of labStructure) {
+                if (section.tests[testName]) {
+                    testData = section.tests[testName];
+                    break;
+                }
+            }
+
+            if (!testData || !testData.range || testData.range.length === 0) return;
+
+            // تحديد النطاق الصحيح (ذكر/أنثى)
+            let rangeString = testData.range[0]; // الافتراضي
+            const gender = document.getElementById('patientGender').value;
+
+            if (testData.range.length > 1) {
+                // محاولة البحث عن النطاق المناسب للجنس
+                const maleRange = testData.range.find(r => r.includes('(M)') || r.includes('Male'));
+                const femaleRange = testData.range.find(r => r.includes('(F)') || r.includes('Female'));
+
+                if (gender === 'ذكر' && maleRange) rangeString = maleRange;
+                else if (gender === 'أنثى' && femaleRange) rangeString = femaleRange;
+            }
+
+            // استخراج الأرقام من النص (Min, Max)
+            const limits = parseRangeString(rangeString);
+
+            if (limits) {
+                let status = 'N'; // الافتراضي طبيعي
+
+                if (limits.type === 'min-max') {
+                    if (value < limits.min) status = 'L';
+                    else if (value > limits.max) status = 'H';
+                } 
+                else if (limits.type === 'less-than') {
+                    if (value >= limits.val) status = 'H'; // إذا كان الرقم أكبر من الحد الأعلى
+                } 
+                else if (limits.type === 'greater-than') {
+                    if (value <= limits.val) status = 'L'; // إذا كان الرقم أقل من الحد الأدنى
+                }
+
+                // تطبيق النتيجة
+                hlnSelect.value = status;
+                applyColorClass(hlnSelect, status);
+                
+                // تلوين الحقل نفسه أيضاً (اختياري)
+                inputElement.classList.remove('status-h', 'status-l', 'status-n');
+                inputElement.classList.add(`status-${status.toLowerCase()}`);
+            }
+        }
+
+        // دالة ذكية لاستخراج الأرقام من نصوص النطاقات المعقدة
+        function parseRangeString(str) {
+            if (!str) return null;
+
+            // تنظيف النص
+            // نبحث أولاً إذا كان هناك أرقام بين قوسين (غالباً النطاق يكون داخل أقواس مثل mg/dl (60-120))
+            const matchParenthesis = str.match(/\(([^)]+)\)/);
+            let targetStr = matchParenthesis ? matchParenthesis[1] : str;
+
+            // إزالة أي شيء ليس رقم أو نقطة أو علامة - أو < أو >
+            // نستخرج الأرقام العشرية
+            const numbers = targetStr.match(/[0-9]+(\.[0-9]+)?/g);
+            
+            if (!numbers) return null;
+
+            const nums = numbers.map(n => parseFloat(n));
+
+            // السيناريو 1: رقمين وبينهما علامة طرح (Min - Max)
+            if (nums.length >= 2 && targetStr.includes('-')) {
+                return { type: 'min-max', min: Math.min(...nums), max: Math.max(...nums) };
+            }
+            
+            // السيناريو 2: علامة أصغر من (<)
+            if (targetStr.includes('<') && nums.length >= 1) {
+                return { type: 'less-than', val: nums[0] }; // الرقم هو الحد الأعلى (أي يجب أن يكون أقل منه ليكون طبيعي)
+            }
+
+            // السيناريو 3: علامة أكبر من (>)
+            if (targetStr.includes('>') && nums.length >= 1) {
+                return { type: 'greater-than', val: nums[0] }; // الرقم هو الحد الأدنى (أي يجب أن يكون أكبر منه ليكون طبيعي)
+            }
+
+            // السيناريو 4: إذا وجد رقمين بدو علامات واضحة، نعتبرهما Min-Max
+            if (nums.length >= 2) {
+                return { type: 'min-max', min: Math.min(...nums), max: Math.max(...nums) };
+            }
+
+            return null;
+        }
+
+        // دالة لتطبيق الألوان
+        function applyColorClass(element, status) {
+            // إزالة الكلاسات القديمة
+            element.classList.remove('status-h', 'status-l', 'status-n');
+            
+            if (status === 'H') {
+                element.classList.add('status-h');
+            } else if (status === 'L') {
+                element.classList.add('status-l');
+            } else if (status === 'N') {
+                element.classList.add('status-n');
+            }
+        }
+
         function updateSelectMenus() {
             const testSelect = document.getElementById('test-select');
             const sectionSelectModal = document.getElementById('sectionSelect');
@@ -3920,6 +4115,8 @@ td:nth-child(3) { width: var(--range-column-width); }
                                 const select = document.querySelector(`#${sectionId} [data-test-name="${baseName}"].hln-select`);
                                 if (select) {
                                     select.value = tests[testName];
+                                    // تلوين بعد الاستعادة
+                                    applyColorClass(select, tests[testName]);
                                 }
                             } else {
                                 const testRows = document.querySelectorAll('#' + sectionId + ' .test-name');
@@ -4265,6 +4462,14 @@ td:nth-child(3) { width: var(--range-column-width); }
                 setIssueDate();
                 showSelectedSection();
                 updateFilledTests();
+                // إزالة التلوين
+                document.querySelectorAll('.hln-select').forEach(el => {
+                    el.value = '';
+                    applyColorClass(el, '');
+                });
+                document.querySelectorAll('.result-input').forEach(el => {
+                    el.classList.remove('status-h', 'status-l', 'status-n');
+                });
                 alert('تم مسح جميع الحقول بنجاح!');
             }
         }
@@ -4316,7 +4521,7 @@ td:nth-child(3) { width: var(--range-column-width); }
                         hasValue = true;
                     }
                 });
-                
+                 
                 // تحديد ما إذا كان القسم سيُطبع أم لا
                 if (!hasValue) {
                     section.classList.add('no-print-section');
