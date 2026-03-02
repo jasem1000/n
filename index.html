@@ -99,6 +99,10 @@
     --subsection-text-align: center;
     --header-space-height: 5cm;
     --footer-space-height: 2.5cm;
+    --color-high: blue;
+    --color-low: red;
+    --color-normal: green;
+    --color-positive: red;
 }
 
 /* --- تنسيقات الألوان لحالة النتيجة (H, L, N) --- */
@@ -114,10 +118,17 @@
     color: green !important;
     font-weight: 800;
 }
-/* تلوين حقل الإدخال أيضاً */
-.result-input.status-h { border-bottom: 2px solid blue !important; color: blue !important; }
-.result-input.status-l { border-bottom: 2px solid red !important; color: red !important; }
-.result-input.status-n { border-bottom: 2px solid green !important; color: green !important; }
+/* --- تنسيقات الألوان لحالة النتيجة (H, L, N, Positive) --- */
+.hln-select.status-h { color: var(--color-high) !important; font-weight: 800; }
+.hln-select.status-l { color: var(--color-low) !important; font-weight: 800; }
+.hln-select.status-n { color: var(--color-normal) !important; font-weight: 800; }
+
+.result-input.status-h, .result-select.status-h { border-bottom: 2px solid var(--color-high) !important; color: var(--color-high) !important; font-weight: 800; }
+.result-input.status-l, .result-select.status-l { border-bottom: 2px solid var(--color-low) !important; color: var(--color-low) !important; font-weight: 800; }
+.result-input.status-n, .result-select.status-n { border-bottom: 2px solid var(--color-normal) !important; color: var(--color-normal) !important; font-weight: 800; }
+
+/* كود خاص للنتيجة الإيجابية Positive */
+.result-input.status-positive, .result-select.status-positive { border-bottom: 2px solid var(--color-positive) !important; color: var(--color-positive) !important; font-weight: 800; }
 
 
 /* تنسيق العناوين الفرعية داخل الجدول */
@@ -1939,6 +1950,95 @@ td:nth-child(4), th:nth-child(4) { width: var(--range-column-width); text-align:
     color: #888;
     font-size: 18px;
 }
+/* تصميم صفحة الموردين والبطاقات */
+#suppliersFullContainer {
+    display: none; /* مخفي افتراضياً */
+}
+.supplier-card {
+    background: #fff;
+    border-radius: var(--border-radius-medium);
+    padding: 20px;
+    box-shadow: var(--shadow-medium);
+    border-top: 5px solid #17a2b8;
+    transition: all var(--transition-slow);
+    cursor: pointer;
+    position: relative;
+}
+.supplier-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+}
+.supplier-icon {
+    font-size: 40px;
+    color: #17a2b8;
+    margin-bottom: 15px;
+    text-align: center;
+}
+.supplier-info h3 {
+    color: var(--header-color);
+    margin-bottom: 5px;
+    text-align: center;
+}
+.supplier-info p {
+    color: #555;
+    font-size: 14px;
+    text-align: center;
+    margin: 5px 0;
+}
+.debt-badge {
+    display: block;
+    text-align: center;
+    background: #ffebee;
+    color: #c62828;
+    padding: 5px;
+    border-radius: 5px;
+    font-weight: bold;
+    margin-top: 10px;
+}
+.debt-badge.paid {
+    background: #e8f5e9;
+    color: #2e7d32;
+}
+/* شارة التنبيه الحمراء للبطاقة */
+.expire-badge {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    background: #dc3545;
+    color: white;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    animation: pulse 2s infinite;
+}
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+/* صندوق التنبيهات العام */
+.global-alert-box {
+    background: #ffebee;
+    border-right: 5px solid #c62828;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    display: none;
+}
+.global-alert-box h4 {
+    color: #c62828;
+    margin-bottom: 10px;
+}
+.global-alert-box ul {
+    margin: 0;
+    padding-right: 20px;
+    color: #333;
+}
 /* --- نهاية كود تصميم صفحة تسجيل الدخول --- */
 </style>
 </head>
@@ -2021,7 +2121,22 @@ td:nth-child(4), th:nth-child(4) { width: var(--range-column-width); text-align:
                 <i class="fas fa-trash"></i> إزالة الخلفية
             </button>
         </div>
-        
+        <div class="color-picker">
+                <label>لون النتيجة المرتفعة (High):</label>
+                <input type="color" id="colorHigh" class="color-input" value="#0000ff">
+            </div>
+            <div class="color-picker">
+                <label>لون النتيجة المنخفضة (Low):</label>
+                <input type="color" id="colorLow" class="color-input" value="#ff0000">
+            </div>
+            <div class="color-picker">
+                <label>لون النتيجة الطبيعية (Normal):</label>
+                <input type="color" id="colorNormal" class="color-input" value="#008000">
+            </div>
+            <div class="color-picker">
+                <label>لون النتيجة الإيجابية (Positive):</label>
+                <input type="color" id="colorPositive" class="color-input" value="#ff0000">
+            </div>
         <div class="settings-group">
             <h3>تغيير الألوان</h3>
             <div class="color-picker">
@@ -2391,6 +2506,10 @@ td:nth-child(4), th:nth-child(4) { width: var(--range-column-width); text-align:
                 <i class="fas fa-chart-pie"></i>
                 <span>الإحصائيات</span>
             </div>
+            <div class="dashboard-card" onclick="openSuppliersPage()">
+                <i class="fas fa-truck-loading" style="color: #17a2b8;"></i>
+                <span>إدارة الموردين والمخزن</span>
+            </div>
             <div class="dashboard-card" onclick="toggleSettings()">
                 <i class="fas fa-cogs"></i>
                 <span>إعدادات النظام</span>
@@ -2419,8 +2538,15 @@ td:nth-child(4), th:nth-child(4) { width: var(--range-column-width); text-align:
         <div class="filled-tests no-print" id="filledTests"></div>
         
         <div class="receipt-container no-print" id="receiptContainer">
-            <i class="fas fa-calculator"></i> إجمالي حساب التحاليل: <span id="totalPrice" class="price-tag">0</span> دينار
+    <div style="display: flex; justify-content: space-around; align-items: center; flex-wrap: wrap; gap: 10px; padding: 5px;">
+        <div><i class="fas fa-calculator"></i> الإجمالي: <span id="subTotalPrice" class="price-tag" style="color: #555;">0</span> دينار</div>
+        <div>
+            <label style="color: #d32f2f; font-weight: bold;">خصم:</label>
+            <input type="number" id="discountInput" value="0" min="0" style="width: 80px; text-align: center; border: 1px solid #ffc107; border-radius: 4px; padding: 2px; font-weight: bold;" oninput="updateFilledTests()"> دينار
         </div>
+        <div>الصافي: <span id="netTotalPrice" class="price-tag" style="color: #28a745; font-size: 22px;">0</span> دينار</div>
+    </div>
+</div>
 
         <div class="test-selection no-print">
             <label for="test-select">اختر قسم التحليل:</label>
@@ -2696,22 +2822,49 @@ td:nth-child(4), th:nth-child(4) { width: var(--range-column-width); text-align:
     <div id="statsModal" class="modal">
         <div class="modal-content" style="max-width: 90%; max-height: 80vh; overflow-y: auto;">
             <span class="close" onclick="closeStatsModal()">&times;</span>
-            <h2 style="text-align: center; margin-bottom: 20px;">إحصائيات التحاليل الشهرية</h2>
+            <h2 style="text-align: center; margin-bottom: 20px;">إحصائيات وإيرادات التحاليل</h2>
+            
+            <div style="text-align: center; margin-bottom: 20px; background: #f8f9fa; padding: 15px; border-radius: 8px;">
+                <label style="font-weight: bold;">السنة: </label>
+                <input type="number" id="statsYear" class="form-input" style="width: 100px; display: inline-block;">
+                
+                <label style="font-weight: bold; margin-right: 15px;">الشهر: </label>
+                <select id="statsMonth" class="form-input" style="width: 150px; display: inline-block;">
+                    <option value="01">يناير (1)</option>
+                    <option value="02">فبراير (2)</option>
+                    <option value="03">مارس (3)</option>
+                    <option value="04">أبريل (4)</option>
+                    <option value="05">مايو (5)</option>
+                    <option value="06">يونيو (6)</option>
+                    <option value="07">يوليو (7)</option>
+                    <option value="08">أغسطس (8)</option>
+                    <option value="09">سبتمبر (9)</option>
+                    <option value="10">أكتوبر (10)</option>
+                    <option value="11">نوفمبر (11)</option>
+                    <option value="12">ديسمبر (12)</option>
+                </select>
+                
+                <button class="btn btn-save" onclick="loadStats()" style="display: inline-block; margin-right: 15px; padding: 8px 20px;">
+                    <i class="fas fa-search"></i> عرض النتائج
+                </button>
+            </div>
+
             <div id="statsSummary" class="stats-summary"></div>
             <table id="statsTable" class="stats-table">
                 <thead>
                     <tr>
                         <th>اسم التحليل</th>
                         <th>عدد المرات</th>
+                        <th>إجمالي الإيراد (دينار)</th>
                         <th>إجراءات</th>
                     </tr>
                 </thead>
                 <tbody></tbody>
             </table>
             <div style="text-align: center; margin-top: 20px;">
-                <button class="print-btn" onclick="printStats()">طباعة الإحصائيات</button>
-                <button class="btn btn-clear" onclick="clearAllStats()" style="margin-left: 10px;">مسح جميع الإحصائيات</button>
-                <button class="btn btn-clear" onclick="closeStatsModal()" style="margin-left: 10px;">إغلاق</button>
+                <button class="print-btn" onclick="printStats()"><i class="fas fa-print"></i> طباعة الإحصائيات</button>
+                <button class="btn btn-clear" onclick="clearAllStats()" style="margin-left: 10px;"><i class="fas fa-trash"></i> مسح جميع الإحصائيات</button>
+                <button class="btn btn-clear" onclick="closeStatsModal()" style="margin-left: 10px; background: #6c757d;"><i class="fas fa-times"></i> إغلاق</button>
             </div>
         </div>
     </div>
@@ -2754,10 +2907,83 @@ td:nth-child(4), th:nth-child(4) { width: var(--range-column-width); text-align:
             </div>
         </div>
     </div>
+    <div class="container" id="suppliersFullContainer">
+        <div class="header" style="display: flex; justify-content: space-between; align-items: center; border-bottom: none; padding-bottom: 0;">
+            <h1 style="color: #17a2b8;"><i class="fas fa-boxes"></i> سجل الموردين والمخزن</h1>
+            <button class="btn btn-back" onclick="returnToDashboardFromSuppliers()">
+                <i class="fas fa-arrow-right"></i> العودة للرئيسية
+            </button>
+        </div>
+
+        <div id="globalExpiryAlert" class="global-alert-box">
+            <h4><i class="fas fa-exclamation-triangle"></i> تنبيه هام: مواد قاربت على الانتهاء أو انتهت صلاحيتها</h4>
+            <ul id="expiringItemsList"></ul>
+        </div>
+
+        <div style="background: #fff; padding: 20px; border-radius: 10px; box-shadow: var(--shadow-light); margin-bottom: 30px; border: 1px solid #eee;">
+            <h3 style="margin-bottom: 15px; color: #333;">إضافة مورد جديد</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 15px; align-items: end;">
+                <div>
+                    <label>اسم المورد / المذخر:</label>
+                    <input type="text" id="newSupplierName" class="form-input" placeholder="أدخل اسم المورد">
+                </div>
+                <div>
+                    <label>رقم الهاتف:</label>
+                    <input type="text" id="newSupplierPhone" class="form-input" placeholder="أدخل رقم الهاتف">
+                </div>
+                <button class="btn btn-save" onclick="createNewSupplier()" style="height: 42px;">
+                    <i class="fas fa-user-plus"></i> حفظ المورد
+                </button>
+            </div>
+        </div>
+
+        <div class="dashboard-grid" id="suppliersGrid">
+            </div>
+    </div>
+
+    <div id="supplierProfileModal" class="modal">
+        <div class="modal-content" style="max-width: 900px; max-height: 90vh; overflow-y: auto; background-color: #f9f9f9;">
+            <span class="close" onclick="closeSupplierProfile()">&times;</span>
+            
+            <div id="supplierProfileHeader" style="text-align: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #17a2b8;">
+                </div>
+
+            <div style="background: #fff; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+                <h4 style="margin-bottom: 15px;"><i class="fas fa-cart-plus"></i> تسجيل شراء مادة جديدة</h4>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px;">
+                    <div><label>اسم المادة:</label><input type="text" id="itemName" class="form-input"></div>
+                    <div><label>تاريخ الانتهاء:</label><input type="date" id="itemExpiry" class="form-input"></div>
+                    <div><label>السعر الكلي:</label><input type="number" id="itemCost" class="form-input" value="0"></div>
+                    <div><label>المبلغ الواصل:</label><input type="number" id="itemPaid" class="form-input" value="0"></div>
+                </div>
+                <button class="btn btn-save" onclick="addItemToSupplier()" style="margin-top: 15px; width: 100%;">إضافة المادة</button>
+            </div>
+
+            <div style="background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h4><i class="fas fa-clipboard-list"></i> سجل المواد والدفعات</h4>
+                    <button class="btn btn-load" onclick="makeSupplierPayment()"><i class="fas fa-money-bill-wave"></i> تسديد دفعة من الدين</button>
+                </div>
+                <table class="patients-table" style="font-size: 13px;">
+                    <thead>
+                        <tr>
+                            <th>التاريخ</th>
+                            <th>النوع</th>
+                            <th>البيان / المادة</th>
+                            <th>تاريخ الانتهاء</th>
+                            <th>الإجمالي (دينار)</th>
+                            <th>المدفوع (دينار)</th>
+                            <th>إجراء</th>
+                        </tr>
+                    </thead>
+                    <tbody id="supplierItemsTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 <script>
-        // متغيرات قاعدة البيانات
         const DB_NAME = 'LabDatabase';
-        const DB_VERSION = 3; 
+        const DB_VERSION = 5; // تم رفع الإصدار إلى 5 لضمان إنشاء الجدول
         const STORE_NAME = 'patientVisits'; 
         const STATS_STORE_NAME = 'statistics';
         let db;
@@ -3287,7 +3513,10 @@ td:nth-child(4), th:nth-child(4) { width: var(--range-column-width); text-align:
             document.getElementById('subsectionFontColor').value = localStorage.getItem('subsectionFontColor') || '#0056b3';
             document.getElementById('subsectionFontSize').value = localStorage.getItem('subsectionFontSize') || '15';
             document.getElementById('subsectionTextAlign').value = localStorage.getItem('subsectionTextAlign') || 'center';
-
+            document.getElementById('colorHigh').value = localStorage.getItem('colorHigh') || '#0000ff';
+            document.getElementById('colorLow').value = localStorage.getItem('colorLow') || '#ff0000';
+            document.getElementById('colorNormal').value = localStorage.getItem('colorNormal') || '#008000';
+            document.getElementById('colorPositive').value = localStorage.getItem('colorPositive') || '#ff0000';
             loadDoctorsList();
             loadDoctorSelect();
         }
@@ -3407,7 +3636,10 @@ td:nth-child(4), th:nth-child(4) { width: var(--range-column-width); text-align:
             localStorage.setItem('subsectionFontColor', document.getElementById('subsectionFontColor').value);
             localStorage.setItem('subsectionFontSize', document.getElementById('subsectionFontSize').value);
             localStorage.setItem('subsectionTextAlign', document.getElementById('subsectionTextAlign').value);
-
+            localStorage.setItem('colorHigh', document.getElementById('colorHigh').value);
+            localStorage.setItem('colorLow', document.getElementById('colorLow').value);
+            localStorage.setItem('colorNormal', document.getElementById('colorNormal').value);
+            localStorage.setItem('colorPositive', document.getElementById('colorPositive').value);
             applySettings();
             toggleSettings();
             alert('تم حفظ الإعدادات بنجاح!');
@@ -3546,6 +3778,10 @@ td:nth-child(4), th:nth-child(4) { width: var(--range-column-width); text-align:
             document.documentElement.style.setProperty('--subsection-font-color', localStorage.getItem('subsectionFontColor') || '#0056b3');
             document.documentElement.style.setProperty('--subsection-font-size', (localStorage.getItem('subsectionFontSize') || '15') + 'px');
             document.documentElement.style.setProperty('--subsection-text-align', localStorage.getItem('subsectionTextAlign') || 'center');
+            document.documentElement.style.setProperty('--color-high', localStorage.getItem('colorHigh') || '#0000ff');
+            document.documentElement.style.setProperty('--color-low', localStorage.getItem('colorLow') || '#ff0000');
+            document.documentElement.style.setProperty('--color-normal', localStorage.getItem('colorNormal') || '#008000');
+            document.documentElement.style.setProperty('--color-positive', localStorage.getItem('colorPositive') || '#ff0000');
         }
         function toggleSettings() {
             const panel = document.getElementById('settingsPanel');
@@ -3582,12 +3818,13 @@ td:nth-child(4), th:nth-child(4) { width: var(--range-column-width); text-align:
             }
         }
         // دوال قاعدة البيانات
+        // دوال قاعدة البيانات
         function initDb() {
             const request = indexedDB.open(DB_NAME, DB_VERSION);
             request.onerror = (event) => console.error("IndexedDB error:", event.target.error);
             request.onupgradeneeded = (event) => {
                 db = event.target.result;
-                if (db.objectStoreNames.contains('patients')) { // إزالة الـ store القديم إذا وجد
+                if (db.objectStoreNames.contains('patients')) {
                     db.deleteObjectStore('patients');
                 }
                 if (!db.objectStoreNames.contains(STORE_NAME)) {
@@ -3600,10 +3837,15 @@ td:nth-child(4), th:nth-child(4) { width: var(--range-column-width); text-align:
                     statsStore.createIndex('date', 'date', { unique: false });
                     statsStore.createIndex('testName', 'testName', { unique: false });
                 }
+                // --- جدول الموردين ---
+                if (!db.objectStoreNames.contains('suppliers')) {
+                    db.createObjectStore('suppliers', { keyPath: 'name' }); 
+                }
             };
             request.onsuccess = (event) => {
                 db = event.target.result;
                 console.log("Database initialized successfully");
+                // تم إزالة السطر القديم الذي كان يسبب المشكلة
             };
         }
        function loadLabStructure() {
@@ -3829,25 +4071,36 @@ td:nth-child(4), th:nth-child(4) { width: var(--range-column-width); text-align:
 
         // الدالة الرئيسية للحساب التلقائي
         function autoCalculateHLN(inputElement) {
-            const value = parseFloat(inputElement.value);
-            const testName = inputElement.dataset.testName; // اسم التحليل المباشر من data-attribute
+            const rawValue = inputElement.value.trim();
+            const value = parseFloat(rawValue);
+            const testName = inputElement.dataset.testName; 
             
-            // العثور على عنصر الـ Select المجاور (HLN)
             const container = inputElement.parentElement;
             const hlnSelect = container.querySelector('.hln-select');
             
+            // --- الإضافة الجديدة: فحص النصوص (مثل Positive) ---
+            inputElement.classList.remove('status-h', 'status-l', 'status-n', 'status-positive');
+            
+            // إذا كانت النتيجة تحتوي على كلمة Positive 
+            if (rawValue.toLowerCase().includes('positive') || rawValue === '+') {
+                inputElement.classList.add('status-positive');
+                if(hlnSelect) {
+                    hlnSelect.value = ""; // تفريغ حقل H L N لأنه نص
+                    applyColorClass(hlnSelect, "");
+                }
+                return; // إيقاف الدالة هنا لأنها نصية وليست رقمية
+            }
+
+            // إذا لم تكن رقم، قم بتفريغ الألوان وتوقف
             if (!hlnSelect || isNaN(value)) {
                 if(hlnSelect) {
                     hlnSelect.value = "";
                     applyColorClass(hlnSelect, "");
-                    inputElement.classList.remove('status-h', 'status-l', 'status-n');
                 }
                 return; 
             }
 
-            // البحث عن بيانات التحليل في الهيكل
             let testData = null;
-            // يجب البحث في labStructure (التي قد تحتوي على تعديلات)
             for (const section of labStructure) {
                 if (section.tests[testName]) {
                     testData = section.tests[testName];
@@ -3857,42 +4110,36 @@ td:nth-child(4), th:nth-child(4) { width: var(--range-column-width); text-align:
 
             if (!testData || !testData.range || testData.range.length === 0) return;
 
-            // تحديد النطاق الصحيح (ذكر/أنثى)
-            let rangeString = testData.range[0]; // الافتراضي
+            let rangeString = testData.range[0]; 
             const gender = document.getElementById('patientGender').value;
 
             if (testData.range.length > 1) {
-                // محاولة البحث عن النطاق المناسب للجنس
-                const maleRange = testData.range.find(r => r.includes('(M)') || r.includes('Male'));
-                const femaleRange = testData.range.find(r => r.includes('(F)') || r.includes('Female'));
+                const maleRange = testData.range.find(r => r.includes('(M)') || r.includes('Male') || r.includes('ذكر'));
+                const femaleRange = testData.range.find(r => r.includes('(F)') || r.includes('Female') || r.includes('أنثى'));
 
                 if ((gender === 'ذكر' || gender === 'Male') && maleRange) rangeString = maleRange;
                 else if ((gender === 'أنثى' || gender === 'Female') && femaleRange) rangeString = femaleRange;
             }
 
-            // استخراج الأرقام من النص (Min, Max)
             const limits = parseRangeString(rangeString);
 
             if (limits) {
-                let status = 'N'; // الافتراضي طبيعي
+                let status = 'N'; 
 
                 if (limits.type === 'min-max') {
                     if (value < limits.min) status = 'L';
                     else if (value > limits.max) status = 'H';
                 } 
                 else if (limits.type === 'less-than') {
-                    if (value >= limits.val) status = 'H'; // إذا كان الرقم أكبر من الحد الأعلى
+                    if (value >= limits.val) status = 'H'; 
                 } 
                 else if (limits.type === 'greater-than') {
-                    if (value <= limits.val) status = 'L'; // إذا كان الرقم أقل من الحد الأدنى
+                    if (value <= limits.val) status = 'L'; 
                 }
 
-                // تطبيق النتيجة
                 hlnSelect.value = status;
                 applyColorClass(hlnSelect, status);
                 
-                // تلوين الحقل نفسه أيضاً (اختياري)
-                inputElement.classList.remove('status-h', 'status-l', 'status-n');
                 inputElement.classList.add(`status-${status.toLowerCase()}`);
             }
         }
@@ -3940,7 +4187,7 @@ td:nth-child(4), th:nth-child(4) { width: var(--range-column-width); text-align:
         // دالة لتطبيق الألوان
         function applyColorClass(element, status) {
             // إزالة الكلاسات القديمة
-            element.classList.remove('status-h', 'status-l', 'status-n');
+            element.classList.remove('status-h', 'status-l', 'status-n', 'status-positive');
             
             if (status === 'H') {
                 element.classList.add('status-h');
@@ -4462,12 +4709,13 @@ td:nth-child(4), th:nth-child(4) { width: var(--range-column-width); text-align:
                 patientAge: document.getElementById('patientAge').value,
                 patientGender: document.getElementById('patientGender').value,
                 currentDate: document.getElementById('currentDate').value,
-                currentTime: document.getElementById('currentTime').value, // تمت الإضافة
-                barcode: document.getElementById('patientBarcode').value, // تمت الإضافة
+                currentTime: document.getElementById('currentTime').value,
+                barcode: document.getElementById('patientBarcode').value,
                 doctorName: document.getElementById('doctorName').value,
                 biologistSignature: document.getElementById('biologistSignature')?.value || '',
                 issueDate: document.getElementById('issueDate')?.value || '',
-                visitDate: new Date().toISOString().split('T')[0], // تاريخ المراجعة
+                visitDate: new Date().toISOString().split('T')[0],
+                discount: parseFloat(document.getElementById('discountInput').value) || 0, // السطر الجديد للخصم
                 tests: {}
             };
             const allSections = document.querySelectorAll('.section');
@@ -4504,22 +4752,66 @@ td:nth-child(4), th:nth-child(4) { width: var(--range-column-width); text-align:
             };
         }
         // دالة حفظ الإحصائيات
+        // دالة حفظ الإحصائيات (معدلة لتشمل الإيرادات)
         function saveStatsForPatient(patientData) {
             const saveDate = new Date().toISOString();
             const statsTransaction = db.transaction([STATS_STORE_NAME], 'readwrite');
             const statsStore = statsTransaction.objectStore(STATS_STORE_NAME);
-            let totalTests = 0;
+            
+            // تحديد الأقسام الخاصة
+            const specialSections = ['urineSection', 'stoolSection', 'seminalSection'];
+
             for (const sectionId in patientData.tests) {
+                const sectionDef = labStructure.find(sec => sec.id === sectionId);
+                const isSpecialSection = specialSections.includes(sectionId);
+                
+                let specialSectionTriggered = false;
+                let specialSectionPrice = 0;
+                
                 for (const testName in patientData.tests[sectionId]) {
                     if (patientData.tests[sectionId][testName] && !testName.endsWith('_hln')) {
-                        const statEntry = {
-                            date: saveDate,
-                            testName: testName,
-                            patientName: patientData.patientName
-                        };
-                        statsStore.add(statEntry);
-                        totalTests++;
+                        
+                        let testPrice = 0;
+                        if (sectionDef && sectionDef.tests[testName] && sectionDef.tests[testName].price) {
+                            testPrice = parseFloat(sectionDef.tests[testName].price) || 0;
+                        }
+
+                        if (isSpecialSection) {
+                            // إذا كان قسماً خاصاً، نجمع السعر ونؤشر على أن القسم تم تفعيله
+                            specialSectionTriggered = true;
+                            specialSectionPrice += testPrice;
+                        } else {
+                            // حفظ الإحصائيات للتحاليل العادية كل على حدة
+                            const statEntry = {
+                                date: saveDate,
+                                testName: testName,
+                                patientName: patientData.patientName,
+                                price: testPrice 
+                            };
+                            statsStore.add(statEntry);
+                        }
                     }
+                    // الكود الجديد: إضافة الخصم كبند في الإحصائيات (بالسالب) لخصمه من الإيرادات
+            if (patientData.discount && patientData.discount > 0) {
+                const discountEntry = {
+                    date: saveDate,
+                    testName: 'خصم ممنوح للمرضى',
+                    patientName: patientData.patientName,
+                    price: -patientData.discount // القيمة بالسالب لكي تُطرح تلقائياً
+                };
+                statsStore.add(discountEntry);
+            }
+                }
+
+                // بعد الانتهاء من فحص القسم، إذا كان قسماً خاصاً وتم تفعيله، نحفظه كإدخال واحد فقط
+                if (isSpecialSection && specialSectionTriggered) {
+                    const statEntry = {
+                        date: saveDate,
+                        testName: sectionDef ? sectionDef.title : sectionId, // اسم القسم مثلا "General Urine Examination"
+                        patientName: patientData.patientName,
+                        price: specialSectionPrice
+                    };
+                    statsStore.add(statEntry);
                 }
             }
         }
@@ -4601,7 +4893,7 @@ td:nth-child(4), th:nth-child(4) { width: var(--range-column-width); text-align:
                     document.getElementById('patientBarcode').value = patientData.barcode || '';
                     generateBarcodeImage(); // إعادة رسم الباركود
                     document.getElementById('doctorName').value = patientData.doctorName || '';
-                    
+                    if(document.getElementById('discountInput')) document.getElementById('discountInput').value = patientData.discount || '0';
                     if (document.getElementById('examinerName')) {
                         document.getElementById('examinerName').value = patientData.examinerName || '';
                     }
@@ -4706,6 +4998,11 @@ td:nth-child(4), th:nth-child(4) { width: var(--range-column-width); text-align:
             }
         }
         function openStatsModal() {
+            // ضبط الشهر والسنة الحالية تلقائياً عند فتح النافذة
+            const now = new Date();
+            document.getElementById('statsYear').value = now.getFullYear();
+            document.getElementById('statsMonth').value = String(now.getMonth() + 1).padStart(2, '0');
+            
             document.getElementById('statsModal').style.display = 'block';
             loadStats();
         }
@@ -4714,50 +5011,109 @@ td:nth-child(4), th:nth-child(4) { width: var(--range-column-width); text-align:
         }
         function loadStats() {
             if (!db) return;
-            const now = new Date();
-            const currentMonth = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
-            const firstDay = currentMonth + '-01';
-            const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
+            
+            // قراءة السنة والشهر المحددين من الواجهة
+            const selectedYear = document.getElementById('statsYear').value;
+            const selectedMonth = document.getElementById('statsMonth').value;
+            const monthPrefix = `${selectedYear}-${selectedMonth}`;
+            
+            const firstDay = `${monthPrefix}-01`;
+            // حساب آخر يوم في الشهر المختار
+            const lastDayObj = new Date(selectedYear, parseInt(selectedMonth), 0);
+            const lastDay = `${monthPrefix}-${String(lastDayObj.getDate()).padStart(2, '0')}T23:59:59`;
+
             const transaction = db.transaction([STATS_STORE_NAME], 'readonly');
             const store = transaction.objectStore(STATS_STORE_NAME);
             const index = store.index('date');
+            
             const request = index.getAll(IDBKeyRange.bound(firstDay, lastDay));
+            
             request.onsuccess = (event) => {
                 const stats = event.target.result;
-                const testCounts = {};
+                const testDataMap = {}; 
+                let totalOverallRevenue = 0;
+                let totalDiscount = 0; // متغير جديد لحساب الخصومات
+                let totalTests = 0;
+
                 stats.forEach(stat => {
                     const testName = stat.testName;
-                    testCounts[testName] = (testCounts[testName] || 0) + 1;
+                    const price = stat.price || 0; 
+                    
+                    if (!testDataMap[testName]) {
+                        testDataMap[testName] = { count: 0, revenue: 0 };
+                    }
+                    testDataMap[testName].count += 1;
+                    testDataMap[testName].revenue += price;
+                    
+                    totalOverallRevenue += price;
+
+                    // إذا كان هذا السجل هو خصم، لا نحسبه كـ "تحليل"، ونجمعه في متغير الخصومات
+                    if (testName === 'خصم ممنوح للمرضى') {
+                        totalDiscount += Math.abs(price);
+                    } else {
+                        totalTests++;
+                    }
                 });
-                const total = stats.length;
-                document.getElementById('statsSummary').innerHTML = `إجمالي التحاليل في الشهر الحالي: ${total}`;
+
+                // عرض الملخص بشكل جديد يوضح الإجمالي والخصم والصافي
+                document.getElementById('statsSummary').innerHTML = `
+                    <div style="display: flex; justify-content: space-around; background-color: #e8f5e9; padding: 15px; border-radius: 8px; border: 1px solid #c8e6c9;">
+                        <div style="color: #2e7d32;">عدد التحاليل: <br><strong style="font-size: 24px;">${totalTests}</strong></div>
+                        <div style="color: #f57c00;">الخصومات: <br><strong style="font-size: 24px;">${totalDiscount.toLocaleString()}</strong></div>
+                        <div style="color: #c62828;">صافي الإيراد: <br><strong style="font-size: 24px;">${totalOverallRevenue.toLocaleString()}</strong> دينار</div>
+                    </div>
+                `;
+                stats.forEach(stat => {
+                    const testName = stat.testName;
+                    const price = stat.price || 0; // إذا كان قديماً سيعتبر 0
+                    
+                    if (!testDataMap[testName]) {
+                        testDataMap[testName] = { count: 0, revenue: 0 };
+                    }
+                    testDataMap[testName].count += 1;
+                    testDataMap[testName].revenue += price;
+                    
+                    totalOverallRevenue += price;
+                });
+
+                // عرض الملخص
+                document.getElementById('statsSummary').innerHTML = `
+                    <div style="display: flex; justify-content: space-around; background-color: #e8f5e9; padding: 15px; border-radius: 8px; border: 1px solid #c8e6c9;">
+                        <div style="color: #2e7d32;">إجمالي عدد التحاليل: <br><strong style="font-size: 24px;">${totalTests}</strong></div>
+                        <div style="color: #c62828;">إجمالي الإيرادات: <br><strong style="font-size: 24px;">${totalOverallRevenue.toLocaleString()}</strong> دينار</div>
+                    </div>
+                `;
+
                 const tbody = document.querySelector('#statsTable tbody');
                 tbody.innerHTML = '';
-                Object.entries(testCounts).forEach(([testName, count]) => {
+                Object.entries(testDataMap).forEach(([testName, data]) => {
                     const row = tbody.insertRow();
                     row.innerHTML = `
-                        <td>${testName}</td>
-                        <td>${count}</td>
-                        <td><button class="delete-btn" onclick="deleteStat('${testName}')">حذف</button></td>
+                        <td style="font-weight: bold;">${testName}</td>
+                        <td>${data.count}</td>
+                        <td style="color: #d32f2f; font-weight: bold;">${data.revenue.toLocaleString()}</td>
+                        <td><button class="delete-btn" onclick="deleteStat('${testName}')"><i class="fas fa-trash"></i> حذف</button></td>
                     `;
                 });
             };
         }
         function deleteStat(testName) {
-            if (confirm(`هل تريد حذف إحصائيات التحليل "${testName}"؟`)) {
-                const now = new Date();
-                const currentMonth = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
-                const firstDay = currentMonth + '-01';
-                const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
+            const selectedYear = document.getElementById('statsYear').value;
+            const selectedMonth = document.getElementById('statsMonth').value;
+            const monthPrefix = `${selectedYear}-${selectedMonth}`; // يضمن حذف التحاليل في الشهر المحدد فقط
+
+            if (confirm(`هل تريد حذف إحصائيات التحليل "${testName}" للشهر ${monthPrefix}؟`)) {
                 const transaction = db.transaction([STATS_STORE_NAME], 'readwrite');
                 const store = transaction.objectStore(STATS_STORE_NAME);
                 const index = store.index('testName');
                 const range = IDBKeyRange.only(testName);
                 const request = index.openCursor(range);
+                
                 request.onsuccess = (event) => {
                     const cursor = event.target.result;
                     if (cursor) {
-                        if (cursor.value.date.startsWith(currentMonth)) {
+                        // التأكد أن التحليل يقع في الشهر والسنة المحددين قبل الحذف
+                        if (cursor.value.date.startsWith(monthPrefix)) {
                             store.delete(cursor.value.id);
                         }
                         cursor.continue();
@@ -5150,7 +5506,7 @@ function generateBarcodeImage() {
                 document.querySelectorAll('.result-input').forEach(el => {
                     el.classList.remove('status-h', 'status-l', 'status-n');
                 });
-                
+                if(document.getElementById('discountInput')) document.getElementById('discountInput').value = '0';
                 if(!silent) alert('تم مسح جميع الحقول بنجاح!');
             }
         }
@@ -5275,39 +5631,75 @@ function generateBarcodeImage() {
             
             if (!filledList) return;
             let filledTests = [];
-            let totalPrice = 0; // متغير لحساب السعر الإجمالي
+            let totalPrice = 0;
+
+            // تحديد الأقسام الخاصة التي تعتبر تحليل واحد
+            const specialSections = ['urineSection', 'stoolSection', 'seminalSection'];
+            const activeSpecialSections = {}; // لتتبع الأقسام الخاصة المفعلة
 
             const allResultInputs = document.querySelectorAll('.result-input, .result-select');
             allResultInputs.forEach(input => {
                 const hasValue = input.value && input.value.trim() !== '' &&
                                  (input.tagName !== 'SELECT' || input.selectedIndex > 0);
+                
                 if (hasValue) {
                     const row = input.closest('tr');
-                    if (row) {
+                    const sectionDiv = input.closest('.section');
+                    
+                    if (row && sectionDiv) {
+                        const sectionId = sectionDiv.id;
                         const testNameElement = row.querySelector('.test-name');
-                        if (testNameElement) {
-                            const testName = testNameElement.textContent.trim();
-                            // التأكد من عدم حساب التحليل مرتين
-                            if (testName && !filledTests.includes(testName)) {
-                                filledTests.push(testName);
-                                // جلب السعر من الـ tr وجمعه
-                                const price = parseFloat(row.getAttribute('data-price')) || 0;
-                                totalPrice += price;
+                        const price = parseFloat(row.getAttribute('data-price')) || 0;
+
+                        if (specialSections.includes(sectionId)) {
+                            // إذا كان من الأقسام الخاصة (يورين، ستول، سيمنل)
+                            if (!activeSpecialSections[sectionId]) {
+                                // جلب اسم القسم (العنوان) ليعرض كتحليل واحد
+                                const sectionTitle = sectionDiv.querySelector('.section-title').textContent.trim();
+                                activeSpecialSections[sectionId] = {
+                                    name: sectionTitle,
+                                    price: 0
+                                };
+                            }
+                            // تجميع السعر للقسم بالكامل (في حال وضع المستخدم السعر متفرقاً)
+                            activeSpecialSections[sectionId].price += price;
+
+                        } else {
+                            // التحاليل العادية
+                            if (testNameElement) {
+                                const testName = testNameElement.textContent.trim();
+                                if (testName && !filledTests.includes(testName)) {
+                                    filledTests.push(testName);
+                                    totalPrice += price;
+                                }
                             }
                         }
                     }
                 }
             });
 
+            // إضافة الأقسام الخاصة إلى القائمة النهائية للحساب
+            for (const secId in activeSpecialSections) {
+                filledTests.push(activeSpecialSections[secId].name);
+                totalPrice += activeSpecialSections[secId].price;
+            }
+
             if (filledTests.length > 0) {
-                filledList.innerHTML = `<i class="fas fa-check-circle"></i> التحاليل المكتملة: <strong>${filledTests.join(', ')}</strong> (${filledTests.length} تحليل)`;
+                filledList.innerHTML = `<i class="fas fa-check-circle"></i> التحاليل المكتملة: <strong>${filledTests.join('، ')}</strong> (${filledTests.length} تحليل/قسم)`;
                 filledList.style.display = 'block';
                 filledList.style.color = '#4CAF50';
                 
-                // إظهار السعر وتحديثه
                 if (receiptContainer) {
                     receiptContainer.style.display = 'block';
-                    totalPriceSpan.textContent = totalPrice.toLocaleString(); // إضافة فواصل للآلاف
+                    
+                    // حساب الخصم والصافي الجديد
+                    const discountInput = document.getElementById('discountInput');
+                    let discount = parseFloat(discountInput.value) || 0;
+                    let netTotal = totalPrice - discount;
+                    if(netTotal < 0) netTotal = 0; // منع الحساب بالسالب
+                    
+                    document.getElementById('subTotalPrice').textContent = totalPrice.toLocaleString();
+                    document.getElementById('netTotalPrice').textContent = netTotal.toLocaleString();
                 }
             } else {
                 filledList.style.display = 'none';
@@ -5316,7 +5708,6 @@ function generateBarcodeImage() {
                 }
             }
         }
-
         // إضافة مستمع للطباعة
         if (window.matchMedia) {
             const mediaQueryList = window.matchMedia('print');
@@ -5470,7 +5861,314 @@ function generateBarcodeImage() {
             loadDoctorSelect();
             filterByDoctor(); // إعادة الفلترة
         }
+    // ==========================================
+        //         نظام الموردين والمخزن الذكي
+        // ==========================================
 
+        let currentActiveSupplier = ''; // لحفظ اسم المورد المفتوح حالياً
+
+        function openSuppliersPage() {
+            document.getElementById('dashboardContainer').style.display = 'none';
+            document.getElementById('suppliersFullContainer').style.display = 'block';
+            loadSuppliersGrid();
+        }
+
+        function returnToDashboardFromSuppliers() {
+            document.getElementById('suppliersFullContainer').style.display = 'none';
+            document.getElementById('dashboardContainer').style.display = 'block';
+        }
+
+        // 1. إنشاء مورد جديد
+        function createNewSupplier() {
+            const name = document.getElementById('newSupplierName').value.trim();
+            const phone = document.getElementById('newSupplierPhone').value.trim();
+
+            if (!name) { alert('يرجى إدخال اسم المورد.'); return; }
+
+            const transaction = db.transaction(['suppliers'], 'readwrite');
+            const store = transaction.objectStore('suppliers');
+            
+            store.get(name).onsuccess = (event) => {
+                if (event.target.result) {
+                    alert('هذا المورد موجود بالفعل!');
+                } else {
+                    const newSupplier = {
+                        name: name,
+                        phone: phone,
+                        totalDebt: 0,
+                        items: [] // سيحتوي على سجل المواد والدفعات
+                    };
+                    store.add(newSupplier).onsuccess = () => {
+                        document.getElementById('newSupplierName').value = '';
+                        document.getElementById('newSupplierPhone').value = '';
+                        loadSuppliersGrid();
+                        alert('تمت إضافة المورد بنجاح.');
+                    };
+                }
+            };
+        }
+
+        // 2. تحميل وعرض بطاقات الموردين + فحص الصلاحية
+        function loadSuppliersGrid() {
+            if (!db) return;
+            const transaction = db.transaction(['suppliers'], 'readonly');
+            const store = transaction.objectStore('suppliers');
+            
+            store.getAll().onsuccess = (event) => {
+                const suppliers = event.target.result;
+                const grid = document.getElementById('suppliersGrid');
+                grid.innerHTML = '';
+                
+                let globalAlerts = []; // لتجميع التنبيهات
+                const today = new Date();
+                today.setHours(0,0,0,0);
+                
+                const thirtyDaysFromNow = new Date();
+                thirtyDaysFromNow.setDate(today.getDate() + 30);
+
+                suppliers.forEach(sup => {
+                    let expiringCount = 0;
+                    
+                    // فحص المواد لهذا المورد
+                    sup.items.forEach(item => {
+                        if (item.type === 'مادة' && item.expiryDate) {
+                            const expDate = new Date(item.expiryDate);
+                            if (expDate <= thirtyDaysFromNow) {
+                                expiringCount++;
+                                let statusMsg = expDate < today ? 'منتهية الصلاحية!' : 'تقترب من الانتهاء';
+                                globalAlerts.push(`<li>المورد <strong>${sup.name}</strong>: المادة <strong>${item.itemName}</strong> (${statusMsg} في ${item.expiryDate})</li>`);
+                            }
+                        }
+                    });
+
+                    // إنشاء البطاقة
+                    const debtColorClass = sup.totalDebt > 0 ? 'debt-badge' : 'debt-badge paid';
+                    const debtText = sup.totalDebt > 0 ? `مطلوب: ${sup.totalDebt.toLocaleString()} دينار` : 'لا يوجد دين';
+                    const badgeHtml = expiringCount > 0 ? `<div class="expire-badge">${expiringCount}</div>` : '';
+
+                    const card = document.createElement('div');
+                    card.className = 'supplier-card';
+                    card.onclick = () => openSupplierProfile(sup.name);
+                    card.innerHTML = `
+                        ${badgeHtml}
+                        <div class="supplier-icon"><i class="fas fa-user-tie"></i></div>
+                        <div class="supplier-info">
+                            <h3>${sup.name}</h3>
+                            <p><i class="fas fa-phone"></i> ${sup.phone || 'لا يوجد رقم'}</p>
+                            <p><i class="fas fa-box"></i> عدد الحركات: ${sup.items.length}</p>
+                            <span class="${debtColorClass}">${debtText}</span>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                });
+
+                // تحديث صندوق التنبيهات العام
+                const alertBox = document.getElementById('globalExpiryAlert');
+                const alertList = document.getElementById('expiringItemsList');
+                if (globalAlerts.length > 0) {
+                    alertList.innerHTML = globalAlerts.join('');
+                    alertBox.style.display = 'block';
+                } else {
+                    alertBox.style.display = 'none';
+                }
+            };
+        }
+
+        // 3. فتح ملف المورد (النافذة المنبثقة)
+        function openSupplierProfile(supplierName) {
+            currentActiveSupplier = supplierName;
+            const transaction = db.transaction(['suppliers'], 'readonly');
+            const store = transaction.objectStore('suppliers');
+            
+            store.get(supplierName).onsuccess = (event) => {
+                const sup = event.target.result;
+                if (!sup) return;
+
+                const debtColor = sup.totalDebt > 0 ? 'red' : 'green';
+                document.getElementById('supplierProfileHeader').innerHTML = `
+                    <h2 style="color: #17a2b8; margin-bottom: 5px;">${sup.name}</h2>
+                    <p style="color: #666; margin-bottom: 10px;"><i class="fas fa-phone"></i> ${sup.phone || 'غير متوفر'}</p>
+                    <h3 style="color: ${debtColor};">إجمالي الدين الحالي: ${sup.totalDebt.toLocaleString()} دينار</h3>
+                    <button class="btn btn-clear" onclick="deleteSupplierComplete('${sup.name}')" style="padding: 5px 10px; font-size:12px; margin-top:10px;"><i class="fas fa-trash"></i> حذف المورد نهائياً</button>
+                `;
+
+                // تصفير حقول الإدخال
+                document.getElementById('itemName').value = '';
+                document.getElementById('itemExpiry').value = '';
+                document.getElementById('itemCost').value = '0';
+                document.getElementById('itemPaid').value = '0';
+
+                renderSupplierItemsTable(sup);
+                document.getElementById('supplierProfileModal').style.display = 'block';
+            };
+        }
+
+        function closeSupplierProfile() {
+            document.getElementById('supplierProfileModal').style.display = 'none';
+            currentActiveSupplier = '';
+            loadSuppliersGrid(); // إعادة التحميل لتحديث التنبيهات
+        }
+
+        // 4. إضافة مادة/شراء
+        function addItemToSupplier() {
+            const itemName = document.getElementById('itemName').value.trim();
+            const expiryDate = document.getElementById('itemExpiry').value;
+            const cost = parseFloat(document.getElementById('itemCost').value) || 0;
+            const paid = parseFloat(document.getElementById('itemPaid').value) || 0;
+            
+            if (!itemName || !expiryDate || cost <= 0) {
+                alert('يرجى إدخال اسم المادة، تاريخ الانتهاء، والسعر.');
+                return;
+            }
+
+            const debtAdded = cost - paid;
+            const now = new Date().toLocaleString('ar-IQ').split(',')[0]; // التاريخ فقط
+
+            const transaction = db.transaction(['suppliers'], 'readwrite');
+            const store = transaction.objectStore('suppliers');
+            
+            store.get(currentActiveSupplier).onsuccess = (event) => {
+                let sup = event.target.result;
+                
+                sup.totalDebt += debtAdded;
+                sup.items.push({
+                    id: Date.now(), // ID فريد للحركة
+                    type: 'مادة',
+                    date: now,
+                    itemName: itemName,
+                    expiryDate: expiryDate,
+                    cost: cost,
+                    paid: paid
+                });
+
+                store.put(sup).onsuccess = () => {
+                    openSupplierProfile(currentActiveSupplier); // تحديث العرض
+                    alert('تمت إضافة المادة بنجاح!');
+                };
+            };
+        }
+
+        // 5. تسديد دفعة من الدين
+        function makeSupplierPayment() {
+            const amount = parseFloat(prompt('أدخل المبلغ المراد تسديده (دينار):'));
+            if (!amount || amount <= 0) return;
+
+            const now = new Date().toLocaleString('ar-IQ').split(',')[0];
+
+            const transaction = db.transaction(['suppliers'], 'readwrite');
+            const store = transaction.objectStore('suppliers');
+            
+            store.get(currentActiveSupplier).onsuccess = (event) => {
+                let sup = event.target.result;
+                
+                sup.totalDebt -= amount;
+                sup.items.push({
+                    id: Date.now(),
+                    type: 'تسديد',
+                    date: now,
+                    itemName: 'دفعة نقدية',
+                    expiryDate: '-',
+                    cost: 0,
+                    paid: amount
+                });
+
+                store.put(sup).onsuccess = () => {
+                    openSupplierProfile(currentActiveSupplier);
+                    alert('تم تسجيل الدفعة بنجاح!');
+                };
+            };
+        }
+
+        // 6. عرض جدول المواد داخل ملف المورد
+        function renderSupplierItemsTable(sup) {
+            const tbody = document.getElementById('supplierItemsTableBody');
+            tbody.innerHTML = '';
+            
+            const today = new Date();
+            today.setHours(0,0,0,0);
+            const thirtyDaysFromNow = new Date();
+            thirtyDaysFromNow.setDate(today.getDate() + 30);
+
+            // عكس المصفوفة لعرض الأحدث أولاً
+            const reversedItems = [...sup.items].reverse();
+
+            reversedItems.forEach(item => {
+                let typeColor = item.type === 'تسديد' ? 'color: green;' : 'color: #17a2b8;';
+                let expiryStyle = '';
+                
+                // فحص اللون لتاريخ الانتهاء
+                if (item.type === 'مادة' && item.expiryDate) {
+                    const expDate = new Date(item.expiryDate);
+                    if (expDate < today) {
+                        expiryStyle = 'background-color: #ffcdd2; color: #c62828; font-weight: bold;'; // منتهي
+                    } else if (expDate <= thirtyDaysFromNow) {
+                        expiryStyle = 'background-color: #fff9c4; color: #f57f17; font-weight: bold;'; // قارب
+                    }
+                }
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${item.date}</td>
+                        <td style="${typeColor} font-weight:bold;">${item.type}</td>
+                        <td>${item.itemName}</td>
+                        <td style="${expiryStyle}">${item.expiryDate}</td>
+                        <td>${item.cost.toLocaleString()}</td>
+                        <td>${item.paid.toLocaleString()}</td>
+                        <td>
+                            <button class="btn-icon btn-delete-visit" onclick="deleteSupplierItem(${item.id})" title="حذف القيد">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        // 7. حذف قيد (مادة أو تسديد) وتعديل الدين
+        function deleteSupplierItem(itemId) {
+            if (!confirm('هل أنت متأكد من حذف هذه الحركة؟ سيتم إعادة حساب الدين تلقائياً.')) return;
+
+            const transaction = db.transaction(['suppliers'], 'readwrite');
+            const store = transaction.objectStore('suppliers');
+            
+            store.get(currentActiveSupplier).onsuccess = (event) => {
+                let sup = event.target.result;
+                
+                // البحث عن العنصر لمعرفة تأثيره على الدين
+                const itemIndex = sup.items.findIndex(i => i.id === itemId);
+                if (itemIndex > -1) {
+                    const item = sup.items[itemIndex];
+                    
+                    // عكس العملية لضبط الدين
+                    if (item.type === 'مادة') {
+                        // إذا حذفنا مادة، ننقص من الدين قيمتها (التكلفة - المدفوع)
+                        sup.totalDebt -= (item.cost - item.paid);
+                    } else if (item.type === 'تسديد') {
+                        // إذا حذفنا تسديد، نرجع الدين الذي تم خصمه
+                        sup.totalDebt += item.paid;
+                    }
+
+                    // إزالة العنصر من المصفوفة
+                    sup.items.splice(itemIndex, 1);
+
+                    store.put(sup).onsuccess = () => {
+                        openSupplierProfile(currentActiveSupplier);
+                    };
+                }
+            };
+        }
+
+        // 8. حذف مورد بالكامل
+        function deleteSupplierComplete(supplierName) {
+            if (confirm(`هل أنت متأكد من حذف المورد "${supplierName}" وكل سجلاته بشكل نهائي؟`)) {
+                const transaction = db.transaction(['suppliers'], 'readwrite');
+                const store = transaction.objectStore('suppliers');
+                store.delete(supplierName).onsuccess = () => {
+                    closeSupplierProfile();
+                    alert('تم حذف المورد بنجاح.');
+                };
+            }
+        }
     /* --- كود برمجة تسجيل الدخول --- */
     function checkAppLogin() {
         const user = document.getElementById('appUsername').value;
