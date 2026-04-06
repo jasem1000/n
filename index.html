@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <title>برنامج اوسكار المتكامل</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -1386,7 +1387,13 @@ td:nth-child(4), th:nth-child(4) { width: var(--range-column-width); text-align:
     font-weight: bold;
     font-size: 20px;
 }
-
+/* هذا التنسيق يساعد مكتبة الـ PDF على رؤية المحتوى بوضوح */
+#mainContainer {
+    background-color: white !important;
+}
+.no-print {
+    display: none !important;
+}
 @media print {
     @page {
         size: A4;
@@ -5815,25 +5822,34 @@ function generateBarcodeImage() {
 function printPage() {
     const patientName = document.getElementById('patientName').value.trim();
     if (!patientName) {
-        alert('يرجى إدخال اسم المريض قبل الطباعة.');
+        alert('يرجى إدخال اسم المريض أولاً.');
         return;
     }
 
-    // 1. حفظ البيانات تلقائياً
+    // 1. حفظ البيانات
     savePatientData();
 
-    // 2. تجهيز الصفحة للطباعة (إخفاء الفارغ)
+    // 2. تجهيز العناصر (إخفاء الفارغ)
     prepareForPrint();
 
-    // 3. تأخير بسيط للموبايل لمعالجة التنسيقات قبل فتح نافذة الطباعة
-    setTimeout(function() {
-        window.print();
-        
-        // 4. الانتظار ثانية واحدة ثم إعادة الواجهة للوضع الطبيعي
-        setTimeout(function() {
-            restoreAfterPrint();
-        }, 1000);
-    }, 500);
+    // 3. تحديد العنصر الذي سيتم تحويله لـ PDF (الحاوية الرئيسية)
+    const element = document.getElementById('mainContainer');
+
+    // 4. إعدادات ملف الـ PDF
+    const opt = {
+        margin:       [0, 0, 0, 0], // الهوامش
+        filename:     'Report_' + patientName + '.pdf',
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, useCORS: true, letterRendering: true },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+
+    // 5. تنفيذ التحويل والحفظ
+    html2pdf().set(opt).from(element).save().then(() => {
+        // إعادة الواجهة للوضع الطبيعي بعد التصدير
+        restoreAfterPrint();
+        alert('تم تجهيز التقرير كملف PDF بنجاح!');
+    });
 }
 
 // دالة إعادة الوضع الطبيعي (معدلة لتجنب المسح المفاجئ)
