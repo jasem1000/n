@@ -1393,11 +1393,14 @@ td:nth-child(4), th:nth-child(4) { width: var(--range-column-width); text-align:
     background-color: white !important;
 }
 /* إخفاء الأزرار فقط أثناء التصدير للـ PDF وليس دائماً */
+/* إخفاء الأزرار والرأس والتذييل أثناء التصدير للـ PDF */
 body.pdf-export-mode .no-print,
 body.pdf-export-mode .action-buttons,
 body.pdf-export-mode .test-selection,
 body.pdf-export-mode .settings-toggle,
-body.pdf-export-mode .test-search {
+body.pdf-export-mode .test-search,
+body.pdf-export-mode .header,
+body.pdf-export-mode .lab-footer {
     display: none !important;
 }
 @media print {
@@ -5739,91 +5742,92 @@ function generateBarcodeImage() {
             }
         }
         function prepareForPrint() {
-            // إظهار جميع الأقسام للعرض أولاً (لأنه سيتم إخفاء الفوارغ)
-            const allSections = document.querySelectorAll('.section');
-            allSections.forEach(section => {
-                section.classList.add('active');
-            });
-             
-            const savedBackground = localStorage.getItem('printBackground');
-            if (savedBackground) {
-                document.body.style.backgroundImage = `url('${savedBackground}')`;
-                document.body.style.backgroundSize = '21cm 29.7cm';
-                document.body.style.backgroundPosition = 'center top';
-                document.body.style.backgroundRepeat = 'repeat-y';
-                document.body.style.backgroundAttachment = 'local';
-            }
-            // إخفاء الصفوف الفارغة
-            const allResultInputs = document.querySelectorAll('.result-input, .result-select');
-            allResultInputs.forEach(input => {
-                const row = input.closest('tr');
-                if ((input.value.trim() === '' || (input.tagName === 'SELECT' && input.selectedIndex === 0)) && row) {
-                    row.classList.add('no-print-row');
-                } else {
-                    row.classList.remove('no-print-row');
-                }
-            });
-            // إخفاء معلومات المريض الفارغة
-            const patientInfoInputs = document.querySelectorAll('#patientInfoSection .editable-field');
-            patientInfoInputs.forEach(input => {
-                // تم التعديل هنا للبحث عن info-row بدلاً من info-item
-                const infoItem = input.closest('.info-row') || input.closest('.info-item');
-                if (input.value.trim() === '' && infoItem) {
-                    infoItem.classList.add('no-print-item');
-                } else if (infoItem) {
-                    infoItem.classList.remove('no-print-item');
-                }
-            });
+    // إظهار جميع الأقسام للعرض أولاً (لأنه سيتم إخفاء الفوارغ)
+    const allSections = document.querySelectorAll('.section');
+    allSections.forEach(section => {
+        section.classList.add('active');
+    });
+     
+    // --- التعديل السحري: وضع الخلفية على الحاوية لكي تظهر في الـ PDF ---
+    const savedBackground = localStorage.getItem('printBackground');
+    const mainContainer = document.getElementById('mainContainer');
+    
+    if (savedBackground) {
+        mainContainer.style.backgroundImage = `url('${savedBackground}')`;
+        mainContainer.style.backgroundSize = '210mm 297mm'; // مطابقة مقاس ورقة A4 بالضبط
+        mainContainer.style.backgroundPosition = 'center top';
+        mainContainer.style.backgroundRepeat = 'repeat-y'; // تتكرر مع كل صفحة جديدة
+    }
 
-            // منطق جديد: إخفاء الأقسام الفارغة بالكامل وتحديد الأقسام غير الفارغة
-            const sections = document.querySelectorAll('.section');
-            let non_empty_sections = [];
-
-            sections.forEach(section => {
-                const inputsInSection = section.querySelectorAll('input, select, textarea');
-                let hasValue = false;
-                inputsInSection.forEach(input => {
-                    if (input.classList.contains('result-input') || input.classList.contains('result-select')) {
-                        if (input.value.trim() !== '' || (input.tagName === 'SELECT' && input.selectedIndex > 0)) {
-                            hasValue = true;
-                        }
-                    }
-                });
-                 
-                // تحديد ما إذا كان القسم سيُطبع أم لا
-                if (!hasValue) {
-                    section.classList.add('no-print-section');
-                } else {
-                    section.classList.remove('no-print-section');
-                    non_empty_sections.push(section.id);
-                }
-            });
-
-            // *** تطبيق منطق منع التقسيم وإضافة فاصل صفحة قبل الأقسام المطلوبة (urine, seminal, stool) ***
-            sections.forEach((section, index) => {
-                if (section.id === 'urineSection' || section.id === 'seminalSection' || section.id === 'stoolSection') {
-                    // إضافة الخاصية لضمان عدم تقسيم هذه الأقسام
-                    section.style.pageBreakInside = 'avoid'; 
-                } else {
-                    section.style.pageBreakInside = 'auto'; 
-                }
-            });
-
-            // تعديل خاص لقسم General Urine Examination لإخفاء الصفوف مع قيمة 'Absent'
-            const urineSection = document.getElementById('urineSection');
-            if (urineSection) {
-                const urineRows = urineSection.querySelectorAll('tr');
-                urineRows.forEach(row => {
-                    const input = row.querySelector('.result-input, .result-select');
-                    if (input) {
-                        const value = input.value.trim().toLowerCase();
-                        if (value === 'absent' || value === '') {
-                            row.classList.add('no-print-row');
-                        }
-                    }
-                });
-            }
+    // إخفاء الصفوف الفارغة
+    const allResultInputs = document.querySelectorAll('.result-input, .result-select');
+    allResultInputs.forEach(input => {
+        const row = input.closest('tr');
+        if ((input.value.trim() === '' || (input.tagName === 'SELECT' && input.selectedIndex === 0)) && row) {
+            row.classList.add('no-print-row');
+        } else {
+            row.classList.remove('no-print-row');
         }
+    });
+
+    // إخفاء معلومات المريض الفارغة
+    const patientInfoInputs = document.querySelectorAll('#patientInfoSection .editable-field');
+    patientInfoInputs.forEach(input => {
+        const infoItem = input.closest('.info-row') || input.closest('.info-item');
+        if (input.value.trim() === '' && infoItem) {
+            infoItem.classList.add('no-print-item');
+        } else if (infoItem) {
+            infoItem.classList.remove('no-print-item');
+        }
+    });
+
+    // منطق جديد: إخفاء الأقسام الفارغة بالكامل وتحديد الأقسام غير الفارغة
+    const sections = document.querySelectorAll('.section');
+    sections.forEach(section => {
+        const inputsInSection = section.querySelectorAll('input, select, textarea');
+        let hasValue = false;
+        inputsInSection.forEach(input => {
+            if (input.classList.contains('result-input') || input.classList.contains('result-select')) {
+                if (input.value.trim() !== '' || (input.tagName === 'SELECT' && input.selectedIndex > 0)) {
+                    hasValue = true;
+                }
+            }
+        });
+         
+        if (!hasValue) {
+            section.classList.add('no-print-section');
+        } else {
+            section.classList.remove('no-print-section');
+        }
+    });
+
+    // منع التقسيم للأقسام الخاصة
+    sections.forEach((section, index) => {
+        if (section.id === 'urineSection' || section.id === 'seminalSection' || section.id === 'stoolSection') {
+            section.style.pageBreakInside = 'avoid'; 
+        } else {
+            section.style.pageBreakInside = 'auto'; 
+        }
+    });
+
+    // تعديل خاص لقسم General Urine Examination
+    const urineSection = document.getElementById('urineSection');
+    if (urineSection) {
+        const urineRows = urineSection.querySelectorAll('tr');
+        urineRows.forEach(row => {
+            const input = row.querySelector('.result-input, .result-select');
+            if (input) {
+                const value = input.value.trim().toLowerCase();
+                if (value === 'absent' || value === '') {
+                    row.classList.add('no-print-row');
+                }
+            }
+        });
+    }
+}
+
+// دالة إعادة الوضع الطبيعي
+
         // دالة الطباعة المحسنة للموبايل والكمبيوتر
 // دالة الطباعة المحسنة للموبايل والكمبيوتر
 function printPage() {
