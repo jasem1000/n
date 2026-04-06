@@ -1392,7 +1392,6 @@ td:nth-child(4), th:nth-child(4) { width: var(--range-column-width); text-align:
 #mainContainer {
     background-color: white !important;
 }
-/* إخفاء الأزرار فقط أثناء التصدير للـ PDF وليس دائماً */
 /* إخفاء الأزرار والرأس والتذييل أثناء التصدير للـ PDF */
 body.pdf-export-mode .no-print,
 body.pdf-export-mode .action-buttons,
@@ -5741,7 +5740,7 @@ function generateBarcodeImage() {
                 if(!silent) alert('تم مسح جميع الحقول بنجاح!');
             }
         }
-        function prepareForPrint() {
+function prepareForPrint() {
     // إظهار جميع الأقسام للعرض أولاً (لأنه سيتم إخفاء الفوارغ)
     const allSections = document.querySelectorAll('.section');
     allSections.forEach(section => {
@@ -5827,46 +5826,24 @@ function generateBarcodeImage() {
 }
 
 // دالة إعادة الوضع الطبيعي
-
-        // دالة الطباعة المحسنة للموبايل والكمبيوتر
-// دالة الطباعة المحسنة للموبايل والكمبيوتر
-function printPage() {
-    const patientName = document.getElementById('patientName').value.trim();
-    if (!patientName) {
-        alert('يرجى إدخال اسم المريض أولاً.');
-        return;
-    }
-
-    // 1. حفظ البيانات
-    savePatientData();
-
-    // 2. تجهيز العناصر (إخفاء الفارغ)
-    prepareForPrint();
-
-    // إضافة أمر الإخفاء المؤقت للأزرار
-    document.body.classList.add('pdf-export-mode');
-
-    // 3. تحديد العنصر الذي سيتم تحويله لـ PDF
-    const element = document.getElementById('mainContainer');
-
-    // 4. إعدادات ملف الـ PDF
-    const opt = {
-        margin:       [0, 0, 0, 0], // الهوامش
-        filename:     'Report_' + patientName + '.pdf',
-        image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { scale: 2, useCORS: true, letterRendering: true },
-        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-    };
-
-    // 5. تنفيذ التحويل والحفظ
-    html2pdf().set(opt).from(element).save().then(() => {
-        // إزالة أمر الإخفاء المؤقت لتعود الأزرار للظهور
-        document.body.classList.remove('pdf-export-mode');
-        
-        // إعادة الواجهة للوضع الطبيعي بعد التصدير
-        restoreAfterPrint();
-        alert('تم تجهيز التقرير كملف PDF بنجاح!');
+function restoreAfterPrint() {
+    const hiddenElements = document.querySelectorAll('.no-print-row, .no-print-item, .no-print-section');
+    hiddenElements.forEach(element => {
+        element.classList.remove('no-print-row', 'no-print-item', 'no-print-section');
     });
+    
+    // --- إزالة الخلفية من الحاوية بعد التصدير لتعود الشاشة لوضعها الطبيعي ---
+    const mainContainer = document.getElementById('mainContainer');
+    mainContainer.style.backgroundImage = '';
+    mainContainer.style.backgroundSize = '';
+    mainContainer.style.backgroundPosition = '';
+    mainContainer.style.backgroundRepeat = '';
+    
+    // إعادة إظهار الأقسام حسب الاختيار الحالي في القائمة
+    showSelectedSection();
+    
+    // إذا أردت مسح البيانات تماماً بعد الطباعة، امسح الـ // من السطر التالي:
+    // clearAllFields(true);
 }
 // دالة إعادة الوضع الطبيعي (معدلة لتجنب المسح المفاجئ)
 function restoreAfterPrint() {
