@@ -1393,13 +1393,25 @@ td:nth-child(4), th:nth-child(4) { width: var(--range-column-width); text-align:
     background-color: white !important;
 }
 /* إخفاء الأزرار والرأس والتذييل أثناء التصدير للـ PDF */
-body.pdf-export-mode .no-print,
-body.pdf-export-mode .action-buttons,
-body.pdf-export-mode .test-selection,
-body.pdf-export-mode .settings-toggle,
-body.pdf-export-mode .test-search,
-body.pdf-export-mode .header,
-body.pdf-export-mode .lab-footer {
+/* --- تنسيقات التصدير المباشر لملف الـ PDF --- */
+#mainContainer.pdf-export-mode {
+    background-color: white !important;
+    padding: 0 !important;
+    margin: 0 auto !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    width: 210mm !important; /* إجبار الحاوية على مقاس A4 للحفاظ على التنسيق */
+    max-width: none !important;
+}
+
+/* إخفاء الأزرار، الرأس، والتذييل (النصي) أثناء التصدير للـ PDF */
+#mainContainer.pdf-export-mode .no-print,
+#mainContainer.pdf-export-mode .action-buttons,
+#mainContainer.pdf-export-mode .test-selection,
+#mainContainer.pdf-export-mode .settings-toggle,
+#mainContainer.pdf-export-mode .test-search,
+#mainContainer.pdf-export-mode .header,
+#mainContainer.pdf-export-mode .lab-footer {
     display: none !important;
 }
 @media print {
