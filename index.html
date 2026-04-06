@@ -1388,10 +1388,16 @@ td:nth-child(4), th:nth-child(4) { width: var(--range-column-width); text-align:
     font-size: 20px;
 }
 /* هذا التنسيق يساعد مكتبة الـ PDF على رؤية المحتوى بوضوح */
+/* هذا التنسيق يساعد مكتبة الـ PDF على رؤية المحتوى بوضوح */
 #mainContainer {
     background-color: white !important;
 }
-.no-print {
+/* إخفاء الأزرار فقط أثناء التصدير للـ PDF وليس دائماً */
+body.pdf-export-mode .no-print,
+body.pdf-export-mode .action-buttons,
+body.pdf-export-mode .test-selection,
+body.pdf-export-mode .settings-toggle,
+body.pdf-export-mode .test-search {
     display: none !important;
 }
 @media print {
@@ -5819,6 +5825,7 @@ function generateBarcodeImage() {
             }
         }
         // دالة الطباعة المحسنة للموبايل والكمبيوتر
+// دالة الطباعة المحسنة للموبايل والكمبيوتر
 function printPage() {
     const patientName = document.getElementById('patientName').value.trim();
     if (!patientName) {
@@ -5832,7 +5839,10 @@ function printPage() {
     // 2. تجهيز العناصر (إخفاء الفارغ)
     prepareForPrint();
 
-    // 3. تحديد العنصر الذي سيتم تحويله لـ PDF (الحاوية الرئيسية)
+    // إضافة أمر الإخفاء المؤقت للأزرار
+    document.body.classList.add('pdf-export-mode');
+
+    // 3. تحديد العنصر الذي سيتم تحويله لـ PDF
     const element = document.getElementById('mainContainer');
 
     // 4. إعدادات ملف الـ PDF
@@ -5846,12 +5856,14 @@ function printPage() {
 
     // 5. تنفيذ التحويل والحفظ
     html2pdf().set(opt).from(element).save().then(() => {
+        // إزالة أمر الإخفاء المؤقت لتعود الأزرار للظهور
+        document.body.classList.remove('pdf-export-mode');
+        
         // إعادة الواجهة للوضع الطبيعي بعد التصدير
         restoreAfterPrint();
         alert('تم تجهيز التقرير كملف PDF بنجاح!');
     });
 }
-
 // دالة إعادة الوضع الطبيعي (معدلة لتجنب المسح المفاجئ)
 function restoreAfterPrint() {
     const hiddenElements = document.querySelectorAll('.no-print-row, .no-print-item, .no-print-section');
