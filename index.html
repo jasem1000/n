@@ -3,190 +3,198 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة تفعيل النظام</title>
+    <title>مولد مفاتيح التفعيل - للمبرمج</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
-    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+
     <style>
         :root {
-            --primary: #2563eb;
-            --danger: #ef4444;
+            --primary: #1e293b;
+            --secondary: #334155;
+            --accent: #3b82f6;
             --success: #10b981;
-            --border: #e5e7eb;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --text-light: #f8fafc;
         }
 
         * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Cairo', sans-serif;
+            margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif;
         }
 
-        /* خلفية الشاشة بالكامل */
-        body, html {
-            height: 100%;
-            width: 100%;
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+        body {
+            background-color: #0f172a;
+            color: var(--text-light);
             display: flex;
             justify-content: center;
             align-items: center;
+            height: 100vh;
         }
 
-        /* حاوية التفعيل (الكرت الأبيض) */
-        .activation-card {
-            background: white;
+        .keygen-card {
+            background: var(--primary);
             padding: 40px;
-            border-radius: 20px;
+            border-radius: 15px;
             width: 100%;
-            max-width: 500px;
+            max-width: 550px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            border-top: 5px solid var(--accent);
             text-align: center;
-            box-shadow: 0 15px 30px rgba(0,0,0,0.3);
-            border-top: 5px solid var(--danger);
-            animation: popIn 0.5s ease-out;
         }
 
-        @keyframes popIn {
-            0% { transform: scale(0.8); opacity: 0; }
-            100% { transform: scale(1); opacity: 1; }
-        }
-
-        /* صندوق رقم الجهاز */
-        .hwid-box {
-            background: #f3f4f6;
-            padding: 15px;
-            border-radius: 8px;
-            font-family: monospace;
-            font-size: 24px;
-            font-weight: bold;
-            letter-spacing: 3px;
-            color: #1f2937;
+        .keygen-card h2 {
             margin-bottom: 25px;
-            user-select: all;
-            border: 2px dashed #cbd5e1;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-        
-        .hwid-box:hover {
-            border-color: var(--primary);
-            background: #e2e8f0;
+            color: var(--accent);
         }
 
-        /* حقل إدخال مفتاح التفعيل */
         .input-group {
-            margin-bottom: 25px;
+            text-align: right;
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #94a3b8;
         }
 
         .input-group input {
             width: 100%;
             padding: 15px;
-            border: 2px solid var(--border);
+            border: 2px solid var(--secondary);
+            background: #0f172a;
+            color: white;
             border-radius: 8px;
             outline: none;
-            text-align: center;
-            font-weight: bold;
-            font-family: monospace;
             font-size: 18px;
+            text-align: center;
+            font-family: monospace;
             letter-spacing: 2px;
             transition: 0.3s;
         }
 
-        .input-group input:focus {
-            border-color: var(--success);
-            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+        .input-group input:focus { border-color: var(--accent); }
+
+        .buttons-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
         }
 
-        /* زر التفعيل */
-        .btn-main {
-            width: 100%;
-            padding: 15px;
-            background: var(--success);
-            color: white;
+        button {
+            padding: 15px 10px;
             border: none;
             border-radius: 8px;
-            font-size: 18px;
             font-weight: bold;
+            font-size: 15px;
             cursor: pointer;
+            color: white;
             transition: 0.3s;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
 
-        .btn-main:hover {
-            background: #059669; /* لون أغمق عند المرور */
-            transform: translateY(-2px);
+        button i { font-size: 20px; }
+        button:hover { transform: translateY(-3px); }
+
+        .btn-trial { background: var(--warning); }
+        .btn-year { background: var(--accent); }
+        .btn-life { background: var(--danger); }
+
+        .result-box {
+            background: #0f172a;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px dashed var(--success);
+            display: none;
+            animation: fadeIn 0.3s;
         }
-        
-        .btn-main:active {
-            transform: translateY(0);
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .result-box p { color: var(--success); margin-bottom: 10px; font-weight: bold; }
+        .result-key {
+            font-size: 22px; font-family: monospace; letter-spacing: 3px; font-weight: bold; user-select: all;
+        }
+
+        .btn-copy {
+            background: var(--success); width: 100%; flex-direction: row; justify-content: center; margin-top: 15px; padding: 10px;
         }
     </style>
 </head>
 <body>
 
-    <div class="activation-card">
-        <i class="fa-solid fa-lock" style="font-size: 60px; color: var(--danger); margin-bottom: 15px;"></i>
-        
-        <h2 style="color: var(--danger); margin-bottom: 10px;">البرنامج غير مفعل!</h2>
-        <p style="font-weight: bold; margin-bottom: 20px; color: #64748b;">
-            أرسل رقم جهازك للمبرمج للحصول على مفتاح التفعيل:
-        </p>
-        
-        <div class="hwid-box" id="displayHwid" title="انقر لنسخ الرقم" onclick="copyHwid()">
-            A1B2-C3D4-E5F6
-        </div>
+    <div class="keygen-card">
+        <h2><i class="fa-solid fa-key"></i> لوحة المبرمج (Keygen)</h2>
         
         <div class="input-group">
-            <input type="text" id="activationKeyInput" placeholder="أدخل مفتاح التفعيل هنا (مثال: LIFE-XXXX-XXXX)" autocomplete="off">
+            <label>أدخل رقم جهاز العميل (HWID):</label>
+            <input type="text" id="hwid-input" placeholder="مثال: A1B2C3D4E5" autocomplete="off" oninput="this.value = this.value.toUpperCase()">
         </div>
-        
-        <button class="btn-main" onclick="verifyActivationKey()">
-            <i class="fa-solid fa-key"></i> تفعيل البرنامج الآن
-        </button>
+
+        <div class="buttons-grid">
+            <button class="btn-trial" onclick="generateKey('TRIAL')">
+                <i class="fa-solid fa-clock"></i> تجريبي 3 أيام
+            </button>
+            <button class="btn-year" onclick="generateKey('YEAR')">
+                <i class="fa-solid fa-calendar-days"></i> تفعيل سنة
+            </button>
+            <button class="btn-life" onclick="generateKey('LIFE')">
+                <i class="fa-solid fa-infinity"></i> تفعيل مدى الحياة
+            </button>
+        </div>
+
+        <div class="result-box" id="result-container">
+            <p><i class="fa-solid fa-circle-check"></i> تم توليد المفتاح بنجاح:</p>
+            <div class="result-key" id="generated-key"></div>
+            <button class="btn-copy" onclick="copyKey()">
+                <i class="fa-solid fa-copy"></i> نسخ المفتاح
+            </button>
+        </div>
     </div>
 
     <script>
-        // دالة لنسخ رقم الجهاز عند النقر عليه
-        function copyHwid() {
-            const hwidText = document.getElementById('displayHwid').innerText;
-            navigator.clipboard.writeText(hwidText).then(() => {
-                alert("تم نسخ رقم الجهاز: " + hwidText);
-            }).catch(err => {
-                console.error('فشل في نسخ النص: ', err);
-            });
-        }
+        // الكلمة السرية (يجب أن تتطابق تماماً مع الموجودة في ملف البايثون)
+        const SALT = "ELEGANCE_POS_2026_SECRET";
 
-        // دالة فحص زر التفعيل
-        function verifyActivationKey() {
-            const keyInput = document.getElementById('activationKeyInput');
-            const key = keyInput.value.trim();
-
-            if (!key) {
-                alert("الرجاء إدخال مفتاح التفعيل أولاً!");
-                keyInput.focus();
+        function generateKey(type) {
+            const hwid = document.getElementById('hwid-input').value.trim();
+            if (!hwid) {
+                alert("الرجاء إدخال رقم جهاز العميل أولاً!");
+                document.getElementById('hwid-input').focus();
                 return;
             }
 
-            // هنا تضع الكود الخاص بالتحقق من المفتاح (مثل الاتصال بالبايثون pywebview.api)
-            // كمثال وهمي للتجربة:
-            if (key.length >= 10) {
-                alert("جاري التحقق من المفتاح وتفعيل البرنامج...");
-                // location.reload();
-            } else {
-                alert("مفتاح التفعيل غير صحيح أو قصير جداً!");
-                keyInput.value = '';
-                keyInput.focus();
-            }
+            // النص المراد تشفيره حسب نوع التفعيل
+            const stringToHash = hwid + type + SALT;
+            
+            // التشفير باستخدام MD5
+            const hash = CryptoJS.MD5(stringToHash).toString(CryptoJS.enc.Hex).toUpperCase();
+            
+            // قص أول 12 حرف
+            const shortHash = hash.substring(0, 12);
+            
+            let finalKey = "";
+            if (type === "TRIAL") finalKey = "3D-" + shortHash;
+            if (type === "YEAR") finalKey = "1Y-" + shortHash;
+            if (type === "LIFE") finalKey = "LIFE-" + shortHash;
+
+            // عرض النتيجة
+            document.getElementById('generated-key').innerText = finalKey;
+            document.getElementById('result-container').style.display = 'block';
         }
 
-        // تفعيل الزر عند الضغط على مفتاح Enter
-        document.getElementById('activationKeyInput').addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') {
-                verifyActivationKey();
-            }
-        });
+        function copyKey() {
+            const key = document.getElementById('generated-key').innerText;
+            navigator.clipboard.writeText(key).then(() => {
+                alert("تم نسخ المفتاح: " + key);
+            });
+        }
     </script>
 </body>
 </html>
